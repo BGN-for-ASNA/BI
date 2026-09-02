@@ -101,23 +101,57 @@ def plot_regression(
         x_range = np.asarray(x_range)
         x_grid = (np.linspace(float(x_range[0]), float(x_range[-1]), n_points)
                   if x_range.ndim == 1 and len(x_range) == 2 else x_range)
+    x_grid = np.asarray(x_grid).flatten()
+    # x_range may be an explicit grid of its own length, so derive n_points
+    # from the grid actually built rather than from the argument.
+    n_points = len(x_grid)
     x_grid_jax = jnp.array(x_grid)
 
     # -------------------------------------------- build pred_data (no obs args)
+    pred_data = {k: v for k, v in m.data_on_model.items()
+                 if k not in (m.obs_args or [])}
+
     if isinstance(x_var, str):
-        pred_data = {k: v for k, v in m.data_on_model.items()
-                     if k not in (m.obs_args or [])}
-        pred_data[x_var] = x_grid_jax
+        if x_var not in pred_data:
+            raise KeyError(
+                f"{x_var!r} is not a predictor in m.data_on_model "
+                f"({sorted(pred_data)})."
+            )
+        grid_key = x_var
     else:
-        pred_data = {k: v for k, v in m.data_on_model.items()
-                     if k not in (m.obs_args or [])}
-        first_non_obs = next(
-            (k for k in m.data_on_model if k not in (m.obs_args or [])), None
-        )
-        if first_non_obs:
-            pred_data[first_non_obs] = x_grid_jax
+        # Overwriting "the first non-obs key" depended on dict ordering and was
+        # silently wrong for multi-predictor models.
+        non_obs = list(pred_data)
+        if len(non_obs) != 1:
+            raise ValueError(
+                "Passing x_var as an array is only unambiguous for a "
+                f"single-predictor model; found {non_obs}. Pass the predictor "
+                "name as a string instead."
+            )
+        grid_key = non_obs[0]
+
+    pred_data[grid_key] = x_grid_jax
+
+    # Every OTHER predictor keeps its full training length, which does not
+    # broadcast against an n_points grid. Hold each at its mean (or its single
+    # value) so the model evaluates a genuine partial-effect curve.
+    n_train = len(x_obs)
+    for k, v in list(pred_data.items()):
+        if k == grid_key:
+            continue
+        arr = np.asarray(v)
+        if arr.ndim == 0 or arr.shape[0] == 1:
+            continue
+        if arr.shape[0] != n_train:
+            continue
+        held = arr.mean(axis=0) if np.issubdtype(arr.dtype, np.number) else arr[0]
+        pred_data[k] = jnp.broadcast_to(
+            jnp.asarray(held), (n_points,) + np.shape(held))
 
     # ----------------------------------------- prepare model2 and posteriors
+    # build_model_with_Y_None mutates m.model2; snapshot and restore so drawing
+    # a plot does not leave model state changed behind it.
+    _prev_model2 = getattr(m, "model2", None)
     m.build_model_with_Y_None(m.model)
     posteriors_flat = m.sampler.get_samples()           # {param: (S,)}
     S = next(iter(posteriors_flat.values())).shape[0]
@@ -127,11 +161,24 @@ def plot_regression(
     idx = rng.choice(S, size=min(n, S), replace=False)
     n_sel = len(idx)
 
+    try:
+        return _plot_regression_inner(
+            m, x_obs, x_grid, pred_data, posteriors_flat, param_keys,
+            idx, n_sel, n_smooth, seed, x_label, y_label, y_obs,
+            link_inv, line_color, mean_color, x_var,
+        )
+    finally:
+        m.model2 = _prev_model2
+
+
+def _plot_regression_inner(m, x_obs, x_grid, pred_data, posteriors_flat,
+                           param_keys, idx, n_sel, n_smooth, seed,
+                           x_label, y_label, y_obs, link_inv,
+                           line_color, mean_color, x_var):
     # ---- find obs_key from a tiny 1-sample probe ----
     probe_post = {k: jnp.array(v)[:1] for k, v in posteriors_flat.items()}
     probe = _predict(m.model2, probe_post, pred_data, jax.random.PRNGKey(seed))
     obs_key = _find_obs_key(probe, param_keys, m.obs_args)
-    n_pts = np.asarray(probe[obs_key]).shape[-1]          # actual output width
 
     # ---- individual lines: average n_smooth draws per parameter sample ----
     # Each draw ~ p(y|x,θ_s); averaging n_smooth ≈ E[y|x,θ_s] (smooth curve)
@@ -151,17 +198,31 @@ def plot_regression(
         yrep_all = yrep_all.reshape(yrep_all.shape[0], -1)
     mean_pred = yrep_all.mean(axis=0)                                  # (n_pts,)
 
-    # align to x_grid length
-    yrep_lines = yrep_lines[:, :len(x_grid)]
-    mean_pred = mean_pred[:len(x_grid)]
+    # The prediction width must equal the grid; silently truncating produced a
+    # plot that was wrong with no warning whenever the model's output length was
+    # driven by something other than x_var.
+    if yrep_lines.shape[1] != len(x_grid) or mean_pred.shape[0] != len(x_grid):
+        raise ValueError(
+            f"Model returned {yrep_lines.shape[1]} predictions for a grid of "
+            f"{len(x_grid)} points. The output width is not driven by "
+            f"{x_var!r} alone -- hold the other predictors fixed at length "
+            "n_points, or pass x_range/n_points to match."
+        )
 
     # --------------------------------------------------------- apply link inverse
     if link_inv is not None:
-        yrep_lines = np.asarray(link_inv(jnp.array(yrep_lines)))
-        mean_pred = np.asarray(link_inv(jnp.array(mean_pred)))
-        y_plot = np.asarray(link_inv(jnp.array(y_obs))) if y_obs is not None else y_obs
-    else:
-        y_plot = y_obs
+        # Predictive draws are already on the RESPONSE scale, so link_inv here
+        # transforms twice; and it must never touch y_obs, which is data on the
+        # response scale to begin with.
+        import warnings
+        warnings.warn(
+            "link_inv is deprecated and ignored: Predictive already returns "
+            "draws on the response scale, so applying an inverse link "
+            "transforms them a second time (and applying it to the observed y "
+            "is never correct).",
+            DeprecationWarning, stacklevel=2,
+        )
+    y_plot = y_obs
 
     # ---------------------------------------------------------------------- plot
     fig = go.Figure()

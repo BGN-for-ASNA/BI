@@ -73,12 +73,9 @@ class SampledData:
         return f"SampledData({self._data}, dtype={self._data.dtype})"
 
     # --- Rich display (Jupyter / IPython) -----------------------------------
-    # __class__ is spoofed to jnp.ndarray further down so isinstance() works.
-    # A side effect is that IPython's text/plain pretty-printer dispatches on
-    # the spoofed class and prints "<jax.Array at 0x...>" (a bare id) instead
-    # of the values. getattr-based formatters (_repr_html_) still resolve on
-    # the real type, so define them here; the text/plain path is patched for
-    # jnp.ndarray at import time (see _register_ipython_pprinter below).
+    # type() is honest (SampledData), so IPython resolves these on the real
+    # type. _register_ipython_pprinter still pins the text/plain path to repr()
+    # for belt-and-braces (older IPython dispatch quirks).
     def _repr_pretty_(self, p, cycle):
         p.text(repr(self))
 
@@ -448,7 +445,9 @@ class SampledData:
     def ridgeline(self, title="Ridgeline Plot", template="plotly_white",interactive = True,category_labels=None, offset=2):
         if interactive:
             go=importer.get_module("go")
-            n_colors=importer.get_module("n_colors")
+            # importer alias "n_colors" resolves to the plotly.colors MODULE, not
+            # the function; import the callable directly.
+            from plotly.colors import n_colors
             if self._data.ndim  not in [2, 3]:
                 raise ValueError(f"Ridgeline plot requires 2D or 3D data. Your data has {self._data.ndim}       dimensions.")
 
@@ -626,6 +625,12 @@ class SampledData:
         return self._wrap_result(self._data @ self._extract_data(other))
     def __rmatmul__(self, other):
         return self._wrap_result(self._extract_data(other) @ self._data)
+    def __divmod__(self, other):
+        d = self._extract_data(other)
+        return self._wrap_result(self._data // d), self._wrap_result(self._data % d)
+    def __rdivmod__(self, other):
+        d = self._extract_data(other)
+        return self._wrap_result(d // self._data), self._wrap_result(d % self._data)
 
     # Unary operators
     def __neg__(self):
@@ -689,9 +694,14 @@ class SampledData:
         return float(self._data)
     def __complex__(self):
         return complex(self._data)
+    def __format__(self, format_spec):
+        return format(self._data, format_spec)
 
     # Array protocol methods
-    def __array__(self, dtype=None):
+    def __array__(self, dtype=None, copy=None):
+        # numpy 2 passes `copy`; accept it (conversion from a jax array always
+        # materialises a fresh numpy array anyway) so np.asarray(sd, copy=...)
+        # does not raise a DeprecationWarning.
         return np.array(self._data, dtype=dtype) if dtype else np.array(self._data)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
@@ -705,7 +715,20 @@ class SampledData:
         return self._wrap_result(result) if isinstance(result, jnp.ndarray) and result.ndim > 0 else result
 
     def __setitem__(self, idx, value):
-        self._data = self._data.at[idx].set(self._extract_data(value))
+        # Match jax: arrays are immutable. In-place item assignment silently
+        # broke value semantics (alias writes, mutation seen by a cached jit,
+        # float->int truncation). Use `sd = sd.at[idx].set(value)` instead.
+        raise TypeError(
+            "SampledData wraps an immutable JAX array and does not support "
+            "in-place item assignment. Instead of x[idx] = y, use "
+            "x = x.at[idx].set(y) or another .at[] method."
+        )
+
+    @property
+    def at(self):
+        # Route .at[...] .set/.add/... back through the wrapper so the result
+        # stays a SampledData rather than decaying to a bare jax array.
+        return _SampledDataAtHelper(self)
 
     def __getattr__(self, name):
         """
@@ -736,23 +759,17 @@ class SampledData:
             data_attrs = set(dir(self._data))
             return sorted(list(own_attrs | data_attrs))
 
-    # --- Report as a jax array for isinstance() checks ---
-    # jax.Array is a C-extension type (jaxlib._jax.Array) with a custom
-    # metaclass and no abc-style .register(); it can't be subclassed usefully.
-    # The only way to satisfy `isinstance(sd, jnp.ndarray)` is to override
-    # __class__: CPython's isinstance accepts a match on either the real
-    # type(self) (still SampledData, so pytree registration and
-    # isinstance(sd, SampledData) keep working) OR on __class__ — and jax's
-    # ArrayMeta.__instancecheck__ consults __class__. This is an unsupported
-    # trick that depends on current CPython/jax behavior; if jax switches to a
-    # strict C-level type check it will silently stop returning True.
-    @property
-    def __class__(self):
-        return jnp.ndarray
+    # --- jax interop without a __class__ lie ---
+    # This class does NOT spoof __class__, so `type(sd) is SampledData` and
+    # `isinstance(sd, jnp.ndarray)` is False. jax compatibility comes from
+    # __jax_array__ (coercion hook every jnp.*/lax.* path honours), the pytree
+    # registration below (jit/vmap/grad/scan), and __array__ (numpy). Code that
+    # must branch on "is this an array" should test
+    # `isinstance(x, (jnp.ndarray, SampledData))` or unwrap via x.to_jax() first.
+    __array_priority__ = 100  # win binops against raw numpy arrays on the left
 
-    # Spoofing __class__ breaks pickle/cloudpickle (they reconstruct via
-    # obj.__class__, which now reports jnp.ndarray). Pin reconstruction back to
-    # the real class so BayesForge model save/load keeps working.
+    # Reconstruct via the real class for pickle/cloudpickle (BayesForge model
+    # save/load); the default would also work now, this keeps it explicit.
     def __reduce__(self):
         return (SampledData, (self._data,))
 
@@ -772,7 +789,48 @@ class SampledData:
 
     @classmethod
     def _tree_unflatten(cls, aux_data, children):
-        return cls(children[0])
+        # Do NOT route through __init__: it calls jnp.asarray(data), and JAX's
+        # pytree contract requires unflatten to accept ARBITRARY leaf objects.
+        # During vmap / lax.scan (and transpose) JAX rebuilds a treedef with
+        # placeholder leaves -- tracers, None, or a bare object() sentinel --
+        # and jnp.asarray on those raises
+        #   TypeError: Value '<object object ...>' with dtype object is not a
+        #   valid JAX array type
+        # which broke vmap over SampledData and SampledData as a scan carry.
+        # Construct without validation and let real coercion stay in __init__.
+        obj = object.__new__(cls)
+        obj._data = children[0]
+        return obj
+
+
+class _SampledDataAtIndex:
+    """Result of `sd.at[idx]`. Delegates .set/.add/.mul/... to the underlying
+    jax `.at[idx]` ref and re-wraps the (new) array as a SampledData."""
+
+    def __init__(self, parent, idx):
+        self._parent = parent
+        self._ref = parent._data.at[idx]
+
+    def __getattr__(self, name):
+        method = getattr(self._ref, name)
+
+        def wrapper(*args, **kwargs):
+            args = [self._parent._extract_data(a) for a in args]
+            kwargs = {k: self._parent._extract_data(v) for k, v in kwargs.items()}
+            return self._parent._wrap_result(method(*args, **kwargs))
+
+        return wrapper
+
+
+class _SampledDataAtHelper:
+    """The `sd.at` object; `sd.at[idx]` -> _SampledDataAtIndex."""
+
+    def __init__(self, parent):
+        self._parent = parent
+
+    def __getitem__(self, idx):
+        return _SampledDataAtIndex(self._parent, idx)
+
 
 tree_util.register_pytree_node(
     SampledData,
@@ -782,16 +840,15 @@ tree_util.register_pytree_node(
 
 
 def _register_ipython_pprinter():
-    """Fix IPython/Jupyter text/plain display for SampledData.
+    """Pin IPython/Jupyter text/plain display for SampledData to repr().
 
-    SampledData spoofs __class__ -> jnp.ndarray so isinstance(sd, jnp.ndarray)
-    passes. The downside is that IPython's text/plain pretty-printer dispatches
-    on that spoofed class and, finding no usable printer, prints a bare id
-    ("<jax.Array at 0x...>") instead of the values. Registering a printer for
-    jnp.ndarray that delegates to repr() fixes it: repr() resolves on the real
-    type, so a SampledData prints its values and a genuine jax array prints
-    exactly as it did before (repr(arr) == its normal pretty output). No-op
-    outside a running IPython.
+    Historically SampledData spoofed __class__ -> jnp.ndarray, which made
+    IPython's text/plain pretty-printer dispatch on the spoofed class and print
+    a bare id ("<jax.Array at 0x...>"). The spoof is gone (type() is now honest),
+    so IPython already resolves _repr_pretty_ on the real type; this registration
+    just belt-and-braces it by delegating the SampledData text/plain path to
+    repr(). Genuine jax arrays are left untouched. No-op outside a running
+    IPython.
     """
     try:
         from IPython import get_ipython
@@ -800,7 +857,7 @@ def _register_ipython_pprinter():
             return
         text_formatter = ip.display_formatter.formatters.get("text/plain")
         if text_formatter is not None:
-            text_formatter.for_type(jnp.ndarray, lambda obj, p, cycle: p.text(repr(obj)))
+            text_formatter.for_type(SampledData, lambda obj, p, cycle: p.text(repr(obj)))
     except Exception:
         # Display is a convenience; never let it break importing BayesForge.
         pass

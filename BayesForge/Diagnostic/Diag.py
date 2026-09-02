@@ -18,9 +18,18 @@ class diag():
     """
 
     def __init__(self, sampler):
-        """Initialize the diagnostic class. Currently empty but can be extended for initialization needs."""
+        """Initialize the diagnostic class."""
         self.sampler = sampler
+        # Must exist so the `if self.trace is None` guards below can run; they
+        # previously raised AttributeError before they could ever see None.
+        self.trace = None
+        self.priors_name = []
 
+    def _ensure_trace(self):
+        """Build self.trace on first use rather than requiring an explicit to_az()."""
+        if getattr(self, "trace", None) is None:
+            self.to_az()
+        return self.trace
 
     # Diagnostic with ARVIZ ----------------------------------------------------------------------------
     def to_az(self, backend="numpyro", sample_stats_name=['target_log_prob','log_accept_ratio','has_divergence','energy']):
@@ -46,67 +55,51 @@ class diag():
             for name, samp in zip(var_names, self.sampler.posterior):
                 trace[name] = samp
     
-            self.trace = az.from_dict({"posterior": trace, "sample_stats": sample_stats})
+            self.trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
             self.priors_name = var_names
             return self.trace
 
-    def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs): 
+        raise ValueError(f"unknown backend {backend!r}; expected 'numpyro' or 'tfp'")
+
+    def summary(self, round_to=2, kind="stats", hdi_prob=0.89, *args, **kwargs):
         """Calculate summary statistics for the posterior distribution.
-        
+
         Args:
             round_to (int): Number of decimal places to round results
             kind (str): Type of statistics to compute (default: "stats")
             hdi_prob (float): Probability for highest posterior density interval
             *args, **kwargs: Additional arguments for arviz.summary
-            
+
         Returns:
             pd.DataFrame: Summary statistics of the posterior distribution
-        """        
-        if self.trace is None:
-            self.to_az()
-        self.tab_summary = az.summary(self.trace, round_to=round_to, kind=kind, ci_prob=hdi_prob, *args, **kwargs)
-        return self.tab_summary 
+        """
+        trace = self._ensure_trace()
+        # arviz renamed this argument: 0.x takes hdi_prob=, 1.x takes ci_prob=.
+        # Hard-coding ci_prob raised TypeError on every arviz 0.x install.
+        import inspect as _inspect
+        params = _inspect.signature(az.summary).parameters
+        prob_kw = "ci_prob" if "ci_prob" in params else "hdi_prob"
+        self.tab_summary = az.summary(
+            trace, *args, round_to=round_to, kind=kind,
+            **{prob_kw: hdi_prob}, **kwargs)
+        return self.tab_summary
 
-    def plot_trace(self, var_names= None, kind="rank_bars", *args, **kwargs): 
+    def plot_trace(self, var_names= None, kind="rank_bars", *args, **kwargs):
         """Create a trace plot for visualizing MCMC diagnostics.
-        
+
         Args:
             var_names (list): List of variable names to include
             kind (str): Type of plot (default: "rank_bars")
             *args, **kwargs: Additional arguments for arviz.plot_trace
-            
+
         Returns:
             plot: The trace plot object
-        """        
-        if self.trace is None:
-            self.to_az()
-        self.plot_trace = az.plot_trace(self.trace, var_names=self.priors_name, kind=kind, *args, **kwargs)
-        return self.plot_trace 
-
-    def prior_dist(self, N = 100):
-        """Visualize prior distributions compared to log probability.
-        
-        Args:
-            N (int): Number of samples to draw from priors
-            
-        Returns:
-            fig: Matplotlib figure containing the prior distribution plots
-        """        
-        samples = self.sample.sample(N)
-        prob = self.log_prob(samples)
-        post_df = self.model_output_to_df(samples)
-
-        fig, axs = plt.subplots(ncols=post_df.shape[1])
-        for a in range(post_df.shape[1]-1): 
-                sns.histplot(post_df.iloc[:,a], 
-                     kde=True, stat="density",
-                     edgecolor=(1, 1, 1, .4), 
-                     ax=axs[a]).set_title(post_df.columns[a]) 
-
-        sns.histplot(list(prob.numpy()), kde=True, stat="density",
-                     edgecolor=(1, 1, 1, .4)).set_title("${\\rm logit}$")
-        self.plot_priors = fig
-        return fig
+        """
+        trace = self._ensure_trace()
+        self._trace_plot = az.plot_trace(
+            trace, *args, var_names=var_names or self.priors_name,
+            kind=kind, **kwargs)
+        return self._trace_plot
 
     def posterior(self, figsize=(8, 4)):
         """Create posterior distribution plots.
@@ -117,79 +110,60 @@ class diag():
         Returns:
             fig: Matplotlib figure containing posterior plots
         """        
-        posterior, axes = plt.subplots(1, len(self.priors_name), figsize=(figsize))
-        axes = az.plot_posterior(self.trace , var_names=self.priors_name, ax=axes)
-        axes.flatten()[0].get_figure() 
-        self.plot_posterior = posterior
+        fig, axes = plt.subplots(1, len(self.priors_name), figsize=figsize)
+        az.plot_posterior(self._ensure_trace(), var_names=self.priors_name, ax=axes)
+        self._posterior_plot = fig
+        return fig
 
     def autocor(self, *args, **kwargs):
         """Plot autocorrelation of the MCMC chains.
-        
+
         Args:
             *args, **kwargs: Additional arguments for arviz.plot_autocorr
-            
+
         Returns:
             fig: Autocorrelation plot
-        """        
-        self.autocor = az.plot_autocorr(self.trace , var_names=self.priors_name, *args, **kwargs)
-
-    #def traces(self, *args, **kwargs):
-    #    """Create trace plots for MCMC chains.
-    #    
-    #    Args:
-    #        *args, **kwargs: Additional arguments for arviz.plot_trace
-    #        
-    #    Returns:
-    #        fig: Trace plots
-    #    """        
-    #    self.traces =  az.plot_trace(self.trace, compact=False, *args, **kwargs)
+        """
+        self._autocor_plot = az.plot_autocorr(
+            self._ensure_trace(), *args, var_names=self.priors_name, **kwargs)
+        return self._autocor_plot
 
     def rank(self, *args, **kwargs):
         """Create rank plots for MCMC chains.
-        
+
         Args:
             *args, **kwargs: Additional arguments for arviz.plot_rank
-            
+
         Returns:
             fig: Rank plots
-        """        
-        rank, axes = plt.subplots(1, len( self.priors_name))
-        az.plot_rank(self.trace , var_names= self.priors_name, ax=axes, *args, **kwargs)
-        self.rank = rank
-    
-    def forest(self, list = None, kind = "ridgeplot", ess = True, var_names = None, *args, **kwargs):
+        """
+        fig, axes = plt.subplots(1, len(self.priors_name))
+        az.plot_rank(self._ensure_trace(), *args,
+                     var_names=self.priors_name, ax=axes, **kwargs)
+        self._rank_plot = fig
+        return fig
+
+    def forest(self, data=None, kind="ridgeplot", ess=True, var_names=None,
+               *args, **kwargs):
         """Create a forest plot of estimated values.
-        
+
         Args:
-            list: Data to plot (default: self.trace)
+            data: Data to plot (default: self.trace)
             kind (str): Type of plot (default: "ridgeplot")
             ess (bool): Include effective sample size
             var_names (list): Variables to include
             *args, **kwargs: Additional arguments for arviz.plot_forest
-            
+
         Returns:
             fig: Forest plot
-        """        
+        """
         if var_names is None:
             var_names = self.priors_name
-        if list is None:
-            list = self.trace
-        az.Numba.disable_numba()
-        self.forest = az.plot_forest(list, var_names = var_names,  kind = kind, ess = ess, *args, **kwargs)
-        return self.forest
-    
-    def compare(self, dict, *args, **kwargs):
-        """Compare models using WAIC or LOOIC.
-        
-        Args:
-            dict: Dictionary of models to compare
-            *args, **kwargs: Additional arguments for arviz.compare
-            
-        Returns:
-            comp: Comparison result
-        """        
-        self.comparison = az.compare(dict, *args, **kwargs)
-        return self.comparison 
+        if data is None:
+            data = self._ensure_trace()
+        self._forest_plot = az.plot_forest(
+            data, *args, var_names=var_names, kind=kind, ess=ess, **kwargs)
+        return self._forest_plot
 
     def rhat(self, *args, **kwargs):
         """Calculate R-hat statistics for convergence.
@@ -200,8 +174,10 @@ class diag():
         Returns:
             rhat: R-hat values
         """        
-        self.rhat = az.rhat(self.trace, *args, **kwargs)
-        return self.rhat 
+        # Stored under a private name: assigning to self.rhat replaced this
+        # bound method with its own result, breaking every later call.
+        self._rhat_result = az.rhat(self._ensure_trace(), *args, **kwargs)
+        return self._rhat_result
 
     def ess(self, *args, **kwargs):
         """Calculate effective sample size (ESS).
@@ -212,10 +188,10 @@ class diag():
         Returns:
             ess: Effective sample sizes
         """        
-        self.ess = az.ess(self.trace, *args, **kwargs)
-        return self.ess 
+        self._ess_result = az.ess(self._ensure_trace(), *args, **kwargs)
+        return self._ess_result
 
-    def pair(self, var_names = None, 
+    def pair(self, var_names = None,
                   kind=["scatter", "kde"],
                   kde_kwargs={"fill_last": False},
                   marginals=True,
@@ -238,7 +214,7 @@ class diag():
         """                  
         if var_names is None:
             var_names = self.priors_name
-        self.pair_plot = az.plot_pair(self.trace, var_names = var_names,                   
+        self.pair_plot = az.plot_pair(self._ensure_trace(), var_names = var_names,
                                       kind=kind,
                                       kde_kwargs=kde_kwargs,
                                       marginals=marginals,
@@ -261,22 +237,27 @@ class diag():
         if var_names is None:
             var_names = self.priors_name
 
-        self.density = az.plot_density(
-                            self.trace,
+        self._density_plot = az.plot_density(
+                            self._ensure_trace(), *args,
                             var_names=var_names,
                             shade=shade,
-                            *args, **kwargs
+                            **kwargs
                         )
-        return self.density
-    
-    def plot_ess(self,):
-        """Plot evolution of effective sample size across iterations.
-        
+        return self._density_plot
+
+    def plot_ess(self, kind="evolution", **kwargs):
+        """Plot effective sample size.
+
+        Args:
+            kind (str): "evolution" (arviz 0.x), "local" or "quantile".
+
         Returns:
-            fig: ESS evolution plot
-        """        
-        self.ess_plot = az.plot_ess(self.trace, var_names=self.priors_name, kind="evolution")
-    
+            fig: ESS plot
+        """
+        self.ess_plot = az.plot_ess(
+            self._ensure_trace(), var_names=self.priors_name, kind=kind, **kwargs)
+        return self.ess_plot
+
     def model_checks(self):
         """Perform comprehensive model diagnostics.
         
@@ -287,33 +268,30 @@ class diag():
         - Rank plots
         - Forest plots
         
-        Stores plots in instance variables:
-        self.plot_posterior, self.autocor, self.traces, self.rank, self.forest
-        """        
+        Stores plots under self._posterior_plot, self._autocor_plot,
+        self._traces_plot, self._rank_plot, self._forest_plot.
+        """
         params = self.priors_name
-        posterior = self.hmc_posterior
-        trace = self.trace 
+        trace = self._ensure_trace()
 
-        posterior, axes = plt.subplots(1, len(params), figsize=(8, 4))
-        axes = az.plot_posterior(trace, var_names=params, ax=axes)
-        axes.flatten()[0].get_figure() 
+        fig_post, axes = plt.subplots(1, len(params), figsize=(8, 4))
+        az.plot_posterior(trace, var_names=params, ax=axes)
 
         autocor = az.plot_autocorr(trace, var_names=params)
-
         traces = az.plot_trace(trace, compact=False)
 
-        rank, axes = plt.subplots(1, len(params))
+        fig_rank, axes = plt.subplots(1, len(params))
         az.plot_rank(trace, var_names=params, ax=axes)
 
-        forest = az.plot_forest(trace, var_names = params)
+        forest = az.plot_forest(trace, var_names=params)
 
-        #summary = az.summary(trace, round_to=2, kind="stats", hdi_prob=0.89)
-
-        self.plot_posterior = posterior
-        self.autocor = autocor
-        self.traces = traces
-        self.rank = rank
-        self.forest = forest
+        # NOTE: these must not be named after the methods above -- assigning to
+        # self.autocor / self.rank / self.forest replaced those bound methods.
+        self._posterior_plot = fig_post
+        self._autocor_plot = autocor
+        self._traces_plot = traces
+        self._rank_plot = fig_rank
+        self._forest_plot = forest
 
     def loo(self, pointwise=None, var_name=None, reff=None, scale=None):
         """Compute Pareto-smoothed importance sampling leave-one-out cross-validation (PSIS-LOO-CV).
@@ -373,6 +351,16 @@ class diag():
             kwargs["var_name"] = var_name
         if reff is not None:
             kwargs["reff"] = reff
+        if scale is not None:
+            import inspect as _inspect
+            if "scale" in _inspect.signature(az.loo).parameters:
+                kwargs["scale"] = scale
+            elif scale != "log":
+                raise NotImplementedError(
+                    f"az.loo in arviz {az.__version__} no longer accepts "
+                    f"scale={scale!r}; rescale the returned elpd yourself "
+                    "(negative_log = -elpd, deviance = -2*elpd)."
+                )
         return az.loo(idata, **kwargs)
     
     def WAIC(self,  pointwise=None, var_name=None, scale=None, dask_kwargs=None):
@@ -508,9 +496,12 @@ class diag():
             leave-one-out cross-validation and WAIC. Stat Comput 27, 1413–1432 (2017)
             see https://doi.org/10.1007/s11222-016-9696-4
         """
-        # ArviZ 1.x az.compare dropped ic/b_samples/alpha/seed/scale; pass only
-        # the still-supported arguments.
-        return az.compare(compare_dict, method=method, var_name=var_name)
+        # Forward everything this ArviZ still supports instead of dropping
+        # documented arguments silently. Shared with Diag2.compare.
+        from BayesForge.Diagnostic.Diag2 import diagWIP as _diagWIP
+        return _diagWIP.compare(
+            compare_dict, ic=ic, method=method, b_samples=b_samples,
+            alpha=alpha, seed=seed, scale=scale, var_name=var_name)
 
     @staticmethod
     def plot_compare(

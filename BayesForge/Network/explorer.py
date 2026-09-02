@@ -650,6 +650,10 @@ class NetExplorer:
             If ``True`` keep the lower triangle only (undirected).
         erase_diag
             Drop self-loops.
+        ids
+            Per-call node labels (length ``N``). Overrides the constructor
+            ``ids`` for this call only; falls back to ``self.ids`` then to
+            ``"0" .. "N-1"`` when omitted.
 
         The directed path reproduces R's ``as.vector(M)`` column-major
         unrolling exactly: edge ``k`` is ``(row = k % N, col = k // N)``.
@@ -698,10 +702,20 @@ class NetExplorer:
     def _colorize(df: pd.DataFrame, col: str, colors: Sequence[str], new_col: str) -> pd.DataFrame:
         """Append a gradient hex column keyed on ``col``.
 
-        Like R ``colorize``: one ramp stop per *distinct* value of ``col``,
-        assigned by ascending rank (smallest value -> ``colors[0]``). Unlike R,
-        the frame is **not** re-sorted — rows stay aligned to the adjacency
-        matrix; the ramp is built from a value->hex map so order is irrelevant.
+        Two mappings, chosen by dtype:
+
+        * **numeric** ``col`` -> linear interpolation by *value* across
+          ``[min, max]`` of the finite entries, so the fill matches the
+          continuous gradient legend. Non-finite cells (NaN / ``±inf``) get
+          ``NaN`` in ``new_col`` (the front-end then skips the channel), never
+          a spurious ``colors[0]``.
+        * **categorical** ``col`` -> one ramp stop per *distinct* value, by
+          ascending rank (smallest -> ``colors[0]``); legend shows discrete
+          swatches. Unknown / missing values map to ``NaN``.
+
+        Unlike R ``colorize``, the frame is **not** re-sorted — rows stay
+        aligned to the adjacency matrix; the ramp is a value->hex map so row
+        order is irrelevant.
         """
         d = df.copy()
         cmap = LinearSegmentedColormap.from_list("netexp", list(colors))
@@ -712,11 +726,15 @@ class NetExplorer:
         # ramp while the legend scale reads ~3%).
         if pd.api.types.is_numeric_dtype(d[col]):
             v = d[col].to_numpy(dtype=float)
-            lo, hi = np.nanmin(v), np.nanmax(v)
-            span = hi - lo
-            frac = np.zeros_like(v) if span == 0 else (v - lo) / span
-            frac = np.clip(np.nan_to_num(frac, nan=0.0), 0.0, 1.0)
-            d[new_col] = [to_hex(cmap(float(f))) for f in frac]
+            ok = np.isfinite(v)
+            hexes = np.full(v.shape, np.nan, dtype=object)  # non-finite -> NaN
+            if ok.any():
+                lo, hi = v[ok].min(), v[ok].max()
+                span = hi - lo
+                frac = np.zeros(int(ok.sum())) if span == 0 else (v[ok] - lo) / span
+                frac = np.clip(frac, 0.0, 1.0)
+                hexes[ok] = [to_hex(cmap(float(f))) for f in frac]
+            d[new_col] = hexes
             return d
 
         # Categorical column: one ramp stop per distinct value, by ascending
@@ -1523,13 +1541,19 @@ class NetExplorer:
         if scn is not None and "strokeColValue" in d.columns:
             sv = d["strokeColValue"]
             if pd.api.types.is_numeric_dtype(sv):
-                order = np.argsort(sv.to_numpy())
-                stops = [str(d["strokeCol"].iloc[int(order[0])]),
-                         str(d["strokeCol"].iloc[int(order[-1])])]
-                ent.append({"kind": "gradient", "title": "Border colour", "col": str(scn),
-                            "stops": stops,
-                            "lo": round(float(sv.min()), 3),
-                            "hi": round(float(sv.max()), 3)})
+                arr = sv.to_numpy(dtype=float)
+                fin = np.flatnonzero(np.isfinite(arr))
+                if fin.size:
+                    # rank finite rows only: np.argsort sends NaN to the end, so
+                    # order[-1] would otherwise index a NaN row whose strokeCol
+                    # is NaN, collapsing the swatch while lo/hi show the real range
+                    order = fin[np.argsort(arr[fin])]
+                    stops = [str(d["strokeCol"].iloc[int(order[0])]),
+                             str(d["strokeCol"].iloc[int(order[-1])])]
+                    ent.append({"kind": "gradient", "title": "Border colour", "col": str(scn),
+                                "stops": stops,
+                                "lo": round(float(np.nanmin(arr)), 3),
+                                "hi": round(float(np.nanmax(arr)), 3)})
             else:
                 seen = {}
                 for v, hx in zip(sv, d["strokeCol"]):

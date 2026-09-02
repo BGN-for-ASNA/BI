@@ -1,0 +1,24 @@
+Comparison Table for 7.Negative binomial
+============================================================
+Parameter BF Mean Stan Mean    Diff KL Div
+        a  0.3913    0.3882  0.0032 0.0678
+        b -1.0280   -1.0194 -0.0086 0.0511
+============================================================
+
+================================================================
+WAIC cross-check  -  7.Negative binomial
+================================================================
+[A] NumPyro direct (numpyro.infer.log_likelihood)
+      elpd_waic = -547.272686    p_waic = 1.871060
+[B] ArviZ round-trip (az.from_numpyro log_likelihood group)  [UNAVAILABLE: TypeError]
+      elpd_waic = -547.272686  (WAIC[A] shown; ArviZ reference unavailable)
+----------------------------------------------------------------
+LOO cross-check  -  7.Negative binomial
+----------------------------------------------------------------
+[A'] BF native JAX PSIS-LOO (jax_diagnostics.loo)
+      elpd_loo  = -547.276648    p_loo  = 1.875022
+[B'] ArviZ az.loo (PSIS-LOO) on the same log-likelihood
+      elpd_loo  = -547.276178    p_loo  = 1.874552
+|delta elpd_loo| = 4.706e-04      |delta p_loo| = 4.706e-04
+RESULT: PASS
+================================================================

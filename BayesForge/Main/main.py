@@ -45,6 +45,7 @@ from BayesForge.Utils.link import link
 from BayesForge.Utils.infer_discrete import sample_discrete_posterior
 
 from BayesForge.Diagnostic.Diag2 import diagWIP as diag
+#from BayesForge.Diagnostic.Diag import diag as diag
 
 from BayesForge.Network.Net import net, net2
 from BayesForge.NBDA.NBDA import NBDA
@@ -68,6 +69,7 @@ class bf(manip):
         deallocate=False,
         print_devices_found=True,
         backend="numpyro",
+        diag_backend="arviz",
         float_precision=64,
         loss=None,
         optim=None,
@@ -84,6 +86,13 @@ class bf(manip):
             deallocate (bool, optional): Whether to deallocate. Defaults to False.
             print_devices_found (bool, optional): Whether to print devices found. Defaults to True.
             backend (str, optional): Backend to use. Defaults to 'numpyro'.
+            diag_backend (str, optional): Engine behind the convergence metrics
+                exposed by ``m.summary()`` and ``m.diag.{summary,rhat,ess,mcse,
+                loo,WAIC}``. ``'arviz'`` (default) uses ArviZ, the reference
+                implementation. ``'jax'`` selects the experimental
+                JAX/NumPy diagnostics and emits a warning. Plots, PPC,
+                sensitivity and regression overlays are unaffected either way.
+                Defaults to 'arviz'.
             shard (bool, optional): Enable EXPERIMENTAL data sharding (split the
                 leading axis of data arrays across devices). Requires more than
                 one device (cores>1 on CPU or multiple GPUs). Off by default;
@@ -142,6 +151,10 @@ class bf(manip):
         self.trace = None
         self.history = {}
         self.backend = backend
+        # Engine behind the convergence metrics. ArviZ is the default and the
+        # reference; "jax" selects the experimental jax_diagnostics path.
+        from BayesForge.Diagnostic.patch_diag import _resolve_backend
+        self.diag_backend = _resolve_backend(diag_backend)
         self.loss = loss
         self.optim = optim
         self.guide = guide
@@ -469,7 +482,7 @@ class bf(manip):
             self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
             self.diag = diag(sampler=self.sampler)
             from BayesForge.Diagnostic.patch_diag import bind_diag_to_model
-            bind_diag_to_model(self.diag, self)
+            bind_diag_to_model(self.diag, self, backend=self.diag_backend)
             self.get_history()
 
         elif self.backend == "tfp":
@@ -499,7 +512,7 @@ class bf(manip):
             self.posteriors_full = dict(self.posteriors)
             self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
             from BayesForge.Diagnostic.patch_diag import bind_diag_to_model
-            bind_diag_to_model(self.diag, self)
+            bind_diag_to_model(self.diag, self, backend=self.diag_backend)
             self.get_history()
 
         if self.model_name == "pca":
@@ -711,8 +724,10 @@ class bf(manip):
         exclude_vars=None,
         filter_regex=None,
         group_by_chain=True,
+        backend=None,
+        kind="all",
     ):
-        """JAX-based posterior summary (matches ArviZ output format).
+        """Posterior summary table.
 
         Args:
             round_to: Decimal places to round.
@@ -721,14 +736,36 @@ class bf(manip):
             exclude: str or list — remove these parameters.
             var_names: Legacy alias for include.
             exclude_vars: Legacy alias for exclude.
-            filter_regex: Regex applied to base parameter names.
+            filter_regex: Regex applied to base parameter names (jax backend only).
             group_by_chain: Use chain-structured posteriors (default True).
+            backend: "arviz" (default) or "jax". Overrides the model's
+                ``diag_backend`` for this call; "jax" warns that the
+                JAX/NumPy diagnostics are experimental.
+            kind: Passed to az.summary ("all", "stats", "diagnostics") when the
+                arviz backend is in use.
         """
-        from BayesForge.Diagnostic.jax_diagnostics import summary as _jax_summary
+        from BayesForge.Diagnostic.patch_diag import (
+            ARVIZ, _resolve_backend, _warn_jax_experimental,
+        )
+
         _inc = include or var_names
         _exc = exclude or exclude_vars
         if _inc is not None or _exc is not None:
             self.filter_posteriors(include=_inc, exclude=_exc)
+
+        _backend = _resolve_backend(
+            backend if backend is not None else getattr(self, "diag_backend", ARVIZ))
+        if backend is not None and _backend != ARVIZ:
+            _warn_jax_experimental()
+
+        if _backend == ARVIZ:
+            self.tab_summary = self.summary_old(
+                round_to=round_to, kind=kind, hdi_prob=hdi_prob,
+                var_names=_inc, exclude_vars=_exc,
+            )
+            return self.tab_summary
+
+        from BayesForge.Diagnostic.jax_diagnostics import summary as _jax_summary
         posteriors = (self.posteriors_by_chain if group_by_chain
                       and hasattr(self, 'posteriors_by_chain')
                       else self.posteriors)
@@ -741,6 +778,11 @@ class bf(manip):
         )
         return self.tab_summary
 
+    def summary_jax(self, **kwargs):
+        """Posterior summary via the experimental JAX/NumPy diagnostics."""
+        kwargs.setdefault("backend", "jax")
+        return self.summary(**kwargs)
+
     def summary_old(
         self,
         round_to=2,
@@ -751,15 +793,24 @@ class bf(manip):
         *args,
         **kwargs,
     ):
-        """ArviZ-based posterior summary (original implementation)."""
-        if self.trace is None:
+        """ArviZ-based posterior summary (the default backend for summary())."""
+        if az is None:
+            raise ImportError(
+                "arviz is unavailable, so the arviz summary backend cannot run. "
+                "Use m.summary(backend='jax') or fix the arviz import.")
+        if getattr(self.diag, "trace", None) is None:
             self.diag.to_az(backend=self.backend)
+        # arviz renamed this argument: 0.x takes hdi_prob=, 1.x takes ci_prob=.
+        # Hard-coding ci_prob raised TypeError on every arviz 0.x install.
+        import inspect as _inspect
+        _prob_kw = ("ci_prob" if "ci_prob" in _inspect.signature(az.summary).parameters
+                    else "hdi_prob")
         self.tab_summary = az.summary(
             self.diag.trace,
+            *args,
             round_to=round_to,
             kind=kind,
-            ci_prob=hdi_prob,
-            *args,
+            **{_prob_kw: hdi_prob},
             **kwargs,
         )
         if var_names is not None or exclude_vars is not None:

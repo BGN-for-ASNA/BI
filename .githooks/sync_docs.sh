@@ -4,7 +4,7 @@
 # Since this script lives in BF/.githooks/, its parent directory is the BF root.
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BF_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-BF_MCP_DIR="$(cd "$BF_DIR/../BI_mcp" 2>/dev/null && pwd)"
+BF_MCP_DIR="$(cd "$BF_DIR/../BF_mcp" 2>/dev/null && pwd)"
 
 SRC_DOCS="$BF_DIR/Documentation/"
 DST_DOCS="$BF_MCP_DIR/mcp_server/Documentation/"
@@ -19,10 +19,10 @@ NC='\033[0m' # No Color
 
 echo -e "${BLUE}[BF-Sync] Running documentation synchronization helper...${NC}"
 
-# Verify BI_mcp exists
+# Verify BF_mcp exists
 if [ -z "$BF_MCP_DIR" ] || [ ! -d "$BF_MCP_DIR" ]; then
-    echo -e "${RED}[BF-Sync] Error: Could not locate BI_mcp repository sibling to $BF_DIR${NC}"
-    echo -e "${YELLOW}[BF-Sync] Expected to find it at: $(dirname "$BF_DIR")/BI_mcp${NC}"
+    echo -e "${RED}[BF-Sync] Error: Could not locate BF_mcp repository sibling to $BF_DIR${NC}"
+    echo -e "${YELLOW}[BF-Sync] Expected to find it at: $(dirname "$BF_DIR")/BF_mcp${NC}"
     exit 1
 fi
 
@@ -81,19 +81,19 @@ if [ "$SHOULD_SYNC" = true ]; then
         echo -e "${GREEN}[BF-Sync] RAG cache successfully invalidated.${NC}"
     fi
 
-    # Commit changes in BI_mcp if it has a .git repo
+    # Commit changes in BF_mcp if it has a .git repo
     if [ -d "$BF_MCP_DIR/.git" ]; then
-        echo -e "${BLUE}[BF-Sync] Checking for staging changes in BI_mcp...${NC}"
+        echo -e "${BLUE}[BF-Sync] Checking for staging changes in BF_mcp...${NC}"
         cd "$BF_MCP_DIR" || exit 1
         git add mcp_server/Documentation/
 
         if ! git diff --cached --quiet; then
             BF_COMMIT_INFO=$(git -C "$BF_DIR" log -1 --format="%h: %s")
-            echo -e "${YELLOW}[BF-Sync] Committing changes in BI_mcp: Sync documentation from BF commit ($BF_COMMIT_INFO)${NC}"
+            echo -e "${YELLOW}[BF-Sync] Committing changes in BF_mcp: Sync documentation from BF commit ($BF_COMMIT_INFO)${NC}"
             git commit -m "Sync documentation from BF commit ($BF_COMMIT_INFO)"
-            echo -e "${GREEN}[BF-Sync] Successfully committed documentation changes in BI_mcp.${NC}"
+            echo -e "${GREEN}[BF-Sync] Successfully committed documentation changes in BF_mcp.${NC}"
         else
-            echo -e "${GREEN}[BF-Sync] No new documentation changes to commit in BI_mcp.${NC}"
+            echo -e "${GREEN}[BF-Sync] No new documentation changes to commit in BF_mcp.${NC}"
         fi
     fi
 else

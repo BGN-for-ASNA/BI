@@ -50,21 +50,63 @@ def _names_in(node):
     return out
 
 
-def _is_dist_call(node):
+def _callee_name(call):
+    """Dotted name of a call's callee, or '' when it is not a plain name."""
+    try:
+        return ast.unparse(call.func)
+    except Exception:
+        return ""
+
+
+# NumPyro's own primitives; their site name is the FIRST POSITIONAL argument.
+_NUMPYRO_SITE_FNS = ("numpyro.sample", "sample", "numpyro.deterministic",
+                     "deterministic", "numpyro.param", "param")
+
+
+def _is_numpyro_site(node):
     return (isinstance(node, ast.Call)
-            and "dist" in ast.unparse(node.func))
+            and _callee_name(node) in _NUMPYRO_SITE_FNS
+            and node.args
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str))
+
+
+def _is_dist_call(node):
+    """True for a BF ``m.dist.xxx(...)`` call or a NumPyro sample/deterministic."""
+    if not isinstance(node, ast.Call):
+        return False
+    if _is_numpyro_site(node):
+        return True
+    # BF idiom: the callee path contains a `dist` attribute. Matching the bare
+    # substring also fired on np.distance(...) / dist_matrix(...).
+    name = _callee_name(node)
+    return any(part == "dist" for part in name.split("."))
 
 
 def _dist_name(call):
     """The distribution name, e.g. ``m.dist.normal(...)`` -> 'normal'."""
+    if _is_numpyro_site(call):
+        # numpyro.sample("mu", dist.Normal(...)) -> the inner distribution
+        for arg in call.args[1:]:
+            if isinstance(arg, ast.Call):
+                return _dist_name(arg)
+        return _callee_name(call).split(".")[-1]
     func = call.func
-    return func.attr if isinstance(func, ast.Attribute) else func.id
+    if isinstance(func, ast.Attribute):
+        return func.attr
+    return getattr(func, "id", _callee_name(call))
 
 
 def _call_meta(call):
-    """Return (name_kwarg, obs_value_name, dependency_names) for a dist call."""
+    """Return (site_name, obs_value_name, dependency_names) for a dist call."""
     name_kw, obs_name = None, None
     dep_nodes = list(call.args)
+
+    if _is_numpyro_site(call):
+        # The site name is args[0]; it is a label, not a dependency.
+        name_kw = call.args[0].value
+        dep_nodes = list(call.args[1:])
+
     for kw in call.keywords:
         if kw.arg == "name" and isinstance(kw.value, ast.Constant):
             name_kw = kw.value.value
@@ -109,13 +151,23 @@ class ModelGraph:
                 indeg[c] -= 1
                 if indeg[c] == 0:
                     queue.append(c)
-        # any nodes left out by cycles (shouldn't happen for a valid model)
-        for n in self.nodes:
-            layer.setdefault(n, 0)
+        # Nodes never dequeued sit in a cycle, which a probabilistic model
+        # should not contain; they collapse to layer 0, so say so.
+        if len(order) < len(self.nodes):
+            import warnings
+            stuck = [n for n in self.nodes if n not in set(order)]
+            warnings.warn(
+                f"model graph contains a cycle through {stuck}; those nodes are "
+                "drawn in the first layer.", stacklevel=2)
         return layer
 
-    def draw(self, figsize=(8, 6), title=None):
-        """Render the model graph with matplotlib."""
+    def draw(self, figsize=(8, 6), title=None, show=True):
+        """Render the model graph with matplotlib.
+
+        Args:
+            show: call plt.show(). Set False to compose the axes yourself or to
+                render headless.
+        """
         import matplotlib.pyplot as plt
         from matplotlib.patches import FancyArrowPatch
 
@@ -178,7 +230,8 @@ class ModelGraph:
         ]
         ax.legend(handles=legend, loc="upper left", fontsize=8, framealpha=0.9)
         plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
         return ax
 
     def __repr__(self):
@@ -200,7 +253,13 @@ def model_to_graph(model):
     if func is None:
         raise ValueError("Could not find a function definition in the model source")
 
-    inputs = [a.arg for a in func.args.args if a.arg not in ("self",)]
+    a = func.args
+    all_args = list(getattr(a, "posonlyargs", [])) + list(a.args) + list(a.kwonlyargs)
+    if a.vararg:
+        all_args.append(a.vararg)
+    if a.kwarg:
+        all_args.append(a.kwarg)
+    inputs = [x.arg for x in all_args if x.arg != "self"]
 
     nodes = []
     kinds = {}
@@ -208,18 +267,46 @@ def model_to_graph(model):
     deps = {}          # node -> list of referenced names
     var_to_node = {}   # python LHS variable -> node name (often identical)
 
+    # Rank of each kind: a node re-assigned later must not be DOWNGRADED from a
+    # sample site to a plain deterministic.
+    _rank = {DATA: 0, DETERMINISTIC: 1, LATENT: 2, OBSERVED: 3}
+
     def add_node(name, kind, dist=None, depends=()):
         if name not in kinds:
             nodes.append(name)
-        kinds[name] = kind
-        dist_of[name] = dist
-        deps[name] = list(depends)
+            kinds[name] = kind
+            dist_of[name] = dist
+            deps[name] = list(depends)
+            return
+        # Re-assignment (e.g. `mu = a + b*x` then `mu = mu + c`): MERGE the
+        # dependencies instead of replacing them, or the first statement's
+        # edges are lost.
+        if _rank.get(kind, 0) >= _rank.get(kinds[name], 0):
+            kinds[name] = kind
+            if dist is not None:
+                dist_of[name] = dist
+        deps[name] = list(dict.fromkeys(list(deps.get(name, [])) + list(depends)))
 
     # function inputs become data nodes (kept only if later referenced)
     for inp in inputs:
         add_node(inp, DATA)
 
-    for stmt in func.body:
+    def _iter_stmts(body):
+        """Yield every statement, descending into plate/loop/conditional bodies.
+
+        Walking only func.body dropped every site inside `with numpyro.plate(...)`
+        -- i.e. essentially all of a hierarchical model -- with no warning.
+        """
+        for stmt in body:
+            yield stmt
+            for attr in ("body", "orelse", "finalbody"):
+                inner = getattr(stmt, attr, None)
+                if isinstance(inner, list):
+                    yield from _iter_stmts(inner)
+            for handler in getattr(stmt, "handlers", []) or []:
+                yield from _iter_stmts(handler.body)
+
+    for stmt in _iter_stmts(func.body):
         # `lhs = <something>`
         if isinstance(stmt, ast.Assign) and len(stmt.targets) == 1 \
                 and isinstance(stmt.targets[0], ast.Name):

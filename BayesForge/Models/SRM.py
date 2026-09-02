@@ -7,6 +7,7 @@ import numpyro
 import numpyro.distributions as dist
 from BayesForge.Network.Net import Neteffect
 from BayesForge.Distributions.np_dists import UnifiedDist as dist
+from BayesForge.Utils.SampledData import SampledData
 
 def logit(x):
     return jnp.log(x / (1 - x))
@@ -44,7 +45,7 @@ class SRM:
             focal_predictors = jnp.array(focal_predictors) # transpose for the dot product
 
         # if jax array check if it is a 2D array
-        if isinstance(focal_predictors, jnp.ndarray):
+        if isinstance(focal_predictors, (jnp.ndarray, SampledData)):
             if focal_predictors.ndim != 2:
                 print('Error: Focal factors must be a 2D array')
 
@@ -63,7 +64,7 @@ class SRM:
         if isinstance(receiver_predictors, pd.DataFrame):
             receiver_predictors = jnp.array(receiver_predictors)
         # if jax array check if it is a 2D array
-        if isinstance(receiver_predictors, jnp.ndarray):
+        if isinstance(receiver_predictors, (jnp.ndarray, SampledData)):
             if receiver_predictors.ndim != 2:
                 print('Error: Focal factors must be a 2D array')
  
@@ -76,7 +77,7 @@ class SRM:
     def import_dyadic_predictors(self, dyadic_predictors, names = None, intercept_present = False):
         if self.print_info:
             print('--------------------------------------------------------------------------------')
-        if isinstance(dyadic_predictors, jnp.ndarray):
+        if isinstance(dyadic_predictors, (jnp.ndarray, SampledData)):
             if dyadic_predictors.ndim == 2: 
                 if dyadic_predictors.shape[0] != self.network.shape[0] and  dyadic_predictors.shape[1] != self.network.shape[1]:
                     print('Error: Dyadic factors must be a 2D array with the same first two dimensions as the network')
@@ -111,7 +112,7 @@ class SRM:
     def import_exposure(self, exposure):
         print('--------------------------------------------------------------------------------')
         # if jax array check if it is a 2D array
-        if isinstance(exposure, jnp.ndarray):
+        if isinstance(exposure, (jnp.ndarray, SampledData)):
             if exposure.ndim != 1:
                 print('Error: Exposure must be a 1D array')
             else:
@@ -129,7 +130,7 @@ class SRM:
         if isinstance(block_predictors, pd.DataFrame):
             block_predictors = jnp.array(block_predictors)
         # if jax array check if it is a 2D array
-        if isinstance(block_predictors, jnp.ndarray):
+        if isinstance(block_predictors, (jnp.ndarray, SampledData)):
             if block_predictors.ndim != 2:
                 print('Error: Block(s) factors must be a 2D or 3D array')
                 

@@ -5,6 +5,7 @@ from matplotlib.patches import Ellipse
 from matplotlib import transforms
 import matplotlib.pyplot as plt
 import jax.numpy as jnp
+from BayesForge.Utils.SampledData import SampledData
 import seaborn as sns
 import pandas as pd
 import matplotlib
@@ -548,7 +549,7 @@ class pca:
                 marker_dict = {shape: markers[i % len(markers)] for i, shape in enumerate(unique_shapes)}
 
             if color_var is not None and size_var is not None and shape_var is not None:
-                if isinstance(size_var, (jnp.ndarray, list)):
+                if isinstance(size_var, (jnp.ndarray, list, SampledData)):
                     size_var = 100 * (jnp.array(size_var) - min(size_var)) / (max(size_var) - min(size_var)) + 10
                 for shape in unique_shapes:
                     indices = jnp.where(shape_var == shape)[0]
@@ -597,7 +598,7 @@ class pca:
                 )
 
             elif size_var is not None and shape_var is not None:
-                if isinstance(size_var, (jnp.ndarray, list)):
+                if isinstance(size_var, (jnp.ndarray, list, SampledData)):
                     size_var = 100 * (jnp.array(size_var) - min(size_var)) / (max(size_var) - min(size_var)) + 10
                 for shape in unique_shapes:
                     indices = jnp.where(shape_var == shape)[0]
@@ -628,7 +629,7 @@ class pca:
                 plt.colorbar(scatter, ax=ax, label='Color Variable')
 
             elif size_var is not None:
-                if isinstance(size_var, (jnp.ndarray, list)):
+                if isinstance(size_var, (jnp.ndarray, list, SampledData)):
                     size_var = 100 * (jnp.array(size_var) - min(size_var)) / (max(size_var) - min(size_var)) + 10
                 ax.scatter(
                     X_projected[:, 0],

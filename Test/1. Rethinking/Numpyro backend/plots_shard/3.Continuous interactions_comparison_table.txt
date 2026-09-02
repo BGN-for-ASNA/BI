@@ -1,0 +1,27 @@
+Comparison Table for 3.Continuous interactions
+============================================================
+Parameter BF Mean Stan Mean    Diff KL Div
+    sigma  0.1430    0.1426  0.0004 0.0515
+       bw  0.2055    0.2056 -0.0001 0.0361
+       bs -0.1119   -0.1123  0.0004 0.0442
+        a  0.3586    0.3577  0.0009 0.0501
+      bws -0.1420   -0.1425  0.0005 0.0433
+============================================================
+
+================================================================
+WAIC cross-check  -  3.Continuous interactions
+================================================================
+[A] NumPyro direct (numpyro.infer.log_likelihood)
+      elpd_waic = +12.395744    p_waic = 4.407488
+[B] ArviZ round-trip (az.from_numpyro log_likelihood group)  [UNAVAILABLE: TypeError]
+      elpd_waic = +12.395744  (WAIC[A] shown; ArviZ reference unavailable)
+----------------------------------------------------------------
+LOO cross-check  -  3.Continuous interactions
+----------------------------------------------------------------
+[A'] BF native JAX PSIS-LOO (jax_diagnostics.loo)
+      elpd_loo  = +12.180286    p_loo  = 4.622947
+[B'] ArviZ az.loo (PSIS-LOO) on the same log-likelihood
+      elpd_loo  = +12.179936    p_loo  = 4.623297
+|delta elpd_loo| = 3.503e-04      |delta p_loo| = 3.503e-04
+RESULT: PASS
+================================================================

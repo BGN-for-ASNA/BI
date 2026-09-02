@@ -5,8 +5,6 @@ from jax.scipy.special import logsumexp
 from numpyro.infer import log_likelihood as _numpyro_log_likelihood
 import numpy as np
 import pandas as pd
-import numpy as np
-import jax.numpy as jnp
 import itertools
 import scipy.stats as stats
 import re
@@ -23,19 +21,43 @@ importer.schedule_import("seaborn", "sns")
 importer.schedule_import("matplotlib.pyplot", "plt")
 
 
+def _acf(x, max_lag=40):
+    """Autocorrelation function of a 1D chain, lags 0..max_lag-1.
+
+    Centres on the GLOBAL mean and divides by the global variance. Computing
+    ``np.corrcoef(x[:-t], x[t:])`` instead re-centres and re-scales each window
+    separately, which is not the ACF: it diverges at large lag and the
+    resulting sequence is not positive-definite.
+    """
+    x = np.asarray(x, dtype=float)
+    n = x.size
+    max_lag = int(min(max_lag, n))
+    xc = x - x.mean()
+    denom = np.dot(xc, xc)
+    if denom <= 0:
+        return [1.0] + [0.0] * (max_lag - 1)
+    return [float(np.dot(xc[: n - t], xc[t:]) / denom) for t in range(max_lag)]
+
+
 def _az_hdi(data, prob):
     """Call ``az.hdi`` across ArviZ versions.
 
-    ArviZ >= 1.x takes ``prob=`` (and rejects the old name); ArviZ 0.x took
-    ``hdi_prob=``. Try the new spelling first, fall back to the old one. Data is
-    coerced to a NumPy array: ArviZ 1.x misreads a raw JAX array (from
+    ArviZ >= 1.x takes ``prob=``; ArviZ 0.x took ``hdi_prob=``.
+
+    The parameter name is resolved from the SIGNATURE, not by try/except:
+    ``az.hdi`` in 0.x accepts ``**kwargs``, so ``prob=0.89`` was swallowed
+    silently instead of raising TypeError, the fallback never ran, and every
+    HDI came back at ArviZ's DEFAULT probability rather than the requested one
+    (e.g. a 94% interval where 89% was asked for).
+
+    Data is coerced to a NumPy array: ArviZ 1.x misreads a raw JAX array (from
     ``get_samples``) as ``(chain, draw)`` and raises a dims error.
     """
+    import inspect
     data = np.asarray(data)
-    try:
-        return az.hdi(data, prob=prob)
-    except TypeError:
-        return az.hdi(data, hdi_prob=prob)
+    params = inspect.signature(az.hdi).parameters
+    name = "prob" if "prob" in params else "hdi_prob"
+    return az.hdi(data, **{name: prob})
 
 
 def _numpy_backed_idata(idata, groups=("posterior", "log_likelihood", "sample_stats")):
@@ -46,14 +68,25 @@ def _numpy_backed_idata(idata, groups=("posterior", "log_likelihood", "sample_st
     which fails on immutable JAX arrays. Re-wrapping every group as NumPy makes
     those routines work.
     """
-    available = set(getattr(idata, "groups", []) or [])
+    # InferenceData.groups is a METHOD in arviz 0.x and an attribute in 1.x;
+    # set(<bound method>) raised TypeError, so this helper -- and therefore
+    # loo() -- never worked on arviz 0.x at all.
+    _groups = getattr(idata, "groups", [])
+    if callable(_groups):
+        _groups = _groups()
+    available = set(_groups or [])
     data = {}
     for group in groups:
         # DataTree groups are exposed as "/posterior" etc.; accept either form.
         if group in available or f"/{group}" in available:
             ds = getattr(idata, group)
             data[group] = {k: np.asarray(v.values) for k, v in ds.data_vars.items()}
-    return az.from_dict(data)
+    # NOTE: az.from_dict's first positional parameter IS `posterior`, so passing
+    # the whole {group: vars} mapping positionally collapsed every group into
+    # the posterior under tuple names and produced an InferenceData with no
+    # log_likelihood group at all -- az.loo then raised
+    # "log likelihood not found in inference data object". Splat by keyword.
+    return az.from_dict(**data)
 
 
 def _numpyro_idata_with_loglik(sampler):
@@ -233,17 +266,20 @@ def _waic(log_likelihood, pointwise=False, scale="log"):
         ll = ll.reshape(ll.shape[0], -1)
     n_samples = ll.shape[0]
     lppd_i = logsumexp(ll, axis=0) - np.log(n_samples)
-    p_waic_i = np.var(ll, axis=0, ddof=1)
+    # ddof=0 for both p_waic and the SE, matching ArviZ (xarray .var() default).
+    p_waic_i = np.var(ll, axis=0)
     waic_i = lppd_i - p_waic_i                          # pointwise elpd
     elpd_waic = float(np.sum(waic_i))
     p_waic = float(np.sum(p_waic_i))
     n_data = waic_i.size
-    se = float(np.sqrt(n_data) * np.std(waic_i, ddof=1))
+    se = float(np.sqrt(n_data * np.var(waic_i)))
     sign = {"log": 1.0, "negative_log": -1.0, "deviance": -2.0}.get(scale, 1.0)
     result = pd.Series(
         {
             "elpd_waic": sign * elpd_waic,
-            "se": np.sqrt(abs(sign)) * se if sign else se,
+            # The pointwise elpds scale by `sign`, so their SE scales by
+            # |sign| -- not sqrt(|sign|), which under-reported deviance SE by 2x.
+            "se": abs(sign) * se,
             "p_waic": p_waic,
             "n_samples": n_samples,
             "n_data_points": n_data,
@@ -276,9 +312,20 @@ class diagWIP:
         # Get samples with chain information preserved
         self.posterior_samples = sampler.get_samples(group_by_chain=True)
         self.priors_name = list(self.posterior_samples.keys())
-        # Determine the number of chains from the shape of the first parameter
+        # Determine the number of chains from the shape of the first parameter.
+        # Cross-check against the sampler: if group_by_chain was not honoured,
+        # shape[0] is n_samples, and every per-chain plot loop below would run
+        # thousands of iterations instead of a handful.
         if self.priors_name:
-            self.num_chains = self.posterior_samples[self.priors_name[0]].shape[0]
+            self.num_chains = int(
+                self.posterior_samples[self.priors_name[0]].shape[0])
+            declared = getattr(sampler, "num_chains", None)
+            if declared is not None and int(declared) != self.num_chains:
+                raise ValueError(
+                    f"sampler reports num_chains={declared} but samples have "
+                    f"leading dim {self.num_chains}; get_samples(group_by_chain=True) "
+                    "did not return chain-major draws."
+                )
             self.colors = pcolors.qualitative.Plotly
         else:
             self.num_chains = 0
@@ -307,7 +354,7 @@ class diagWIP:
             if hasattr(self.sampler, "svi"):
                 # Handle SVI wrapper
                 posterior_samples = self.sampler.get_samples(group_by_chain=True)
-                self.trace = az.from_dict({"posterior": posterior_samples})
+                self.trace = az.from_dict(posterior=posterior_samples)
             else:
                 self.trace = az.from_numpyro(self.sampler)
             self.priors_name = list(self.trace["posterior"].data_vars.keys())
@@ -326,9 +373,18 @@ class diagWIP:
             for name, samp in zip(var_names, self.sampler.posterior):
                 trace[name] = samp
 
-            self.trace = az.from_dict({"posterior": trace, "sample_stats": sample_stats})
+            self.trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
             self.priors_name = var_names
             return self.trace
+
+        raise ValueError(
+            f"unknown backend {backend!r}; expected 'numpyro' or 'tfp'")
+
+    def _ensure_trace(self):
+        """Build self.trace on first use rather than requiring an explicit to_az()."""
+        if getattr(self, "trace", None) is None:
+            self.to_az()
+        return self.trace
 
     # --- Statistical Diagnostics ---
 
@@ -391,6 +447,18 @@ class diagWIP:
             kwargs["var_name"] = var_name
         if reff is not None:
             kwargs["reff"] = reff
+        if scale is not None:
+            # Forward `scale` when this ArviZ still accepts it (0.x) rather
+            # than silently ignoring a documented argument.
+            import inspect as _inspect
+            if "scale" in _inspect.signature(az.loo).parameters:
+                kwargs["scale"] = scale
+            elif scale != "log":
+                raise NotImplementedError(
+                    f"az.loo in arviz {az.__version__} no longer accepts "
+                    f"scale={scale!r}; rescale the returned elpd yourself "
+                    "(negative_log = -elpd, deviance = -2*elpd)."
+                )
         return az.loo(idata, **kwargs)
 
     def WAIC(self, pointwise=None, var_name=None, scale=None, dask_kwargs=None):
@@ -535,10 +603,28 @@ class diagWIP:
             leave-one-out cross-validation and WAIC. Stat Comput 27, 1413–1432 (2017)
             see https://doi.org/10.1007/s11222-016-9696-4
         """
-        # ArviZ 1.x az.compare signature is (compare_dict, method, var_name,
-        # reference, round_to); the old ic/b_samples/alpha/seed/scale kwargs were
-        # removed. Pass only what's still supported.
-        return az.compare(compare_dict, method=method, var_name=var_name)
+        # Forward every argument this ArviZ still supports rather than dropping
+        # documented ones silently (az.compare lost ic/b_samples/alpha/seed/
+        # scale in 1.x but keeps them in 0.x).
+        import inspect as _inspect
+        supported = _inspect.signature(az.compare).parameters
+        requested = {"ic": ic, "b_samples": b_samples, "alpha": alpha,
+                     "seed": seed, "scale": scale, "var_name": var_name}
+        kwargs = {"method": method}
+        dropped = []
+        for key, val in requested.items():
+            if val is None:
+                continue
+            if key in supported:
+                kwargs[key] = val
+            elif not (key == "alpha" and val == 1) and not (key == "b_samples" and val == 1000):
+                dropped.append(key)
+        if dropped:
+            raise NotImplementedError(
+                f"az.compare in arviz {az.__version__} does not accept "
+                f"{sorted(dropped)}; drop them or pin an arviz that supports them."
+            )
+        return az.compare(compare_dict, **kwargs)
 
     @staticmethod
     def plot_compare(
@@ -660,8 +746,11 @@ class diagWIP:
         Returns:
             rhat: R-hat values
         """
-        self.rhat = az.rhat(self.trace, *args, **kwargs)
-        return self.rhat
+        # NOTE: results are stored under a private name. Assigning to
+        # ``self.rhat`` replaced this bound method with its own return value,
+        # so a second call raised "'Dataset' object is not callable".
+        self._rhat_result = az.rhat(self._ensure_trace(), *args, **kwargs)
+        return self._rhat_result
 
     def ess(self, *args, **kwargs):
         """Calculate effective sample size (ESS).
@@ -672,8 +761,8 @@ class diagWIP:
         Returns:
             ess: Effective sample sizes
         """
-        self.ess = az.ess(self.trace, *args, **kwargs)
-        return self.ess
+        self._ess_result = az.ess(self._ensure_trace(), *args, **kwargs)
+        return self._ess_result
 
     # --- Plotting Functions arviz dependent---
     def plot_ess(self, kind="local", **kwargs):
@@ -686,7 +775,7 @@ class diagWIP:
             fig: ESS plot
         """
         self.ess_plot = az.plot_ess(
-            self.trace, var_names=self.priors_name, kind=kind, **kwargs
+            self._ensure_trace(), var_names=self.priors_name, kind=kind, **kwargs
         )
         return self.ess_plot
 
@@ -699,12 +788,41 @@ class diagWIP:
         Returns:
             fig: Rank plots
         """
-        self.rank = az.plot_rank(self.trace, var_names=self.priors_name, **kwargs)
-        return self.rank
+        self._rank_plot = az.plot_rank(
+            self._ensure_trace(), var_names=self.priors_name, **kwargs)
+        return self._rank_plot
 
     # --- Plotting Functions  plotly dependent---
 
-    def summary(self, round_to=2, hdi_prob=0.89, var_names=None, exclude_vars=None):
+    def _summary_row(self, chains: np.ndarray, hdi_prob: float, kind: str) -> dict:
+        """Statistics for one scalar parameter. chains: (C, S), chain-major.
+
+        Kept as one function so the scalar and the multi-dimensional branches of
+        ``summary`` cannot drift apart.
+        """
+        chains = np.asarray(chains, dtype=float)
+        flat = chains.flatten()
+        hdi = _az_hdi(flat, hdi_prob)
+        row = {
+            "mean": np.mean(flat),
+            "median": np.median(flat),
+            "sd": np.std(flat, ddof=1),
+            f"hdi_{hdi_prob*100}%_lower": hdi[0],
+            f"hdi_{hdi_prob*100}%_upper": hdi[1],
+        }
+        if kind == "stats":
+            return row
+        # The convergence block needs the chain structure, so it takes `chains`
+        # rather than `flat`. Same estimators `diagnose` uses.
+        row["mcse_mean"] = self._mcse_mean_manual(chains)
+        row["mcse_sd"] = self._mcse_sd_manual(chains)
+        row["ess_bulk"] = self._ess_bulk_manual(chains)
+        row["ess_tail"] = self._ess_tail_manual(chains)
+        row["r_hat"] = self._rhat_manual(chains)
+        return row
+
+    def summary(self, round_to=2, hdi_prob=0.89, var_names=None,
+                exclude_vars=None, kind="all"):
         """Generate a summary table of posterior statistics.
 
         Args:
@@ -712,6 +830,9 @@ class diagWIP:
             hdi_prob: Credible interval probability (e.g., 0.89 for 89% HDI)
             var_names: List of variable names to include in the summary
             exclude_vars: List of variable names to exclude from the summary
+            kind: "all" (default) adds the convergence block -- mcse_mean,
+                mcse_sd, ess_bulk, ess_tail, r_hat -- to the point estimates.
+                "stats" returns the point estimates only.
 
         Returns:
             summary_stats: Dictionary containing summary statistics
@@ -719,6 +840,9 @@ class diagWIP:
         import numpy as np
         import arviz as az
         import pandas as pd
+
+        if kind not in ("all", "stats"):
+            raise ValueError(f"unknown kind {kind!r}; expected 'all' or 'stats'")
 
         summary_stats = {}
         vars_to_process = list(self.posterior_samples.keys())
@@ -740,39 +864,18 @@ class diagWIP:
             param_shape = samples.shape[2:]
 
             if not param_shape:
-                all_chain_samples = samples.flatten()
-                mean = np.mean(all_chain_samples)
-                median = np.median(all_chain_samples)
-                std = np.std(all_chain_samples)
-                hdi = _az_hdi(all_chain_samples, hdi_prob)
-                summary_stats[var_name] = {
-                    "mean": mean,
-                    "median": median,
-                    "std": std,
-                    f"hdi_{hdi_prob*100}%_lower": hdi[0],
-                    f"hdi_{hdi_prob*100}%_upper": hdi[1],
-                }
+                summary_stats[var_name] = self._summary_row(
+                    samples, hdi_prob, kind)
             else:
                 for idx in np.ndindex(param_shape):
                     idx_str = "[" + ", ".join(map(str, idx)) + "]"
                     full_name = f"{var_name}{idx_str}"
                     element_samples = samples[(slice(None), slice(None)) + idx]
-                    all_chain_samples = element_samples.flatten()
-
-                    mean = np.mean(all_chain_samples)
-                    median = np.median(all_chain_samples)
-                    std = np.std(all_chain_samples)
-                    hdi = _az_hdi(all_chain_samples, hdi_prob)
-
-                    summary_stats[full_name] = {
-                        "mean": mean,
-                        "median": median,
-                        "std": std,
-                        f"hdi_{hdi_prob*100}%_lower": hdi[0],
-                        f"hdi_{hdi_prob*100}%_upper": hdi[1],
-                    }
+                    summary_stats[full_name] = self._summary_row(
+                        element_samples, hdi_prob, kind)
 
         self.tab_summary = pd.DataFrame(summary_stats).T.round(round_to)
+        return self.tab_summary
 
     def pair(
         self,
@@ -1029,11 +1132,10 @@ class diagWIP:
             # Calculate mean
             mean_val = np.mean(all_samples)
 
-            # Calculate HDI using percentiles
-            tail_prob = (1 - hdi_prob) / 2
-            hdi_lower, hdi_upper = np.percentile(
-                all_samples, [tail_prob * 100, (1 - tail_prob) * 100]
-            )
+            # Actual HDI (narrowest interval), not an equal-tailed percentile
+            # interval -- the two differ for skewed posteriors, and the lines
+            # are labelled HDI.
+            hdi_lower, hdi_upper = _az_hdi(np.asarray(all_samples), hdi_prob)
 
             # Add vertical line for the mean
             fig.add_vline(
@@ -1087,38 +1189,100 @@ class diagWIP:
         return z.reshape(chains.shape)
 
     def _split_chains(self, chains: np.ndarray) -> np.ndarray:
-        """Split each chain in half -> (2*C, S//2)."""
+        """Split each chain in half -> (2*C, S//2).
+
+        Takes the LAST half, matching ArviZ; for odd S the middle draw is
+        dropped rather than reused.
+        """
         C, S = chains.shape
         half = S // 2
-        return np.concatenate([chains[:, :half], chains[:, half : 2 * half]], axis=0)
+        return np.concatenate([chains[:, :half], chains[:, -half:]], axis=0)
 
-    def _rhat_manual(self, chains: np.ndarray) -> float:
-        """Rank-normalized split R-hat. chains: (C, S)."""
-        rn = self._rank_normalize(chains)
-        split = self._split_chains(rn)
+    def _rhat_core(self, split: np.ndarray) -> float:
+        """Gelman-Rubin on already-split, already-transformed chains (m, n)."""
         m, n = split.shape
         chain_means = split.mean(axis=1)
-        overall_mean = chain_means.mean()
-        B = n / (m - 1) * np.sum((chain_means - overall_mean) ** 2)
         W = np.mean(np.var(split, axis=1, ddof=1))
-        if W == 0:
+        if not np.isfinite(W) or W == 0:
             return np.nan
+        B = n * np.var(chain_means, ddof=1)
         var_hat = (n - 1) / n * W + B / n
         return float(np.sqrt(var_hat / W))
 
+    def _rhat_manual(self, chains: np.ndarray) -> float:
+        """Rank-normalized *folded* split R-hat (Vehtari et al. 2021). chains: (C, S).
+
+        max of bulk R-hat (rank-normalized draws) and tail R-hat
+        (rank-normalized |x - median(x)|). The folded half is what detects a
+        chain whose VARIANCE has not converged; without it this returned ~1.00
+        for chains ArviZ scores at 1.12.
+        """
+        split = self._split_chains(np.asarray(chains, dtype=float))
+        rhat_bulk = self._rhat_core(self._rank_normalize(split))
+        folded = np.abs(split - np.median(split))
+        rhat_tail = self._rhat_core(self._rank_normalize(folded))
+        if np.isnan(rhat_bulk) and np.isnan(rhat_tail):
+            return np.nan
+        return float(np.nanmax([rhat_bulk, rhat_tail]))
+
     def _ess_bulk_manual(self, chains: np.ndarray) -> float:
-        """Rank-normalized split bulk ESS. chains: (C, S)."""
-        rn = self._rank_normalize(chains)
-        return self._ess_raw_manual(self._split_chains(rn))
+        """Rank-normalized split bulk ESS. chains: (C, S).
+
+        Splits BEFORE rank-normalizing, as ArviZ does (matters for odd S).
+        """
+        split = self._split_chains(np.asarray(chains, dtype=float))
+        return self._ess_raw_manual(self._rank_normalize(split))
 
     def _ess_tail_manual(self, chains: np.ndarray, prob: float = 0.05) -> float:
-        """Tail ESS at prob and 1-prob quantiles (min of both)."""
-        q_lo = (chains < np.quantile(chains, prob)).astype(float)
-        q_hi = (chains < np.quantile(chains, 1 - prob)).astype(float)
-        return min(
-            self._ess_raw_manual(self._split_chains(q_lo)),
-            self._ess_raw_manual(self._split_chains(q_hi)),
-        )
+        """Tail ESS at prob and 1-prob quantiles (min of both).
+
+        Splits before quantiling and uses ``<=`` (not ``<``), matching ArviZ's
+        _ess_quantile; the strict comparison differed whenever a quantile landed
+        exactly on a sample, as it does for discrete outcomes.
+        """
+        split = self._split_chains(np.asarray(chains, dtype=float))
+        q_lo = (split <= np.quantile(split, prob)).astype(float)
+        q_hi = (split <= np.quantile(split, 1 - prob)).astype(float)
+        return min(self._ess_raw_manual(q_lo), self._ess_raw_manual(q_hi))
+
+    def _ess_mean_manual(self, chains: np.ndarray) -> float:
+        """Split ESS of the raw draws, used by the MCSEs. chains: (C, S).
+
+        This is ArviZ's ``_ess_mean``: split the chains, then run the plain
+        ESS on them. No rank normalization -- that is bulk ESS, and using it
+        here would report the wrong Monte Carlo error.
+        """
+        split = self._split_chains(np.asarray(chains, dtype=float))
+        return self._ess_raw_manual(split)
+
+    def _mcse_mean_manual(self, chains: np.ndarray) -> float:
+        """Monte Carlo standard error of the posterior mean. chains: (C, S).
+
+        ``sd / sqrt(ess_mean)`` with ``ddof=1``, matching ArviZ's ``_mcse_mean``.
+        """
+        chains = np.asarray(chains, dtype=float)
+        ess = self._ess_mean_manual(chains)
+        if not np.isfinite(ess) or ess <= 0:
+            return np.nan
+        return float(np.std(chains, ddof=1) / np.sqrt(ess))
+
+    def _mcse_sd_manual(self, chains: np.ndarray) -> float:
+        """Monte Carlo standard error of the posterior sd. chains: (C, S).
+
+        Port of ArviZ's ``_mcse_sd``: the delta-method error on the variance of
+        the centred squares, halved onto the sd scale (the ``/ 4`` below is the
+        square of the ``1 / (2 * sd)`` derivative).
+        """
+        chains = np.asarray(chains, dtype=float)
+        sims_c2 = (chains - chains.mean()) ** 2
+        ess = self._ess_mean_manual(sims_c2)
+        if not np.isfinite(ess) or ess <= 0:
+            return np.nan
+        evar = sims_c2.mean()
+        if not np.isfinite(evar) or evar <= 0:
+            return np.nan
+        varvar = ((sims_c2**2).mean() - evar**2) / ess
+        return float(np.sqrt(varvar / evar / 4))
 
     def _ess_raw_manual(self, split: np.ndarray) -> float:
         """ESS from split chains. split: (M, N).
@@ -1194,12 +1358,17 @@ class diagWIP:
         return float(total / tau_hat)
 
     def _ebfmi_manual(self, energy: np.ndarray) -> list:
-        """E-BFMI per chain. energy: (C, S). Returns list of floats."""
+        """E-BFMI per chain. energy: (C, S). Returns list of floats.
+
+        Numerator is the MEAN SQUARED energy difference, matching Stan and
+        az.bfmi. Using var(diff, ddof=1) instead subtracts mean(diff)**2 and
+        rescales by (N-1)/(N-2), which biased every reported value.
+        """
         result = []
-        for chain in energy:
-            delta = np.diff(chain)
+        for chain in np.atleast_2d(np.asarray(energy, dtype=float)):
             denom = np.var(chain, ddof=1)
-            result.append(float(np.var(delta, ddof=1) / denom) if denom > 0 else np.nan)
+            num = np.mean(np.diff(chain) ** 2)
+            result.append(float(num / denom) if denom > 0 else np.nan)
         return result
 
     def diagnose(
@@ -1230,7 +1399,13 @@ class diagWIP:
         """
         lines = []
         problems = []
-        extra = self.sampler.get_extra_fields(group_by_chain=True)
+        # Not every backend exposes extra_fields (TFP / SVI). Each section below
+        # already degrades gracefully on a missing key, so fall back to an empty
+        # mapping rather than raising AttributeError here.
+        try:
+            extra = self.sampler.get_extra_fields(group_by_chain=True) or {}
+        except (AttributeError, TypeError):
+            extra = {}
         num_chains = self.num_chains
         posteriors_by_chain = self.posterior_samples
 
@@ -1417,10 +1592,8 @@ class diagWIP:
                 ]
 
             for chain_idx in range(self.num_chains):
-                samples = samples_per_chain[chain_idx]
-                autocorr = [1.0] + [
-                    np.corrcoef(samples[:-t], samples[t:])[0, 1] for t in range(1, 40)
-                ]
+                samples = np.asarray(samples_per_chain[chain_idx], dtype=float)
+                autocorr = _acf(samples, max_lag=40)
                 color = self.colors[chain_idx % len(self.colors)]
                 fig.add_trace(
                     go.Bar(

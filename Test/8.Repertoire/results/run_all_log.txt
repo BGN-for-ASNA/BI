@@ -1,0 +1,50 @@
+Execution Log - Repertoire Comparison
+==================================================
+[SUCCESS] benchmark.py
+bf v 0.0.48 package loaded
+Running Stan model...
+                                                                                                                                                                
+Running BF model...
+jax.local_device_count 1
+Generating log.txt...
+Generating density plots...
+Plots saved to comparison_plot.png
+
+[SUCCESS] compare_moments_p.py
+bf v 0.0.48 package loaded
+jax.local_device_count 32
+Metric          | Stan (p[1])     | BF (p[0])       | Diff           
+-----------------------------------------------------------------
+
+Comparing BF:p[0] vs Stan:p[1]
+Mean            |          0.3798 |          0.3818 |         -0.0020
+SD              |          0.1773 |          0.1876 |         -0.0103
+Skew            |          0.7929 |          0.7707 |          0.0222
+Kurtosis        |          0.1725 |         -0.0929 |          0.2655
+Min             |          0.0770 |          0.0724 |          0.0047
+Max             |          0.9607 |          0.9621 |         -0.0014
+
+Comparing BF:p[1] vs Stan:p[2]
+Mean            |          0.5797 |          0.5741 |          0.0056
+SD              |          0.1694 |          0.1709 |         -0.0015
+Skew            |          0.0733 |          0.1374 |         -0.0641
+Kurtosis        |         -0.6947 |         -0.7214 |          0.0267
+Min             |          0.1908 |          0.1417 |          0.0491
+Max             |          0.9925 |          0.9935 |         -0.0010
+
+[SUCCESS] compare_summary.py
+bf v 0.0.48 package loaded
+jax.local_device_count 32
+Param      | Mean (S/BF)          | SD (S/BF)            | Diff Mean 
+----------------------------------------------------------------------
+p[0] | 0.3798/0.3818 | 0.1773/0.1876 | -0.0020
+p[1] | 0.5797/0.5741 | 0.1694/0.1709 | 0.0056
+p[2] | 0.2447/0.2442 | 0.0869/0.0864 | 0.0005
+p[3] | 0.3787/0.3794 | 0.1038/0.1022 | -0.0007
+p[4] | 0.6011/0.5977 | 0.1004/0.1015 | 0.0034
+L[0] | 0.0857/0.0869 | 0.0484/0.0496 | -0.0011
+L[1] | 0.0763/0.0781 | 0.0299/0.0307 | -0.0019
+L[2] | 0.1928/0.1923 | 0.0661/0.0652 | 0.0006
+L[3] | 0.1961/0.1942 | 0.0560/0.0545 | 0.0020
+L[4] | 0.2103/0.2113 | 0.0384/0.0397 | -0.0010
+

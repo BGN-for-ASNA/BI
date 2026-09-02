@@ -7,6 +7,46 @@ import numpyro
 from BayesForge.Distributions.np_dists import UnifiedDist as dist
 dist = dist()
 
+import jax
+from numpyro.distributions import constraints as _constraints
+
+
+class _LogGamma(numpyro.distributions.Distribution):
+    r"""Distribution of :math:`\log X` where :math:`X \sim \mathrm{Gamma}(c, r)`.
+
+    Sampling the piecewise baseline hazard directly as a Gamma with a tiny
+    concentration (the usual vague ``Gamma(0.01, 0.01)``) is unusable under
+    NumPyro's NUTS: the unconstrained value ``u`` drifts far negative,
+    ``exp(u)`` underflows to exactly 0, and ``Gamma.log_prob(0)`` is ``-inf``,
+    so every proposal is flagged divergent and the chains never leave their
+    initialisation (r_hat ~ 1e15, ESS ~ 2). Evaluating the same density in log
+    space never forms that 0, so the geometry is well behaved while the implied
+    prior on ``exp(value)`` is unchanged.
+    """
+
+    support = _constraints.real
+    arg_constraints = {}
+
+    def __init__(self, concentration, rate=1.0, validate_args=None):
+        self.concentration = concentration
+        self.rate = rate
+        super().__init__(batch_shape=(), event_shape=(), validate_args=validate_args)
+
+    def sample(self, key, sample_shape=()):
+        x = numpyro.distributions.Gamma(self.concentration, self.rate).sample(key, sample_shape)
+        return jnp.log(x)
+
+    def log_prob(self, value):
+        # log-density of log X, i.e. Gamma log-density + the log |dx/du| = u
+        # Jacobian, collapsed analytically so exp(value) is the only exp taken.
+        return (
+            self.concentration * value
+            - self.rate * jnp.exp(value)
+            + self.concentration * jnp.log(self.rate)
+            - jax.scipy.special.gammaln(self.concentration)
+        )
+
+
 class survival_old:
     """    The survival class is designed to handle survival analysis data and perform various operations related to time-to-event data. It provides methods for extracting basic information from the dataset, plotting censoring status, converting continuous time data into discrete intervals, calculating cumulative hazards and survival probabilities, and visualizing the results. This class serves as a high-level interface for managing survival data, allowing users to easily analyze and interpret time-to-event outcomes in a structured manner.
     """
@@ -213,7 +253,9 @@ class survival_old:
         death[self.patients, last_period] = self.event
 
         # Calculate exposure times for each interval
-        exposure = np.greater_equal.outer(self.time, interval_bounds[:-1]).astype(float) * interval_length
+        # Strict `>`: with `>=`, a subject whose time falls exactly on an interval
+        # bound is credited a full extra interval past its own last_period.
+        exposure = np.greater.outer(self.time, interval_bounds[:-1]).astype(float) * interval_length
         exposure[self.patients, last_period] = self.time - interval_bounds[last_period]
 
         self.interval_bounds = interval_bounds # Array of boundaries for discrete time intervals.
@@ -414,7 +456,16 @@ class survival():
         self.df = None
         self.oberved = None
         self.parent = parent
-        self.parent.model_name = 'survival' 
+        self.parent.model_name = 'survival'
+        # Prior hyperparameters, overridable before fitting.
+        # Baseline_rate ~ Gamma(concentration, rate) per interval. Sampled in
+        # log space on the numpyro backend, see _LogGamma. The posterior is
+        # sensitive to this choice: with more intervals than events, anything
+        # much less concentrated at 0 than (0.01, 0.01) inflates the empty
+        # late intervals and can flip the sign of the covariate effect.
+        self.baseline_rate_prior = (0.01, 0.01)
+        # Hazard_rate_<covariate> ~ Normal(0, scale)
+        self.hazard_rate_prior_scale = 10.0
         #self.surv_object(time, event, interval_length)
 
 
@@ -480,7 +531,9 @@ class survival():
         death[self.patients, last_period] = self.event
 
         # Calculate exposure times for each interval
-        exposure = np.greater_equal.outer(self.time, interval_bounds[:-1]).astype(float) * interval_length
+        # Strict `>`: with `>=`, a subject whose time falls exactly on an interval
+        # bound is credited a full extra interval past its own last_period.
+        exposure = np.greater.outer(self.time, interval_bounds[:-1]).astype(float) * interval_length
         exposure[self.patients, last_period] = self.time - interval_bounds[last_period]
 
         self.interval_bounds = interval_bounds # Array of boundaries for discrete time intervals.
@@ -720,23 +773,33 @@ class survival():
         #self.data_on_model['N_cov'] = self.cov_all.shape[1]
 
     def priors(self, sample = False):
+        conc, rate = self.baseline_rate_prior
+        scale = self.hazard_rate_prior_scale
+
         ## Base hazard distribution
-        lambda0 = self.parent.dist.gamma(0.01, 0.01, shape= (self.n_intervals,), name = 'Baseline_rate', sample = sample)
-        
+        if not sample and getattr(self.parent, 'backend', None) == 'numpyro':
+            log_lambda0 = numpyro.sample(
+                'log_Baseline_rate',
+                _LogGamma(conc, rate).expand((self.n_intervals,)).to_event(1),
+            )
+            lambda0 = numpyro.deterministic('Baseline_rate', jnp.exp(log_lambda0))
+        else:
+            lambda0 = self.parent.dist.gamma(conc, rate, shape= (self.n_intervals,), name = 'Baseline_rate', sample = sample)
+
         if self.cov_all.ndim == 2:
             ## Covariate effect distribution
             if self.cov_all.shape[1] == 1:
-                beta = self.parent.dist.normal(0, 10, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[0]}', sample = sample)
+                beta = self.parent.dist.normal(0, scale, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[0]}', sample = sample)
             else:
                 beta = []
                 for i in range(self.cov_all.shape[1]):
-                    beta.append(self.parent.dist.normal(0, 10, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[i]}', sample = sample))
+                    beta.append(self.parent.dist.normal(0, scale, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[i]}', sample = sample))
                 beta = jnp.array(beta)
         elif self.cov_all.ndim == 3:
             ## Covariate effect distribution
             beta = []
             for i in range(self.cov_all.shape[2]):
-                beta.append(self.parent.dist.normal(0, 10, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[i]}', sample = sample))
+                beta.append(self.parent.dist.normal(0, scale, shape = (1,),  name=f'Hazard_rate_{self.cov_all_names[i]}', sample = sample))
             beta = jnp.array(beta)
 
         return lambda0, beta
@@ -745,17 +808,12 @@ class survival():
         # Parameters priors distributions-------------------------
         lambda0, beta = self.priors()
 
-        print("DEBUG - beta:", beta)
-        print("DEBUG - cov:", cov)
-
         ## Likelihood
         ### Compute hazard rate based on covariate effect
         lambda_ =  self.calculate_hazard_rate_uni_cov(beta, cov, lambda0)
-        print("DEBUG - lambda_:", lambda_)
 
         ### Compute exposure rates
         mu =  exposure * lambda_
-        print("DEBUG - mu:", mu)
 
         # Likelihood calculation
         self.parent.dist.poisson(rate = mu + jnp.finfo(mu.dtype).tiny, obs = death)

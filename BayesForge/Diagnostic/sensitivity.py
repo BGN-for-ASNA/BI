@@ -18,6 +18,13 @@ import plotly.express as px
 _COLORS = pcolors.qualitative.Plotly
 
 
+def _hdi(samples, prob):
+    """Highest-density interval (lower, upper) of a 1D sample."""
+    from BayesForge.Diagnostic.jax_diagnostics import hdi as _jd_hdi
+    bounds = np.asarray(_jd_hdi(np.asarray(samples).flatten(), hdi_prob=prob))
+    return float(bounds[0]), float(bounds[1])
+
+
 # =============================================================================
 # 1. Prior sensitivity
 # =============================================================================
@@ -87,9 +94,10 @@ def prior_sensitivity_plot(
                 legendgroup=label,
             ), row=r, col=c)
 
-            # HDI marker
-            lo = np.percentile(samples, 100 * (1 - hdi_prob) / 2)
-            hi = np.percentile(samples, 100 * (1 - (1 - hdi_prob) / 2))
+            # HDI marker -- the actual highest-density interval, not an
+            # equal-tailed percentile interval. The two differ for the skewed
+            # posteriors this plot exists to compare.
+            lo, hi = _hdi(samples, hdi_prob)
             y_max = float(kde(xs).max())
             fig.add_trace(go.Scatter(
                 x=[lo, hi], y=[y_max * 0.05, y_max * 0.05],
@@ -131,15 +139,20 @@ def influence_plot(
         plotly Figure with horizontal reference lines at k=0.5, 0.7.
     """
     from BayesForge.Diagnostic.jax_diagnostics import (
-        compute_log_likelihood, _psis_weights
+        compute_log_likelihood, _psis_weights, relative_eff
     )
 
+    reff = 1.0
     if log_likelihood is None:
         if m is None:
             raise ValueError("Pass m or log_likelihood=.")
         log_likelihood = compute_log_likelihood(
             m.model, m.posteriors_by_chain, **m.data_on_model
         )
+    if m is not None and getattr(m, "posteriors_by_chain", None):
+        # PSIS sizes its Pareto tail as 3*sqrt(S/reff); leaving reff at 1 for
+        # autocorrelated draws biases exactly the k values this plot thresholds.
+        reff = relative_eff(m.posteriors_by_chain)
 
     ll_arr = np.asarray(log_likelihood)
     if ll_arr.ndim == 3:
@@ -148,7 +161,7 @@ def influence_plot(
     else:
         ll_flat, N = ll_arr, ll_arr.shape[1]
 
-    k_vals = np.array([_psis_weights(ll_flat[:, i])[1] for i in range(N)])
+    k_vals = np.array([_psis_weights(ll_flat[:, i], reff=reff)[1] for i in range(N)])
 
     if x is None:
         x = np.arange(N)
@@ -265,7 +278,12 @@ def divergence_energy_plot(m, title="HMC Diagnostics: Energy & Divergences"):
     Returns:
         plotly Figure (two panels: energy histogram, divergences per chain).
     """
-    extra = m.sampler.get_extra_fields(group_by_chain=True)
+    # TFP / SVI samplers do not expose extra_fields; the panels below already
+    # render an "unavailable" annotation, so degrade rather than raise.
+    try:
+        extra = m.sampler.get_extra_fields(group_by_chain=True) or {}
+    except (AttributeError, TypeError):
+        extra = {}
     fig = make_subplots(rows=1, cols=2,
                         subplot_titles=["Energy: Marginal vs Transition",
                                         "Divergences per chain"])
@@ -408,10 +426,11 @@ def multimodality_check(
 
         n_peaks = len(peaks)
         flag = " ⚠ multimodal" if n_peaks > 1 else " ✓"
-        fig.update_annotations(
-            selector=dict(text=param),
-            text=param + flag,
-        )
+        # Index this subplot's own annotation. update_annotations(selector=...)
+        # rewrote EVERY annotation whose text matched, including the figure
+        # title and any duplicate subplot title.
+        if pi < len(fig.layout.annotations):
+            fig.layout.annotations[pi].text = param + flag
 
     fig.update_layout(title=title, height=300 * nrows, plot_bgcolor="white")
     return fig

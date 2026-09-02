@@ -44,8 +44,11 @@ def filter_posterior_dict(posteriors: dict, include=None, exclude=None) -> dict:
     inc = _as_set(include)
     exc = _as_set(exclude)
 
+    # Match on the base name of the *key* too, so a filter of 'var' selects a
+    # dict keyed 'var[0]' / 'var[0,1]' as well as one keyed plain 'var'.
     keys = [k for k in posteriors
-            if (inc is None or k in inc) and (exc is None or k not in exc)]
+            if (inc is None or _base_name(k) in inc)
+            and (exc is None or _base_name(k) not in exc)]
     return {k: posteriors[k] for k in keys}
 
 
@@ -53,9 +56,40 @@ def filter_posterior_dict(posteriors: dict, include=None, exclude=None) -> dict:
 # R-hat (Split R-hat, Vehtari et al. 2021)
 # =============================================================================
 
-@partial(jax.jit, static_argnames=())
-def _rhat_1d(chains: jnp.ndarray) -> jnp.ndarray:
-    """Compute split R-hat for a single parameter.
+def _rhat_core(split) -> float:
+    """Gelman-Rubin R-hat on already-split, already-transformed chains.
+
+    Args:
+        split: (m, n) array of m split-chains of length n.
+
+    Returns:
+        Scalar R-hat, or nan when the within-chain variance is zero.
+    """
+    import numpy as _np
+    split = _np.asarray(split, dtype=float)
+    m, n = split.shape
+
+    chain_means = split.mean(axis=1)
+    W = _np.mean(_np.var(split, axis=1, ddof=1))
+    if not _np.isfinite(W) or W == 0:
+        return float("nan")
+    B = n * _np.var(chain_means, ddof=1)
+    var_hat = (n - 1) / n * W + B / n
+    return float(_np.sqrt(var_hat / W))
+
+
+def _rhat_1d(chains) -> float:
+    """Rank-normalized folded-split R-hat (Vehtari et al. 2021).
+
+    This is the estimator ``az.rhat(method="rank")`` computes, and the one the
+    conventional 1.01 threshold is calibrated against. It is the maximum of
+
+      * bulk R-hat  — split R-hat on rank-normalized draws, and
+      * tail R-hat  — split R-hat on rank-normalized *folded* draws
+                      ``|x - median(x)|``.
+
+    The folded half is what detects a chain whose **variance**, rather than its
+    mean, has not converged; plain split R-hat is blind to that failure mode.
 
     Args:
         chains: Array of shape (num_chains, num_samples).
@@ -63,34 +97,16 @@ def _rhat_1d(chains: jnp.ndarray) -> jnp.ndarray:
     Returns:
         Scalar R-hat value.
     """
-    num_chains, num_samples = chains.shape
+    import numpy as _np
+    split = _split_chains_np(_np.asarray(chains, dtype=float))
 
-    # Split each chain in half -> 2 * num_chains half-chains
-    half = num_samples // 2
-    first_half = chains[:, :half]
-    second_half = chains[:, half:2 * half]
-    split_chains = jnp.concatenate([first_half, second_half], axis=0)  # (2*C, half)
+    rhat_bulk = _rhat_core(_z_scale_np(split))
+    folded = _np.abs(split - _np.median(split))
+    rhat_tail = _rhat_core(_z_scale_np(folded))
 
-    m = split_chains.shape[0]  # number of split chains
-    n = split_half = half       # length of each split chain
-
-    # Chain means and overall mean
-    chain_means = jnp.mean(split_chains, axis=1)  # (m,)
-    overall_mean = jnp.mean(chain_means)
-
-    # Between-chain variance B
-    B = n / (m - 1) * jnp.sum((chain_means - overall_mean) ** 2)
-
-    # Within-chain variance W
-    chain_vars = jnp.var(split_chains, axis=1, ddof=1)  # (m,)
-    W = jnp.mean(chain_vars)
-
-    # Pooled variance estimate
-    var_hat = (n - 1) / n * W + B / n
-
-    # R-hat
-    rhat = jnp.sqrt(var_hat / W)
-    return rhat
+    if _np.isnan(rhat_bulk) and _np.isnan(rhat_tail):
+        return float("nan")
+    return float(_np.nanmax([rhat_bulk, rhat_tail]))
 
 
 def rhat(posterior_samples: dict, var_names=None,
@@ -106,24 +122,25 @@ def rhat(posterior_samples: dict, var_names=None,
     Returns:
         Dict of {name: R-hat value(s)}.
     """
+    import numpy as np
+
     posterior_samples = filter_posterior_dict(
         posterior_samples, include=include or var_names, exclude=exclude)
     var_names = list(posterior_samples.keys())
 
     results = {}
     for name in var_names:
-        samples = posterior_samples[name]
+        samples = _as_chain_major(posterior_samples[name])
         if samples.ndim == 2:
             # Scalar parameter: (chains, samples)
             results[name] = float(_rhat_1d(samples))
         else:
             # Multi-dimensional parameter: (chains, samples, ...)
             param_shape = samples.shape[2:]
-            rhat_vals = jnp.empty(param_shape)
-            import numpy as np
+            rhat_vals = np.empty(param_shape, dtype=float)
             for idx in np.ndindex(param_shape):
                 chain_slice = samples[(slice(None), slice(None)) + idx]  # (C, S)
-                rhat_vals = rhat_vals.at[idx].set(_rhat_1d(chain_slice))
+                rhat_vals[idx] = _rhat_1d(chain_slice)
             results[name] = rhat_vals
     return results
 
@@ -132,19 +149,26 @@ def rhat(posterior_samples: dict, var_names=None,
 # Effective Sample Size (ESS) — bulk and tail
 # =============================================================================
 
-@partial(jax.jit, static_argnames=('max_lag',))
-def _autocorr_1d(x: jnp.ndarray, max_lag: int = None) -> jnp.ndarray:
-    """Compute autocorrelation using FFT for a single 1D chain."""
-    n = x.shape[0]
-    if max_lag is None:
-        max_lag = n
-    x_centered = x - jnp.mean(x)
+def _as_chain_major(samples, group_by_chain: bool = True):
+    """Coerce posterior samples to chain-major ``(C, S, ...)``.
+
+    ``m.posteriors`` holds flat ``(N, ...)`` draws while
+    ``m.posteriors_by_chain`` holds ``(C, S, ...)``. Every estimator here wants
+    the latter.
+
+    A 1-D ``(N,)`` array is unambiguous and is always promoted to ``(1, N)``.
+    A 2-D array is genuinely ambiguous — ``(N, K)`` flat draws of a K-vector
+    look exactly like ``(C, S)`` draws of a scalar — so the caller must say
+    which it is via ``group_by_chain``; guessing from the shape is what used to
+    make ``ess``/``mcse`` raise IndexError on flat input.
+    """
     import numpy as _np
-    fft_size = 2 ** int(_np.ceil(_np.log2(2 * n - 1)))
-    fft_x = jnp.fft.rfft(x_centered, n=fft_size)
-    acf = jnp.fft.irfft(fft_x * jnp.conj(fft_x), n=fft_size)[:n]
-    acf = acf / acf[0]
-    return acf[:max_lag]
+    arr = _np.asarray(samples)
+    if arr.ndim == 1:
+        return arr[None, :]
+    if not group_by_chain:
+        return arr[None, ...]
+    return arr
 
 
 def _autocov_np(ary):
@@ -252,44 +276,95 @@ def _ess_1d(chains) -> float:
 
 
 def _ess_tail_1d(chains) -> float:
-    """Tail ESS: min(ESS(I(x<=q05)), ESS(I(x<=q95))) (matches ArviZ _ess_tail)."""
+    """Tail ESS: min(ESS(I(x<=q05)), ESS(I(x<=q95))) (matches ArviZ _ess_tail).
+
+    ArviZ splits the chains *before* taking the quantiles, which matters when
+    ``n_draw`` is odd (splitting drops the middle draw).
+    """
     import numpy as _np
     chains = _np.asarray(chains, dtype=float)
-    flat = chains.flatten()
-    q05 = _np.percentile(flat, 5)
-    q95 = _np.percentile(flat, 95)
-    ess_low = _ess_raw(_split_chains_np((chains <= q05).astype(float)))
-    ess_high = _ess_raw(_split_chains_np((chains <= q95).astype(float)))
+    split = _split_chains_np(chains)
+    q05, q95 = _np.percentile(split, [5, 95])
+    ess_low = _ess_raw((split <= q05).astype(float))
+    ess_high = _ess_raw((split <= q95).astype(float))
     return float(min(ess_low, ess_high))
 
 
+def _ess_mean_1d(chains) -> float:
+    """ESS of the mean: split chains, no rank-normalization (ArviZ _ess_mean).
+
+    This — not bulk ESS — is the ESS that ``mcse_mean`` divides by.
+    """
+    import numpy as _np
+    return float(_ess_raw(_split_chains_np(_np.asarray(chains, dtype=float))))
+
+
+def _ess_sd_1d(chains) -> float:
+    """ESS of the sd (ArviZ _ess_sd): ESS of the squared deviations."""
+    import numpy as _np
+    ary = _np.asarray(chains, dtype=float)
+    return float(_ess_raw(_split_chains_np((ary - ary.mean()) ** 2)))
+
+
+def _mcse_sd_1d(chains) -> float:
+    """MCSE of the posterior sd (ArviZ _mcse_sd).
+
+    Delta-method form: the sd is a smooth function of the mean squared
+    deviation, so its MC error follows from that mean's MC error. The old
+    ``sd / sqrt(2*(ess-1))`` normal approximation was off by 20-90%.
+    """
+    import numpy as _np
+    ary = _np.asarray(chains, dtype=float)
+    if ary.size < 4:
+        return float('nan')
+    sims_c2 = (ary - ary.mean()) ** 2
+    e = _ess_mean_1d(sims_c2)
+    if not _np.isfinite(e) or e <= 0:
+        return float('nan')
+    evar = sims_c2.mean()
+    if evar <= 0:
+        return float('nan')
+    varvar = ((sims_c2 ** 2).mean() - evar ** 2) / e
+    return float(_np.sqrt(varvar / evar / 4))
+
+
 def ess(posterior_samples: dict, var_names=None, kind="bulk",
-        include=None, exclude=None) -> dict:
+        include=None, exclude=None, group_by_chain: bool = True) -> dict:
     """Compute effective sample size for all parameters.
 
     Args:
-        posterior_samples: Dict of {name: array}, shape (chains, samples, ...).
+        posterior_samples: Dict of {name: array}.
+            group_by_chain=True (default): shape (chains, samples, ...).
+            group_by_chain=False: flat shape (n_samples, ...).
         include: str or list — keep only these base names.
         exclude: str or list — remove these base names.
         var_names: legacy alias for include.
-        kind: "bulk" or "tail".
+        kind: "bulk", "tail", "mean" or "sd".
+        group_by_chain: whether the leading axis is the chain axis.
 
     Returns:
         Dict of {name: ESS value(s)}.
     """
+    import numpy as np
+
     posterior_samples = filter_posterior_dict(
         posterior_samples, include=include or var_names, exclude=exclude)
 
-    ess_fn = _ess_1d if kind == "bulk" else _ess_tail_1d
+    try:
+        ess_fn = {"bulk": _ess_1d, "tail": _ess_tail_1d,
+                  "mean": _ess_mean_1d, "sd": _ess_sd_1d}[kind]
+    except KeyError:
+        raise ValueError(
+            f"kind must be one of 'bulk', 'tail', 'mean', 'sd'; got {kind!r}")
 
     results = {}
     for name, samples in posterior_samples.items():
+        samples = _as_chain_major(samples, group_by_chain=group_by_chain)
         if samples.ndim == 2:
             results[name] = ess_fn(samples)
         else:
             param_shape = samples.shape[2:]
-            import numpy as np
-            ess_vals = np.empty(param_shape)
+            ess_vals = np.empty(param_shape, dtype=float)
             for idx in np.ndindex(param_shape):
                 chain_slice = samples[(slice(None), slice(None)) + idx]
                 ess_vals[idx] = ess_fn(chain_slice)
@@ -311,21 +386,23 @@ def hdi(samples: jnp.ndarray, hdi_prob: float = 0.94) -> jnp.ndarray:
     Returns:
         Array of [lower, upper] bounds.
     """
-    samples = jnp.sort(samples.flatten())
+    # NumPy, not JAX: JAX defaults to 32-bit, which cost ~3e-08 of accuracy on
+    # the returned bounds for no benefit (this is a sort plus an argmin).
+    import numpy as _np
+    samples = _np.sort(_np.asarray(samples, dtype=_np.float64).ravel())
     n = samples.shape[0]
-    interval_size = int(jnp.ceil(hdi_prob * n))
+    # ArviZ uses floor here; ceil produced a systematically wider interval
+    # whenever hdi_prob * n was not an integer.
+    interval_size = int(_np.floor(hdi_prob * n))
 
     # Slide a window of size interval_size and find the narrowest
-    if interval_size >= n:
-        return jnp.array([samples[0], samples[-1]])
+    if interval_size >= n or interval_size < 1:
+        return _np.array([samples[0], samples[-1]])
 
     # Width of every possible interval
-    starts = samples[:n - interval_size]
-    ends = samples[interval_size:]
-    widths = ends - starts
-
-    best_idx = int(jnp.argmin(widths))
-    return jnp.array([samples[best_idx], samples[best_idx + interval_size]])
+    widths = samples[interval_size:] - samples[:n - interval_size]
+    best_idx = int(_np.argmin(widths))
+    return _np.array([samples[best_idx], samples[best_idx + interval_size]])
 
 
 # =============================================================================
@@ -374,71 +451,56 @@ def summary(posterior_samples: dict, round_to: int = 2, hdi_prob: float = 0.89,
     hdi_lo_col = f'hdi_{lo_pct:.1f}%'
     hdi_hi_col = f'hdi_{hi_pct:.1f}%'
 
+    def _stats_for(chains_2d):
+        """All summary columns for one scalar parameter, chains (C, S)."""
+        all_samples = np.asarray(chains_2d, dtype=float).flatten()
+
+        mean_val = float(np.mean(all_samples))
+        # ArviZ reports the sample sd with ddof=1.
+        sd_val = float(np.std(all_samples, ddof=1)) if all_samples.size > 1 else float('nan')
+        hdi_vals = hdi(all_samples, hdi_prob=hdi_prob)
+
+        # Split R-hat is well defined for a single chain (that is the point of
+        # splitting), so it is reported rather than forced to nan.
+        rhat_val = _rhat_1d(chains_2d)
+        ess_val = _ess_1d(chains_2d)
+        ess_tail_val = _ess_tail_1d(chains_2d)
+
+        # mcse_mean divides by ess_mean (split, NOT rank-normalized), not by
+        # ess_bulk; mcse_sd uses ArviZ's exact factor, not the normal approx.
+        ess_mean_val = _ess_mean_1d(chains_2d)
+        mcse_mean_val = (sd_val / ess_mean_val ** 0.5
+                         if ess_mean_val > 0 else float('nan'))
+        mcse_sd_val = _mcse_sd_1d(chains_2d)
+
+        return {
+            'mean': mean_val, 'sd': sd_val,
+            hdi_lo_col: float(hdi_vals[0]),
+            hdi_hi_col: float(hdi_vals[1]),
+            'mcse_mean': mcse_mean_val,
+            'mcse_sd': mcse_sd_val,
+            'ess_bulk': ess_val,
+            'ess_tail': ess_tail_val,
+            'r_hat': rhat_val,
+        }
+
     summary_stats = {}
 
     for var_name in vars_to_process:
-        samples = posterior_samples[var_name]
-
-        if not group_by_chain:
-            # Flat input (n_samples, ...) → (1, n_samples, ...)
-            samples = jnp.expand_dims(samples, 0)
+        samples = _as_chain_major(posterior_samples[var_name],
+                                  group_by_chain=group_by_chain)
 
         # samples is now (C, S, ...)
-        num_chains = samples.shape[0]
         param_shape = samples.shape[2:]
 
         if not param_shape:
-            # Scalar parameter
-            all_samples = samples.flatten()
-            chains_2d = samples  # (C, S)
-
-            mean_val = float(jnp.mean(all_samples))
-            sd_val = float(jnp.std(all_samples))
-            hdi_vals = hdi(all_samples, hdi_prob=hdi_prob)
-            rhat_val = float(_rhat_1d(chains_2d)) if num_chains > 1 else float('nan')
-            ess_val = _ess_1d(chains_2d)
-            ess_tail_val = _ess_tail_1d(chains_2d)
-            mcse_mean_val = sd_val / (ess_val ** 0.5) if ess_val > 0 else float('nan')
-            mcse_sd_val = (sd_val / ((2 * (ess_val - 1)) ** 0.5)
-                          if ess_val > 1 else float('nan'))
-
-            summary_stats[var_name] = {
-                'mean': mean_val, 'sd': sd_val,
-                hdi_lo_col: float(hdi_vals[0]),
-                hdi_hi_col: float(hdi_vals[1]),
-                'mcse_mean': mcse_mean_val,
-                'mcse_sd': mcse_sd_val,
-                'ess_bulk': ess_val,
-                'ess_tail': ess_tail_val,
-                'r_hat': rhat_val,
-            }
+            summary_stats[var_name] = _stats_for(samples)
         else:
             for idx in np.ndindex(param_shape):
                 idx_str = "[" + ", ".join(map(str, idx)) + "]"
                 full_name = f"{var_name}{idx_str}"
                 element_samples = samples[(slice(None), slice(None)) + idx]
-                all_samples = element_samples.flatten()
-
-                mean_val = float(jnp.mean(all_samples))
-                sd_val = float(jnp.std(all_samples))
-                hdi_vals = hdi(all_samples, hdi_prob=hdi_prob)
-                rhat_val = float(_rhat_1d(element_samples)) if num_chains > 1 else float('nan')
-                ess_val = _ess_1d(element_samples)
-                ess_tail_val = _ess_tail_1d(element_samples)
-                mcse_mean_val = sd_val / (ess_val ** 0.5) if ess_val > 0 else float('nan')
-                mcse_sd_val = (sd_val / ((2 * (ess_val - 1)) ** 0.5)
-                              if ess_val > 1 else float('nan'))
-
-                summary_stats[full_name] = {
-                    'mean': mean_val, 'sd': sd_val,
-                    hdi_lo_col: float(hdi_vals[0]),
-                    hdi_hi_col: float(hdi_vals[1]),
-                    'mcse_mean': mcse_mean_val,
-                    'mcse_sd': mcse_sd_val,
-                    'ess_bulk': ess_val,
-                    'ess_tail': ess_tail_val,
-                    'r_hat': rhat_val,
-                }
+                summary_stats[full_name] = _stats_for(element_samples)
 
     return pd.DataFrame(summary_stats).T.round(round_to)
 
@@ -448,38 +510,59 @@ def summary(posterior_samples: dict, round_to: int = 2, hdi_prob: float = 0.89,
 # =============================================================================
 
 def mcse(posterior_samples: dict, var_names=None,
-         include=None, exclude=None) -> dict:
+         include=None, exclude=None, kind: str = "mean",
+         group_by_chain: bool = True) -> dict:
     """Compute Monte Carlo Standard Error for all parameters.
 
-    MCSE = posterior_std / sqrt(ESS_bulk)
+    Matches ``az.mcse``:
+
+      * ``kind="mean"`` — ``sd / sqrt(ess_mean)``, where ess_mean is the split
+        (NOT rank-normalized) ESS. Dividing by ess_bulk, as this used to, gives
+        a materially different number for skewed posteriors.
+      * ``kind="sd"``  — ``sd * sqrt(e * (1 - 1/ess_sd)**(ess_sd - 1) - 1)``.
 
     Args:
-        posterior_samples: Dict of {name: array}, shape (chains, samples, ...).
+        posterior_samples: Dict of {name: array}.
+            group_by_chain=True (default): shape (chains, samples, ...).
+            group_by_chain=False: flat shape (n_samples, ...).
         include: str or list — keep only these base names.
         exclude: str or list — remove these base names.
         var_names: legacy alias for include.
+        kind: "mean" (default) or "sd".
+        group_by_chain: whether the leading axis is the chain axis.
 
     Returns:
         Dict of {name: MCSE value(s)}.
     """
+    import numpy as np
+
+    if kind not in ("mean", "sd"):
+        raise ValueError(f"kind must be 'mean' or 'sd'; got {kind!r}")
+
     posterior_samples = filter_posterior_dict(
         posterior_samples, include=include or var_names, exclude=exclude)
 
-    ess_results = ess(posterior_samples, kind="bulk")
+    def _mcse_1d(chains_2d):
+        flat = np.asarray(chains_2d, dtype=float).flatten()
+        if flat.size < 2:
+            return float('nan')
+        sd_val = float(np.std(flat, ddof=1))
+        if kind == "mean":
+            e = _ess_mean_1d(chains_2d)
+            return sd_val / e ** 0.5 if e > 0 else float('nan')
+        return _mcse_sd_1d(chains_2d)
 
     results = {}
     for name, samples in posterior_samples.items():
-        std_val = float(jnp.std(samples.flatten()))
-        ess_val = ess_results[name]
-        if isinstance(ess_val, (int, float)):
-            results[name] = std_val / (ess_val ** 0.5)
+        samples = _as_chain_major(samples, group_by_chain=group_by_chain)
+        if samples.ndim == 2:
+            results[name] = _mcse_1d(samples)
         else:
-            import numpy as np
-            results[name] = np.array(
-                [float(jnp.std(samples[(slice(None), slice(None)) + idx].flatten()))
-                 / (ess_val[idx] ** 0.5)
-                 for idx in np.ndindex(ess_val.shape)]
-            ).reshape(ess_val.shape)
+            param_shape = samples.shape[2:]
+            vals = np.empty(param_shape, dtype=float)
+            for idx in np.ndindex(param_shape):
+                vals[idx] = _mcse_1d(samples[(slice(None), slice(None)) + idx])
+            results[name] = vals
     return results
 
 
@@ -543,11 +626,15 @@ def _gpinv(probs, k, sigma):
     return x
 
 
-def _psis_weights(log_likelihood_i: jnp.ndarray) -> tuple:
+def _psis_weights(log_likelihood_i: jnp.ndarray, reff: float = 1.0) -> tuple:
     """PSIS-smoothed log weights for a single data point, matching ArviZ's _psislw.
 
     Args:
         log_likelihood_i: shape (S,) — log p(y_i | theta_s) for all draws.
+        reff: relative MCMC efficiency, ESS / S. It sets how many draws enter
+            the generalized-Pareto tail fit: ``3 * sqrt(S / reff)``. Leaving it
+            at 1.0 for autocorrelated draws fits the tail on too many points
+            and biases the returned Pareto k.
 
     Returns:
         (log_weights_normalized, pareto_k)
@@ -561,7 +648,8 @@ def _psis_weights(log_likelihood_i: jnp.ndarray) -> tuple:
     max_x = np.max(x)
     x -= max_x
 
-    cutoff_ind = -int(np.ceil(min(S / 5.0, 3 * S ** 0.5))) - 1
+    reff = float(reff) if reff and np.isfinite(reff) and reff > 0 else 1.0
+    cutoff_ind = -int(np.ceil(min(S / 5.0, 3 * (S / reff) ** 0.5))) - 1
     cutoffmin = np.log(np.finfo(float).tiny)
 
     x_sort_ind = np.argsort(x)
@@ -614,7 +702,9 @@ class ELPDData:
         self.pareto_k = pareto_k
         self.scale = scale
         self.warning = warning
-        self.good_k = min(1 - 1 / max(jnp.log10(n_samples), 1.01), 0.7) if n_samples > 10 else 0.7
+        import math
+        self.good_k = (min(1 - 1 / max(math.log10(n_samples), 1.01), 0.7)
+                       if n_samples > 10 else 0.7)
 
     def __repr__(self):
         kind_upper = self.kind.upper()
@@ -628,7 +718,8 @@ class ELPDData:
             "",
         ]
         if self.pareto_k is not None:
-            n_bad = int(jnp.sum(jnp.array(self.pareto_k) > self.good_k))
+            import numpy as _np
+            n_bad = int(_np.sum(_np.asarray(self.pareto_k) > self.good_k))
             if n_bad > 0:
                 lines.append(
                     f"WARNING: {n_bad} Pareto k values > {self.good_k:.2f}. "
@@ -641,8 +732,45 @@ class ELPDData:
         return "\n".join(lines)
 
 
+def relative_eff(posterior_samples: dict) -> float:
+    """Relative MCMC efficiency ``reff = mean(ess_mean) / n_samples``.
+
+    This is what ``az.loo`` computes to size the PSIS tail, and it is derived
+    from the **posterior**, not from the log-likelihood. Pass the result to
+    :func:`loo` as ``reff=``; without it ``loo`` assumes 1.0 (the value ArviZ
+    uses for a single chain), which for autocorrelated draws fits the
+    generalized-Pareto tail on too many points and biases the reported k.
+
+    Args:
+        posterior_samples: Dict of {name: array} shaped (chains, samples, ...).
+
+    Returns:
+        Scalar reff in (0, 1]; 1.0 when there is no usable chain structure.
+    """
+    import numpy as np
+
+    effs = []
+    n_samples = None
+    for arr in posterior_samples.values():
+        arr = _as_chain_major(arr)
+        if arr.ndim < 2 or arr.shape[0] < 2:
+            continue
+        C, S = arr.shape[0], arr.shape[1]
+        if C * S < 4:
+            continue
+        n_samples = C * S
+        flat = arr.reshape(C, S, -1)
+        for i in range(flat.shape[2]):
+            effs.append(_ess_mean_1d(flat[:, :, i]))
+
+    if not effs or not n_samples:
+        return 1.0
+    reff = float(np.nanmean(effs) / n_samples)
+    return reff if np.isfinite(reff) and reff > 0 else 1.0
+
+
 def loo(log_likelihood: jnp.ndarray, pointwise: bool = False,
-        scale: str = "log") -> ELPDData:
+        scale: str = "log", reff: float = None) -> ELPDData:
     """Compute PSIS-LOO-CV from pointwise log-likelihood values.
 
     Implements Pareto-smoothed importance sampling leave-one-out
@@ -654,10 +782,17 @@ def loo(log_likelihood: jnp.ndarray, pointwise: bool = False,
             log-likelihood values log p(y_i | theta_s).
         pointwise: If True, include pointwise values in the result.
         scale: "log" (default), "negative_log", or "deviance".
+        reff: Relative MCMC efficiency (ESS / n_samples) used to size the PSIS
+            tail. Defaults to 1.0, matching ArviZ's single-chain case. Compute
+            it from the posterior with :func:`relative_eff` and pass it here to
+            reproduce ``az.loo`` exactly on autocorrelated draws.
 
     Returns:
         ELPDData object with elpd_loo, p_loo, SE, etc.
     """
+    if reff is None:
+        reff = 1.0
+
     # Flatten chains if needed: (C, S, N) -> (C*S, N)
     if log_likelihood.ndim == 3:
         C, S, N = log_likelihood.shape
@@ -670,35 +805,40 @@ def loo(log_likelihood: jnp.ndarray, pointwise: bool = False,
 
     total_S, N = ll_flat.shape
 
+    # float64 throughout; see the note in waic().
+    import math
+    import numpy as _np
+    from scipy.special import logsumexp as _sp_logsumexp
+    ll_flat = _np.asarray(ll_flat, dtype=_np.float64)
+
     # Compute PSIS weights and LOO-elpd for each data point
-    loo_lppd_i = jnp.zeros(N)
-    pareto_k = jnp.zeros(N)
+    loo_lppd_i = _np.zeros(N, dtype=_np.float64)
+    pareto_k = _np.zeros(N, dtype=_np.float64)
 
     for i in range(N):
-        log_w, k_i = _psis_weights(ll_flat[:, i])
+        log_w, k_i = _psis_weights(ll_flat[:, i], reff=reff)
         # LOO log predictive density for point i:
         # log( sum_s w_s * p(y_i | theta_s) ) where w_s are normalized PSIS weights
         # = logsumexp(log_w + log_lik_i)
-        loo_lppd_i = loo_lppd_i.at[i].set(
-            jax.scipy.special.logsumexp(log_w + ll_flat[:, i])
-        )
-        pareto_k = pareto_k.at[i].set(k_i)
+        loo_lppd_i[i] = _sp_logsumexp(
+            _np.asarray(log_w, dtype=_np.float64) + ll_flat[:, i])
+        pareto_k[i] = k_i
 
     # elpd_loo = sum of pointwise loo_lppd
-    elpd_loo = jnp.sum(loo_lppd_i)
+    elpd_loo = _np.sum(loo_lppd_i)
 
     # p_loo (effective number of parameters)
     # = lppd - elpd_loo, where lppd = sum_i log(mean_s p(y_i|theta_s))
-    lppd_i = jax.scipy.special.logsumexp(ll_flat, axis=0) - jnp.log(total_S)
-    lppd = jnp.sum(lppd_i)
+    lppd_i = _sp_logsumexp(ll_flat, axis=0) - _np.log(total_S)
+    lppd = _np.sum(lppd_i)
     p_loo = lppd - elpd_loo
 
     # Standard error
-    se = jnp.sqrt(N * jnp.var(loo_lppd_i))
+    se = _np.sqrt(N * _np.var(loo_lppd_i))
 
     # Warning
-    good_k = min(1 - 1 / max(float(jnp.log10(total_S)), 1.01), 0.7)
-    has_warning = bool(jnp.any(pareto_k > good_k))
+    good_k = min(1 - 1 / max(math.log10(total_S), 1.01), 0.7)
+    has_warning = bool(_np.any(pareto_k > good_k))
 
     # Scale
     elpd_out = float(elpd_loo)
@@ -715,7 +855,7 @@ def loo(log_likelihood: jnp.ndarray, pointwise: bool = False,
         n_samples=int(total_S),
         n_data_points=int(N),
         pointwise_elpd=loo_lppd_i if pointwise else None,
-        pareto_k=pareto_k if pointwise else pareto_k,
+        pareto_k=pareto_k,
         scale=scale,
         warning=has_warning,
     )
@@ -756,24 +896,31 @@ def waic(log_likelihood: jnp.ndarray, pointwise: bool = False,
 
     total_S, N = ll_flat.shape
 
+    # float64 throughout: JAX defaults to 32-bit, which cost ~2e-6 of relative
+    # accuracy on the SE compared with az.waic.
+    import numpy as _np
+    from scipy.special import logsumexp as _sp_logsumexp
+    ll_flat = _np.asarray(ll_flat, dtype=_np.float64)
+
     # lppd = sum_i log( mean_s( p(y_i | theta_s) ) )
     # In log space: logsumexp over samples - log(S)
-    lppd_i = jax.scipy.special.logsumexp(ll_flat, axis=0) - jnp.log(total_S)
+    lppd_i = _sp_logsumexp(ll_flat, axis=0) - _np.log(total_S)
 
     # p_waic = sum_i var_s( log p(y_i | theta_s) )
-    # Variance of log-lik across posterior samples, for each data point
-    p_waic_i = jnp.var(ll_flat, axis=0)
+    # Variance of log-lik across posterior samples, for each data point.
+    # ddof=0, matching ArviZ (xarray .var() default).
+    p_waic_i = _np.var(ll_flat, axis=0)
 
     # elpd_waic = lppd - p_waic (pointwise)
     elpd_waic_i = lppd_i - p_waic_i
-    elpd_waic = jnp.sum(elpd_waic_i)
-    p_waic = jnp.sum(p_waic_i)
+    elpd_waic = _np.sum(elpd_waic_i)
+    p_waic = _np.sum(p_waic_i)
 
     # Standard error
-    se = jnp.sqrt(N * jnp.var(elpd_waic_i))
+    se = _np.sqrt(N * _np.var(elpd_waic_i))
 
     # Warning: if any p_waic_i > 0.4
-    has_warning = bool(jnp.any(p_waic_i > 0.4))
+    has_warning = bool(_np.any(p_waic_i > 0.4))
 
     # Scale
     elpd_out = float(elpd_waic)
@@ -834,6 +981,12 @@ def compare(compare_dict: dict, ic: str = "loo", method: str = "stacking",
     K = len(model_names)
     N = results[model_names[0]].n_data_points
 
+    sizes = {m: pointwise_elpds[m].shape[0] for m in model_names}
+    if len(set(sizes.values())) > 1:
+        raise ValueError(
+            "All models must be compared on the same observations; got "
+            f"differing n_data_points: {sizes}")
+
     # Stack pointwise elpds: (K, N)
     elpd_matrix = np.stack([pointwise_elpds[m] for m in model_names])
 
@@ -856,7 +1009,10 @@ def compare(compare_dict: dict, ic: str = "loo", method: str = "stacking",
 
     for idx, name in enumerate(model_names):
         res = results[name]
-        diff_pointwise = elpd_matrix[idx] - best_elpd_pointwise
+        # ArviZ convention: elpd_diff = best - model, so it is 0 for the
+        # top-ranked model and POSITIVE for worse ones. The reverse sign made
+        # this table disagree with az.compare and with az.plot_compare.
+        diff_pointwise = best_elpd_pointwise - elpd_matrix[idx]
         elpd_diff = np.sum(diff_pointwise)
         dse = np.sqrt(N * np.var(diff_pointwise)) if idx != best_idx else 0.0
 

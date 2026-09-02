@@ -6,6 +6,19 @@ try:
 except ImportError:
     pass
 
+# ArviZ >=1.3 pulls NumPyro through lazy_loader; when arviz is imported before
+# numpyro the `numpyro.infer.initialization` submodule ends up in sys.modules
+# without being attached to its parent, so arviz_base.io_numpyro.infer_dims
+# raises AttributeError. Re-attach it.
+try:
+    import sys as _sys
+    import numpyro.infer as _npi
+    import numpyro.infer.initialization  # noqa: F401
+    if not hasattr(_npi, "initialization"):
+        _npi.initialization = _sys.modules["numpyro.infer.initialization"]
+except ImportError:
+    pass
+
 from .Main.main import bf, BF
 from .SetDevice.set import setup_device
 from .Resources.datasets import load

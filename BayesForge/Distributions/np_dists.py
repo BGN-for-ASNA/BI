@@ -163,7 +163,7 @@ class UnifiedDist:
     def plate(name, shape, **kwargs):
         return numpyro.plate(name, shape, **kwargs)
 
-    def asymmetric_laplace(self,loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def asymmetric_laplace(self,loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Asymmetric Laplace
@@ -271,7 +271,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def asymmetric_laplace_quantile(self,loc=0.0, scale=1.0, quantile=0.5, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def asymmetric_laplace_quantile(self,loc=0.0, scale=1.0, quantile=0.5, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Asymmetric Laplace Quantile
@@ -357,7 +357,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli_logits(self,logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def bernoulli_logits(self,logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli Logits
@@ -451,7 +451,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def bernoulli_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli Probs
@@ -539,7 +539,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def beta(self,concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def beta(self,concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Beta 
@@ -641,7 +641,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def beta_binomial(self,concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def beta_binomial(self,concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### BetaBinomial 
@@ -734,7 +734,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def beta_proportion(self,mean, concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def beta_proportion(self,mean, concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Beta Proportion 
@@ -832,7 +832,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial_logits(self,logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def binomial_logits(self,logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial Logits 
@@ -915,7 +915,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial_probs(self,probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def binomial_probs(self,probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial Probs
@@ -1001,7 +1001,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def car(self,loc, correlation, conditional_precision, adj_matrix, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def car(self,loc, correlation, conditional_precision, adj_matrix, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
 
         r"""### Conditional Autoregressive (CAR) 
         The CAR distribution models a vector of variables where each variable is a linear
@@ -1091,7 +1091,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical_logits(self,logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def categorical_logits(self,logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical Logits 
@@ -1173,7 +1173,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def categorical_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical Probs distribution.
@@ -1257,7 +1257,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def cauchy(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def cauchy(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Cauchy 
@@ -1349,7 +1349,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def chi2(self,df, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def chi2(self,df, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Chi-squared
@@ -1439,7 +1439,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def circulant_normal(self,loc: jax.Array, covariance_row: jax.Array = None, covariance_rfft: jax.Array = None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def circulant_normal(self,loc: jax.Array, covariance_row: jax.Array = None, covariance_rfft: jax.Array = None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Circulant Normal Multivariate normal 
@@ -1544,7 +1544,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def delta(self,v=0.0, log_density=0.0, event_dim=0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def delta(self,v=0.0, log_density=0.0, event_dim=0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Delta
@@ -1630,7 +1630,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def dirichlet(self,concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def dirichlet(self,concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Dirichlet
@@ -1725,7 +1725,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def dirichlet_multinomial(self,concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = False):
+    def dirichlet_multinomial(self,concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
         r"""### Dirichlet-Multinomial
     
         Creates a Dirichlet-Multinomial compound distribution, which is a Multinomial
@@ -1842,7 +1842,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def discrete_uniform(self,low=0, high=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def discrete_uniform(self,low=0, high=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Discrete Uniform 
@@ -1931,7 +1931,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def doubly_truncated_power_law(self,alpha, low, high, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def doubly_truncated_power_law(self,alpha, low, high, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         r"""### Doubly Truncated Power Law 
 
         This distribution represents a continuous power law with a finite support bounded
@@ -2035,7 +2035,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def euler_maruyama(self,t, sde_fn, init_dist, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=0,   shape=(), event=0,create_obj=False, to_jax = False):
+    def euler_maruyama(self,t, sde_fn, init_dist, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=0,   shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""###  Euler–Maruyama
@@ -2117,7 +2117,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def exponential(self,rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def exponential(self,rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Exponential
@@ -2199,7 +2199,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def folded_distribution(self,base_dist, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def folded_distribution(self,base_dist, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Folded
@@ -2277,7 +2277,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gamma(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def gamma(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gamma 
@@ -2372,7 +2372,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gamma_poisson(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def gamma_poisson(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gamma Poisson 
@@ -2461,7 +2461,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gaussian_copula(self,marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def gaussian_copula(self,marginal_dist, correlation_matrix=None, correlation_cholesky=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""###  Gaussian Copula
@@ -2544,7 +2544,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gaussian_copula_beta(self,concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def gaussian_copula_beta(self,concentration1, concentration0, correlation_matrix=None, correlation_cholesky=None, validate_args=False, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gaussian Copula Beta 
@@ -2630,7 +2630,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gaussian_random_walk(self,scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = False):
+    def gaussian_random_walk(self,scale=1.0, num_steps=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
         r"""### Gaussian Random Walk 
     
         Creates a distribution over a Gaussian random walk of a specified number of steps.
@@ -2728,7 +2728,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gaussian_state_space(self,num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def gaussian_state_space(self,num_steps, transition_matrix, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gaussian State Space 
@@ -2808,7 +2808,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def geometric_logits(self,logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def geometric_logits(self,logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### GeometricLogits 
@@ -2893,7 +2893,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def geometric_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def geometric_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### GeometricProbs
@@ -2970,7 +2970,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gompertz(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def gompertz(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gompertz
@@ -3056,7 +3056,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def gumbel(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def gumbel(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Gumbel
@@ -3140,7 +3140,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def half_cauchy(self,scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def half_cauchy(self,scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### HalfCauchy 
@@ -3215,7 +3215,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def half_normal(self,scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def half_normal(self,scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### HalfNormal
@@ -3296,7 +3296,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def improper_uniform(self,support, batch_shape, event_shape, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def improper_uniform(self,support, batch_shape, event_shape, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Improper Uniform 
@@ -3374,7 +3374,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def inverse_gamma(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def inverse_gamma(self,concentration, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Inverse Gamma 
@@ -3454,7 +3454,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def kumaraswamy(self,concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def kumaraswamy(self,concentration1, concentration0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Kumaraswamy
@@ -3540,7 +3540,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def lkj(self,dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def lkj(self,dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Lewandowski Kurowicka Joe (LKJ)  
@@ -3627,7 +3627,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def lkj_cholesky(self,dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def lkj_cholesky(self,dimension, concentration=1.0, sample_method='onion', validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### LKJ Cholesky 
@@ -3709,7 +3709,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def laplace(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def laplace(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Laplace 
@@ -3793,7 +3793,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def left_truncated_distribution(self,base_dist, low=0.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def left_truncated_distribution(self,base_dist, low=0.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Left Truncated 
@@ -3889,7 +3889,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def levy(self,loc, scale, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def levy(self,loc, scale, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Levy 
@@ -3984,7 +3984,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def log_normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def log_normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Log-Normal
@@ -4091,7 +4091,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def log_uniform(self,low, high, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def log_uniform(self,low, high, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Log-Uniform
@@ -4194,7 +4194,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def logistic(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def logistic(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Logistic 
@@ -4288,7 +4288,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def low_rank_multivariate_normal(self,loc, cov_factor, cov_diag, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def low_rank_multivariate_normal(self,loc, cov_factor, cov_diag, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Low Rank Multivariate Normal 
@@ -4378,7 +4378,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def lower_truncated_power_law(self,alpha, low, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def lower_truncated_power_law(self,alpha, low, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Lower Truncated Power Law
@@ -4471,7 +4471,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def matrix_normal(self,loc, scale_tril_row, scale_tril_column, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def matrix_normal(self,loc, scale_tril_row, scale_tril_column, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Matrix Normal 
@@ -4590,7 +4590,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def mixture_general(self,mixing_distribution, component_distributions, support=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def mixture_general(self,mixing_distribution, component_distributions, support=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Mixture General 
@@ -4675,7 +4675,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def mixture_same_family(self,mixing_distribution, component_distribution, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def mixture_same_family(self,mixing_distribution, component_distribution, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""###  Finite mixture of component distributions from the same family.
@@ -4727,7 +4727,7 @@ class UnifiedDist:
                 sample = True
             )
         
-        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture-, to_jax = False)same-family
+        #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture-, to_jax = True)same-family
 
         #### Reference: 
         * [Mixture distributions ](https://cseweb.ucsd.edu/~elkan/250Bwinter2011/mixturemodels.pdf)
@@ -4766,7 +4766,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial_logits(self,logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def multinomial_logits(self,logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial Logits 
@@ -4863,7 +4863,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial_probs(self,probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def multinomial_probs(self,probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial Probs 
@@ -4940,7 +4940,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multivariate_normal(self,loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def multivariate_normal(self,loc=0.0, covariance_matrix=None, precision_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multivariate Normal
@@ -5046,7 +5046,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multivariate_student_t(self,df, loc=0.0, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def multivariate_student_t(self,df, loc=0.0, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multivariate Student's t 
@@ -5152,7 +5152,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def negative_binomial2(self,mean, concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def negative_binomial2(self,mean, concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### 
@@ -5254,7 +5254,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def negative_binomial_logits(self,total_count, logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def negative_binomial_logits(self,total_count, logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Negative Binomial Logits
@@ -5334,7 +5334,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def negative_binomial_probs(self,total_count, probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def negative_binomial_probs(self,total_count, probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Negative Binomial with probabilities.
@@ -5410,7 +5410,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = False):
+    def normal(self,loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
         
 
         r"""### Normal 
@@ -5498,7 +5498,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def ordered_logistic(self,predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def ordered_logistic(self,predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Ordered Logistic
@@ -5602,7 +5602,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def pareto(self,scale, alpha, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def pareto(self,scale, alpha, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Pareto 
@@ -5703,7 +5703,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def poisson(self,rate, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def poisson(self,rate, is_sparse=False, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Poisson
@@ -5795,7 +5795,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def projected_normal(self,concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def projected_normal(self,concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Projected Normal 
@@ -5877,7 +5877,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def relaxed_bernoulli_logits(self,temperature, logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def relaxed_bernoulli_logits(self,temperature, logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Relaxed Bernoulli Logits
@@ -5970,7 +5970,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def right_truncated_distribution(self,base_dist, high=0.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def right_truncated_distribution(self,base_dist, high=0.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Right Truncated
@@ -6175,7 +6175,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def sine_skewed(self,base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def sine_skewed(self,base_dist: numpyro.distributions.distribution.Distribution, skewness, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
         r"""### Sine-skewing
 
@@ -6243,7 +6243,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def soft_laplace(self,loc, scale, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def soft_laplace(self,loc, scale, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### SoftLaplace
@@ -6332,7 +6332,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def student_t(self,df, loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def student_t(self,df, loc=0.0, scale=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Student's t
@@ -6433,7 +6433,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def truncated_polya_gamma(self,batch_shape=(), validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def truncated_polya_gamma(self,batch_shape=(), validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Truncated PolyaGamma 
@@ -6508,7 +6508,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def two_sided_truncated_distribution(self,base_dist, low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def two_sided_truncated_distribution(self,base_dist, low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Two Sided Truncated 
@@ -6579,7 +6579,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def uniform(self,low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def uniform(self,low=0.0, high=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Uniform 
@@ -6668,7 +6668,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def unit(self,log_factor, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def unit(self,log_factor, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Unit 
@@ -6749,7 +6749,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def weibull(self,scale, concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def weibull(self,scale, concentration, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Weibull 
@@ -6845,7 +6845,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def wishart(self,concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def wishart(self,concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Wishart 
@@ -6952,7 +6952,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def wishart_cholesky(self,concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def wishart_cholesky(self,concentration, scale_matrix=None, rate_matrix=None, scale_tril=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Wishart Cholesky 
@@ -7047,7 +7047,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def zero_inflated_poisson(self,gate, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def zero_inflated_poisson(self,gate, rate=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### A Zero Inflated Poisson 
@@ -7149,7 +7149,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def zero_sum_normal(self,scale, event_shape, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def zero_sum_normal(self,scale, event_shape, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Zero Sum Normal 
@@ -7236,7 +7236,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def bernoulli(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli
@@ -7344,7 +7344,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial(self,total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def binomial(self,total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial
@@ -7447,7 +7447,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def categorical(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical distribution.
@@ -7551,7 +7551,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def geometric(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def geometric(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Geometric distribution.
@@ -7636,7 +7636,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def mixture(self,mixing_distribution, component_distributions, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=0,  shape=(), event=0,create_obj=False, to_jax = False):
+    def mixture(self,mixing_distribution, component_distributions, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=0,  shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### A marginalized finite mixture of component distributions.
@@ -7746,7 +7746,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial(self,total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def multinomial(self,total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial
@@ -7846,7 +7846,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def relaxed_bernoulli(self,temperature, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def relaxed_bernoulli(self,temperature, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Relaxed Bernoulli 
@@ -7941,7 +7941,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def truncated_cauchy(self,loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def truncated_cauchy(self,loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Truncated Cauchy
@@ -8030,7 +8030,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def truncated_distribution(self,base_dist, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def truncated_distribution(self,base_dist, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Truncated 
@@ -8124,7 +8124,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def truncated_normal(self,loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def truncated_normal(self,loc=0.0, scale=1.0, low=None, high=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Truncated Normal 
@@ -8221,7 +8221,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def zero_inflated_distribution(self,base_dist, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def zero_inflated_distribution(self,base_dist, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Generic Zero Inflated
@@ -8315,7 +8315,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def zero_inflated_negative_binomial2(self,mean, concentration, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def zero_inflated_negative_binomial2(self,mean, concentration, gate=None, gate_logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Zero-Inflated Negative Binomial
@@ -8416,7 +8416,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def negative_binomial(self,total_count, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = False):
+    def negative_binomial(self,total_count, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Negative Binomial 

@@ -61,27 +61,59 @@ _COLLECTIVE_MSG = {
 # ---------------------------------------------------------------------------
 # Static checks
 # ---------------------------------------------------------------------------
+def _count_collective(hlo: str, op: str) -> int:
+    """Count HLO *instructions* of a collective opcode.
+
+    A plain ``hlo.count(op)`` double-counts async collectives (XLA emits
+    ``all-gather-start`` and ``all-gather-done`` as separate instructions, both
+    containing the opcode) and also matches the opcode inside ``op_name``
+    metadata strings. Match the operator position instead: ``%x = shape op(``.
+    """
+    pattern = re.compile(
+        rf"=\s*\S+\s+{re.escape(op)}(?:-start|-done)?\s*\(", re.MULTILINE)
+    n = 0
+    for line in hlo.splitlines():
+        if pattern.search(line):
+            # -done pairs with its -start; count the pair once.
+            if f"{op}-done" in line:
+                continue
+            n += 1
+    return n
+
+
 def static_hlo_check(fn, args):
     try:
         hlo = jax.jit(fn).lower(*args).compile().as_text()
     except Exception as e:
         return {"array_collectives": {}, "reductions": 0,
                 "lowering_error": f"{type(e).__name__}: {e}", "unsafe": True}
-    array_collectives = {op: hlo.count(op) for op in ARRAY_COLLECTIVES
-                         if hlo.count(op) > 0}
+    array_collectives = {}
+    for op in ARRAY_COLLECTIVES:
+        n = _count_collective(hlo, op)
+        if n > 0:
+            array_collectives[op] = n
     return {"array_collectives": array_collectives,
-            "reductions": hlo.count(REDUCTION_COLLECTIVE),
+            "reductions": _count_collective(hlo, REDUCTION_COLLECTIVE),
             "lowering_error": None, "unsafe": bool(array_collectives)}
 
 
-def _collect_primitives(jaxpr, names):
+def _collect_primitives(jaxpr, names, _seen=None):
+    if _seen is None:
+        _seen = set()
+    if id(jaxpr) in _seen:
+        return
+    _seen.add(id(jaxpr))
     for eqn in jaxpr.eqns:
         names.add(eqn.primitive.name)
         for v in eqn.params.values():
-            if hasattr(v, "eqns"):
-                _collect_primitives(v, names)
-            elif hasattr(v, "jaxpr") and hasattr(v.jaxpr, "eqns"):
-                _collect_primitives(v.jaxpr, names)
+            # Params can hold a Jaxpr, a ClosedJaxpr, or a tuple/list of them
+            # (lax.cond stores `branches` as a tuple). Only recursing into bare
+            # values missed every primitive inside a cond branch.
+            for sub in (v if isinstance(v, (list, tuple)) else (v,)):
+                if hasattr(sub, "eqns"):
+                    _collect_primitives(sub, names, _seen)
+                elif hasattr(sub, "jaxpr") and hasattr(sub.jaxpr, "eqns"):
+                    _collect_primitives(sub.jaxpr, names, _seen)
 
 
 def static_primitive_check(fn, args):
@@ -148,18 +180,21 @@ def _infer_n_shards(kwargs):
 
 
 def _sharded_data_elems(kwargs):
-    """Total elements of arrays that are actually partitioned (the parallel work)."""
-    sharded, allk = 0, 0
+    """Total elements of arrays that are actually partitioned (the parallel work).
+
+    Returns 0 when nothing is partitioned; falling back to the total size of
+    every array made `ratio` look small for a reason unrelated to sharding.
+    """
+    sharded = 0
     for v in kwargs.values():
         sz = int(np.prod(getattr(v, "shape", ()) or (1,)))
-        allk += sz
         try:
             shard = v.sharding.shard_shape(v.shape)
             if int(np.prod(shard)) < sz:
                 sharded += sz
         except Exception:
             pass
-    return sharded or allk
+    return sharded
 
 
 def backward_collective_check(model, params, sharded_kwargs,
@@ -205,17 +240,67 @@ def backward_collective_check(model, params, sharded_kwargs,
 # Runtime value check
 # ---------------------------------------------------------------------------
 def runtime_value_check(fn_sharded, fn_ref, params, tol=1e-4):
-    val_ref = np.asarray(fn_ref(params))
+    # The reference call has to be inside a guard too, otherwise its failure is
+    # swallowed by run_shard_check's blanket except and reported only as
+    # "shard-check skipped", losing the actual error.
+    try:
+        val_ref = np.asarray(fn_ref(params))
+    except Exception as e:
+        return {"replicated": None, "sharded": None, "match": None,
+                "replicated_error": f"{type(e).__name__}: {e}",
+                "sharded_error": None, "unsafe": True}
     try:
         out = fn_sharded(params)
-        out.block_until_ready()
+        if hasattr(out, "block_until_ready"):
+            out.block_until_ready()
         val_sh = np.asarray(out)
         match = bool(np.allclose(val_ref, val_sh, rtol=tol, atol=tol))
         return {"replicated": float(np.sum(val_ref)), "sharded": float(np.sum(val_sh)),
-                "match": match, "sharded_error": None, "unsafe": not match}
+                "match": match, "replicated_error": None,
+                "sharded_error": None, "unsafe": not match}
     except Exception as e:
         return {"replicated": float(np.sum(val_ref)), "sharded": None, "match": None,
+                "replicated_error": None,
                 "sharded_error": f"{type(e).__name__}: {e}", "unsafe": True}
+
+
+def shard_safety_report(fn, args, shard_mask, data_sharding, rep_sharding,
+                        reference_fn=None, tol=1e-5):
+    """Static + runtime shard check on a raw JAX function.
+
+    The function-level counterpart to :func:`run_shard_check`, which takes a
+    numpyro model. ``shard_mask`` is a list of bools, one per positional arg:
+    True places that argument on ``data_sharding``, False on ``rep_sharding``.
+
+    Args:
+        fn: the function to check.
+        args: its positional arguments (host arrays).
+        shard_mask: one bool per arg — shard it or replicate it.
+        data_sharding: sharding for the masked-True args.
+        rep_sharding: sharding for everything else, and for the reference run.
+        reference_fn: trusted implementation to compare against; defaults to
+            ``fn`` evaluated on fully replicated inputs.
+        tol: rtol/atol for the value comparison.
+
+    Returns:
+        A report dict in the same shape ``diagnose`` and ``print_diagnosis``
+        consume.
+    """
+    arg_shardings = [data_sharding if m else rep_sharding for m in shard_mask]
+    sharded_args = [jax.device_put(np.asarray(a), s)
+                    for a, s in zip(args, arg_shardings)]
+    rep_args = [jax.device_put(np.asarray(a), rep_sharding) for a in args]
+
+    ref_fn = reference_fn if reference_fn is not None else fn
+
+    hlo = static_hlo_check(fn, sharded_args)
+    prim = static_primitive_check(fn, sharded_args)
+    val = runtime_value_check(lambda _: fn(*sharded_args),
+                              lambda _: ref_fn(*rep_args),
+                              None, tol=tol)
+    return {"hlo": hlo, "primitives": prim, "value": val, "backward": None,
+            "static_unsafe": hlo["unsafe"] or bool(prim["suspicious"]),
+            "runtime_unsafe": val["unsafe"]}
 
 
 # ---------------------------------------------------------------------------
@@ -227,7 +312,9 @@ def diagnose(report):
     if hlo["lowering_error"]:
         msgs.append(("✗", f"this sharding cannot be compiled ({hlo['lowering_error']}); "
                      "replicate the offending array"))
-    if v and v["sharded_error"]:
+    if v and v.get("replicated_error"):
+        msgs.append(("✗", f"replicated reference raised: {v['replicated_error']}"))
+    elif v and v["sharded_error"]:
         msgs.append(("✗", f"sharded execution raised: {v['sharded_error']}"))
     elif v and v["match"] is False:
         delta = abs((v["replicated"] or 0.0) - (v["sharded"] or 0.0))

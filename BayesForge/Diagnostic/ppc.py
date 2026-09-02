@@ -29,6 +29,7 @@ from plotly.subplots import make_subplots
 
 _COLORS = pcolors.qualitative.Plotly
 _REP_COLOR = "rgba(100,149,237,0.25)"
+_REP_COLOR_SOLID = "rgba(100,149,237,0.6)"
 _OBS_COLOR = "black"
 
 
@@ -50,7 +51,16 @@ def get_yrep(m, seed=0):
     if m.obs_args and m.obs_args[0] in pred:
         obs_key = m.obs_args[0]
     else:
-        obs_key = next((k for k in pred if k not in param_keys), list(pred.keys())[0])
+        # Picking "the first non-parameter key" depends on dict ordering and
+        # silently returns the wrong site for models with deterministic sites.
+        candidates = [k for k in pred if k not in param_keys]
+        if len(candidates) != 1:
+            raise ValueError(
+                f"Cannot identify the observed site: m.obs_args={m.obs_args!r} "
+                f"and the predictive returned {candidates!r}. Pass yrep= "
+                "explicitly, or set m.obs_args."
+            )
+        obs_key = candidates[0]
     yrep = np.asarray(pred[obs_key])
     if yrep.ndim > 2:
         yrep = yrep.reshape(yrep.shape[0], -1)
@@ -61,12 +71,25 @@ def _as_np(*arrays):
     return [np.asarray(a, dtype=float).flatten() for a in arrays]
 
 
+def _kde(stats, data, bw_adjust=1.0):
+    """gaussian_kde with bw_adjust as a MULTIPLIER on Scott's rule.
+
+    scipy's ``bw_method=`` is the absolute bandwidth factor, not an adjustment,
+    so passing bw_adjust straight through made the default (1.0) about 3.5x
+    wider than Scott at n=500 -- every density overlay came out oversmoothed.
+    """
+    kde = stats.gaussian_kde(data)
+    if bw_adjust is not None and bw_adjust != 1.0:
+        kde.set_bandwidth(kde.factor * float(bw_adjust))
+    return kde
+
+
 def _stat_fn(name):
     fns = {
         "mean":   np.mean,
         "median": np.median,
-        "sd":     np.std,
-        "var":    np.var,
+        "sd":     lambda x: float(np.std(x, ddof=1)),
+        "var":    lambda x: float(np.var(x, ddof=1)),
         "min":    np.min,
         "max":    np.max,
         "q25":    lambda x: np.percentile(x, 25),
@@ -106,6 +129,12 @@ def ppc_density(y, yrep, n=50, bw_adjust=1.0, title="PPC: Density overlay"):
     yrep_clean = yrep[finite_mask]
     if len(yrep_clean) == 0:
         raise ValueError("yrep contains no finite rows.")
+    n_dropped = len(yrep) - len(yrep_clean)
+    if n_dropped:
+        import warnings
+        warnings.warn(
+            f"ppc_density dropped {n_dropped} of {len(yrep)} yrep draws "
+            "containing non-finite values.", stacklevel=2)
     rng = np.random.default_rng(0)
     idx = rng.choice(len(yrep_clean), size=min(n, len(yrep_clean)), replace=False)
 
@@ -126,7 +155,7 @@ def ppc_density(y, yrep, n=50, bw_adjust=1.0, title="PPC: Density overlay"):
         if len(row) < 2 or float(np.std(row)) < 1e-12:
             continue
         try:
-            kde = stats.gaussian_kde(row, bw_method=bw_adjust)
+            kde = _kde(stats, row, bw_adjust)
             vals = kde(xs)
             if not np.isfinite(vals).all():
                 continue
@@ -141,7 +170,7 @@ def ppc_density(y, yrep, n=50, bw_adjust=1.0, title="PPC: Density overlay"):
     y_clean = np.asarray(y, dtype=np.float64).flatten()
     y_clean = y_clean[np.isfinite(y_clean)]
     if len(y_clean) >= 2 and float(np.std(y_clean)) > 1e-12:
-        kde_y = stats.gaussian_kde(y_clean, bw_method=bw_adjust)
+        kde_y = _kde(stats, y_clean, bw_adjust)
         fig.add_trace(go.Scatter(
             x=xs, y=kde_y(xs), mode="lines",
             line=dict(color=_OBS_COLOR, width=2.5),
@@ -214,7 +243,7 @@ def ppc_boxplot(y, yrep, n=20, title="PPC: Boxplots"):
 
     fig = go.Figure()
     for s in idx:
-        fig.add_trace(go.Box(y=yrep[s], marker_color=_REP_COLOR.replace("0.25", "0.6"),
+        fig.add_trace(go.Box(y=yrep[s], marker_color=_REP_COLOR_SOLID,
                              showlegend=False, name=f"rep {s}"))
     fig.add_trace(go.Box(y=y, marker_color=_OBS_COLOR,
                          name="y (observed)", showlegend=True))
@@ -248,10 +277,14 @@ def ppc_stat(y, yrep, stat="mean", title=None):
     t_y = float(fn(y))
     t_rep = np.array([fn(yrep[s]) for s in range(len(yrep))])
 
+    # One-sided P(T(yrep) >= T(y)); the two-sided value is what people usually
+    # mean by "the" Bayesian p-value, so report both rather than an
+    # unqualified number that reads as 0 or 1 for a good fit.
     pval = float(np.mean(t_rep >= t_y))
+    pval_2s = float(2 * min(pval, 1.0 - pval))
 
     xs = np.linspace(t_rep.min(), t_rep.max(), 300)
-    kde = scipy_stats.gaussian_kde(t_rep)
+    kde = _kde(scipy_stats, t_rep)
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -263,7 +296,8 @@ def ppc_stat(y, yrep, stat="mean", title=None):
     fig.add_vline(x=t_y, line_color=_OBS_COLOR, line_width=2.5,
                   annotation_text=f"T(y) = {t_y:.3g}", annotation_position="top right")
     fig.update_layout(
-        title=title or f"PPC: {stat_name}  |  Bayesian p-value = {pval:.3f}",
+        title=title or (f"PPC: {stat_name}  |  P(T(yrep) ≥ T(y)) = {pval:.3f}"
+                        f"  (two-sided p = {pval_2s:.3f})"),
         xaxis_title=f"T = {stat_name}(·)",
         yaxis_title="Density",
         plot_bgcolor="white",
@@ -334,6 +368,7 @@ def ppc_intervals(y, yrep, x=None, prob=0.5, prob_outer=0.9,
     """
     y, = _as_np(y)
     yrep = np.asarray(yrep, dtype=float)
+    x_was_none = x is None
     if x is None:
         x = np.arange(len(y))
     x = np.asarray(x).flatten()
@@ -377,7 +412,7 @@ def ppc_intervals(y, yrep, x=None, prob=0.5, prob_outer=0.9,
         marker=dict(color=_OBS_COLOR, size=5, opacity=0.8),
         name="y (observed)",
     ))
-    fig.update_layout(title=title, xaxis_title="Index" if x is None else "x",
+    fig.update_layout(title=title, xaxis_title="Index" if x_was_none else "x",
                       yaxis_title="Value", plot_bgcolor="white")
     return fig
 
@@ -514,14 +549,16 @@ def ppc_rootogram(y, yrep, title="PPC: Rootogram (count data)"):
     Returns:
         plotly Figure.
     """
-    y = np.asarray(y, dtype=int).flatten()
-    yrep = np.asarray(yrep, dtype=float)
+    y = np.rint(np.asarray(y, dtype=float).flatten()).astype(int)
+    yrep = np.rint(np.asarray(yrep, dtype=float)).astype(int)
+    if y.min() < 0 or yrep.min() < 0:
+        raise ValueError("ppc_rootogram expects non-negative counts.")
 
     max_val = max(int(y.max()), int(yrep.max()))
     counts_obs = np.bincount(y, minlength=max_val + 1).astype(float)
 
     counts_rep = np.array([
-        np.bincount(yrep[s].astype(int), minlength=max_val + 1)
+        np.bincount(yrep[s], minlength=max_val + 1)
         for s in range(len(yrep))
     ], dtype=float)
     expected = counts_rep.mean(axis=0)
@@ -529,13 +566,16 @@ def ppc_rootogram(y, yrep, title="PPC: Rootogram (count data)"):
     xs = np.arange(len(counts_obs))
     sqrt_obs = np.sqrt(counts_obs)
     sqrt_exp = np.sqrt(expected)
-    hang = sqrt_obs - sqrt_exp  # deviation from expected
 
     fig = go.Figure()
+    # Hanging rootogram: bars of height sqrt(observed) are suspended FROM the
+    # sqrt(expected) curve, so their distance from y=0 is the misfit and the
+    # zero line is the reference. Basing them at sqrt_exp instead (as before)
+    # drew bars spanning expected->observed, leaving add_hline(y=0) meaningless.
     fig.add_trace(go.Bar(
-        x=xs, y=hang, base=sqrt_exp,
+        x=xs, y=sqrt_obs, base=sqrt_exp - sqrt_obs,
         marker_color="cornflowerblue", opacity=0.7,
-        name="Observed - Expected (√scale)",
+        name="√Observed (hanging from √Expected)",
     ))
     fig.add_trace(go.Scatter(
         x=xs, y=sqrt_exp, mode="lines+markers",
@@ -567,6 +607,12 @@ def ppc_bars(y, yrep, title="PPC: Bar chart (discrete/categorical)"):
     y = np.asarray(y).flatten()
     yrep = np.asarray(yrep)
     cats = np.unique(np.concatenate([y, yrep.flatten()]))
+    if len(cats) > 50:
+        raise ValueError(
+            f"ppc_bars found {len(cats)} distinct values; it is meant for "
+            "discrete/categorical outcomes. Use ppc_density or ppc_hist for "
+            "continuous data."
+        )
 
     obs_counts = np.array([np.sum(y == c) for c in cats], dtype=float)
     rep_counts = np.array([
@@ -601,32 +647,72 @@ def ppc_bars(y, yrep, title="PPC: Bar chart (discrete/categorical)"):
 # LOO-based PPC
 # =============================================================================
 
-def ppc_loo_pit(y, yrep, title="PPC: LOO-PIT (uniformity check)"):
-    """Probability integral transform check.
+def ppc_loo_pit(y, yrep, log_likelihood=None, reff=None,
+                title="PPC: LOO-PIT (uniformity check)"):
+    """LOO probability integral transform check.
 
-    PIT value for each obs: F_yrep(y_i) = P(yrep[:, i] <= y_i).
-    Under a well-calibrated model, PITs are Uniform(0, 1).
-    Overlays a KDE of the PITs against the Uniform density.
+    PIT value for each observation: ``F(y_i) = P(yrep[:, i] <= y_i)``.
+    Under a well-calibrated model these are Uniform(0, 1).
+
+    When ``log_likelihood`` is given, the draws are reweighted by
+    Pareto-smoothed importance sampling so each ``F(y_i)`` is a *leave-one-out*
+    predictive CDF — this is what makes the check meaningful. Without it the
+    same draws that were fitted to ``y`` are used to score ``y``, which pulls
+    the PITs toward 0.5 and makes a miscalibrated model look calibrated; a
+    warning is emitted in that case.
 
     Args:
-        y: Observed data.
-        yrep: Posterior predictive matrix.
+        y: Observed data, shape (n_obs,).
+        yrep: Posterior predictive matrix, shape (n_rep, n_obs).
+        log_likelihood: Pointwise log-likelihood, shape (C, S, n_obs) or
+            (S, n_obs), with S matching yrep's rows. Enables true LOO-PIT.
+        reff: Relative MCMC efficiency for PSIS; see
+            ``jax_diagnostics.relative_eff``. Defaults to 1.0.
         title: Plot title.
     Returns:
         plotly Figure.
     """
+    import warnings
     import scipy.stats as stats
     y, = _as_np(y)
     yrep = np.asarray(yrep, dtype=float)
-    pit = np.array([np.mean(yrep[:, i] <= y[i]) for i in range(len(y))],
-                   dtype=np.float64)
+    n_obs = len(y)
+
+    if log_likelihood is None:
+        warnings.warn(
+            "ppc_loo_pit called without log_likelihood: computing a plain "
+            "posterior-predictive PIT, not LOO-PIT. The same draws are used to "
+            "fit and to score y, so the PITs are biased toward 0.5 and a "
+            "miscalibrated model can look calibrated. Pass log_likelihood= for "
+            "the leave-one-out version.",
+            stacklevel=2,
+        )
+        pit = np.array([np.mean(yrep[:, i] <= y[i]) for i in range(n_obs)],
+                       dtype=np.float64)
+    else:
+        from BayesForge.Diagnostic.jax_diagnostics import _psis_weights
+        ll = np.asarray(log_likelihood, dtype=np.float64)
+        if ll.ndim == 3:
+            ll = ll.reshape(ll.shape[0] * ll.shape[1], ll.shape[2])
+        if ll.shape != yrep.shape:
+            raise ValueError(
+                f"log_likelihood shape {ll.shape} does not match yrep "
+                f"{yrep.shape}; both need (n_draws, n_obs) with the same draws."
+            )
+        pit = np.empty(n_obs, dtype=np.float64)
+        for i in range(n_obs):
+            log_w, _ = _psis_weights(ll[:, i], reff=1.0 if reff is None else reff)
+            w = np.exp(np.asarray(log_w, dtype=np.float64))
+            w /= w.sum()
+            pit[i] = float(np.sum(w * (yrep[:, i] <= y[i])))
+
     pit = pit[np.isfinite(pit)]
     if len(pit) < 2:
         import plotly.graph_objects as go2
         return go2.Figure().update_layout(title=title + " (insufficient data)")
 
     xs = np.linspace(0, 1, 300)
-    kde = stats.gaussian_kde(pit)
+    kde = _kde(stats, pit)
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -648,11 +734,16 @@ def ppc_loo_pit(y, yrep, title="PPC: LOO-PIT (uniformity check)"):
     return fig
 
 
-def ppc_loo_intervals(y, yrep, x=None, prob=0.9,
-                      title="PPC: LOO predictive intervals"):
-    """Predictive intervals with LOO-style display (y vs sorted/grouped intervals).
+def ppc_intervals_sorted(y, yrep, x=None, prob=0.9,
+                         title="PPC: Predictive intervals (sorted by y)"):
+    """Predictive intervals ordered by the observed value.
 
-    Alias for ppc_intervals with outer prob only, sorted by observed y.
+    This is ``ppc_intervals`` with the observations sorted by y, which makes
+    systematic over/under-prediction across the outcome range easy to read.
+
+    NOTE: it performs no leave-one-out computation. It was previously named
+    ``ppc_loo_intervals``, which promised LOO predictive intervals it never
+    computed; ``ppc_loo_intervals`` remains as a deprecated alias.
 
     Args:
         y: Observed data.
@@ -664,6 +755,18 @@ def ppc_loo_intervals(y, yrep, x=None, prob=0.9,
         plotly Figure.
     """
     if x is None:
-        x = np.argsort(y)
+        x = np.argsort(np.asarray(y, dtype=float).flatten())
     return ppc_intervals(y, yrep, x=x, prob=prob * 0.5, prob_outer=prob,
                          title=title)
+
+
+def ppc_loo_intervals(y, yrep, x=None, prob=0.9,
+                      title="PPC: Predictive intervals (sorted by y)"):
+    """Deprecated alias for :func:`ppc_intervals_sorted` (it is not LOO-based)."""
+    import warnings
+    warnings.warn(
+        "ppc_loo_intervals performs no leave-one-out computation; it is "
+        "ppc_intervals sorted by y. Use ppc_intervals_sorted instead.",
+        DeprecationWarning, stacklevel=2,
+    )
+    return ppc_intervals_sorted(y, yrep, x=x, prob=prob, title=title)
