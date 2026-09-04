@@ -104,9 +104,20 @@ class bnnc:
         print("⚠️This function is still in development. Use it with caution.⚠️")
         posterior_samples = sampler.get_samples(group_by_chain=False)
 
-        theta_samps = posterior_samples['theta']          
-        mu_samps = posterior_samples['mu']        
-        sigma_samps = posterior_samples['sigma']  
+        theta_samps = posterior_samples['theta']
+        mu_samps = posterior_samples['mu']
+        sigma_samps = posterior_samples['sigma']
+
+        # Cap draws for the O(S * N^2) consensus step below: the full chain
+        # length OOMs and kills the kernel. An evenly-spaced subsample of a few
+        # hundred draws gives the same consensus clustering.
+        MAX_DRAWS = 300
+        S = theta_samps.shape[0]
+        if S > MAX_DRAWS:
+            idx = np.linspace(0, S - 1, MAX_DRAWS).astype(int)
+            theta_samps = theta_samps[idx]
+            mu_samps = mu_samps[idx]
+            sigma_samps = sigma_samps[idx]
 
         cluster_probs = jax.vmap(self.get_cluster_probs, in_axes=(None, 0, 0, 0))(
             data, theta_samps, mu_samps, sigma_samps
@@ -129,27 +140,64 @@ class bnnc:
 
     def plot(self, data, sampler, figsize=(10, 8), point_size=30):
         """
-        Plots the Clustering results.
+        Posterior predictive plot: a filled contour of the expected cluster
+        index over the feature plane, with the data coloured by their
+        argmax cluster.
+
+        The predictive at a point x is  p(k | x) ∝ pi_k * N(x | mu_k, sigma_k),
+        averaged over posterior draws of (global_pi, mu, sigma). The contour
+        shows sum_k k * p(k | x); the colour bar is that expected index.
         """
         print("⚠️This function is still in development. Use it with caution.⚠️")
-        theta_samps, mu_samps, sigma_samps, final_labels = self.predict(data, sampler)
+
+        ps = sampler.get_samples(group_by_chain=False)
+        pi_s = np.asarray(ps['global_pi'])   # (S, K)
+        mu_s = np.asarray(ps['mu'])          # (S, K, D)
+        sig_s = np.asarray(ps['sigma'])      # (S, K, D)
+
+        # Cap draws (grid PDF is O(S * n_grid * K)).
+        MAX_DRAWS = 200
+        S = pi_s.shape[0]
+        if S > MAX_DRAWS:
+            idx = np.linspace(0, S - 1, MAX_DRAWS).astype(int)
+            pi_s, mu_s, sig_s = pi_s[idx], mu_s[idx], sig_s[idx]
+
+        K = pi_s.shape[1]
+        data = np.asarray(data)
+
+        def post_pred(pts):
+            """Posterior-mean p(k | pts): (n_pts, K)."""
+            X = pts[:, None, None, :]                       # (n,1,1,D)
+            mu = mu_s[None, :, :, :]                        # (1,S,K,D)
+            sg = sig_s[None, :, :, :]
+            logn = -0.5 * (((X - mu) / sg) ** 2) - np.log(sg) - 0.5 * np.log(2 * np.pi)
+            logp = logn.sum(-1) + np.log(pi_s[None] + 1e-10)   # (n,S,K)
+            logp -= logp.max(-1, keepdims=True)
+            p = np.exp(logp)
+            p /= p.sum(-1, keepdims=True)
+            return p.mean(1)                                # (n,K)
+
+        x_min, x_max = data[:, 0].min() - 1, data[:, 0].max() + 1
+        y_min, y_max = data[:, 1].min() - 1, data[:, 1].max() + 1
+        xx, yy = np.meshgrid(np.linspace(x_min, x_max, 200),
+                             np.linspace(y_min, y_max, 200))
+        grid = np.column_stack([xx.ravel(), yy.ravel()])
+
+        grid_p = post_pred(grid)
+        idx_grid = np.arange(K)
+        Z = (grid_p * idx_grid).sum(-1).reshape(xx.shape)   # expected cluster index
+        data_lbl = post_pred(data).argmax(-1)
 
         plt.style.use('seaborn-v0_8-whitegrid')
         fig, ax = plt.subplots(figsize=figsize)
-        fig.patch.set_facecolor('#f0f0f0') 
-        ax.set_facecolor('#f0f0f0')
+        cf = ax.contourf(xx, yy, Z, levels=14, cmap='viridis', alpha=0.85)
+        fig.colorbar(cf, ax=ax)
+        ax.scatter(data[:, 0], data[:, 1], c=data_lbl, cmap='viridis',
+                   vmin=0, vmax=K - 1, s=point_size, edgecolor='k', linewidth=0.4)
 
-        unique_labels = np.unique(final_labels)
-        n_clusters = len(unique_labels)
-        palette = sns.color_palette("viridis", n_colors=n_clusters) 
-        color_map = {label: palette[i] for i, label in enumerate(unique_labels)}
-        point_colors = [color_map[l] for l in final_labels]
-
-        ax.scatter(data[:, 0], data[:, 1], c=point_colors, s=point_size, alpha=0.9, edgecolor='white', linewidth=0.3)
-
-        ax.set_title("BNNC Clustering Assignments", fontsize=16)
+        ax.set_title("Posterior Predictive Mean", fontsize=16)
         ax.set_xlabel("Feature 1")
         ax.set_ylabel("Feature 2")
-        ax.grid(True, linestyle=':', color='gray', alpha=0.6)
 
-        plt.show()
+        fig.tight_layout()
+        return fig, ax

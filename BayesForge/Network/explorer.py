@@ -571,7 +571,7 @@ class NetworkView:
     * ``.path`` is the written ``.html`` file.
     """
 
-    def __init__(self, path, html: str, height: int = 760):
+    def __init__(self, path, html: str, height: int = 900):
         self.path = Path(path)
         self.html = html
         self.height = height
@@ -972,7 +972,7 @@ class NetExplorer:
         filename: str = "NetExplorer.html",
         inline: bool = True,
         browser: bool | None = None,
-        height: int = 760,
+        height: int = 900,
     ) -> "NetworkView":
         """Write ``NetExplorer.html`` and return a :class:`NetworkView`.
 
@@ -1051,6 +1051,13 @@ class NetExplorer:
         """
         if browser is None:
             browser = not _in_notebook()
+
+        # Convenience: viz(adj) with no node table — first positional is the
+        # adjacency matrix, not a DataFrame.
+        if m is None and df is not None and not isinstance(df, pd.DataFrame) \
+                and getattr(df, "ndim", None) == 2 and df.shape[0] == df.shape[1]:
+            m, df = df, None
+
         if m is None:
             raise ValueError("vis_net needs an adjacency matrix `m`")
 

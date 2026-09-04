@@ -13,13 +13,16 @@ import seaborn as sns # Ensure seaborn is imported for palettes
 import matplotlib.pyplot as plt
 
 dist = dist()
-def gmm(data, K, initial_means): 
+def gmm(data, K, initial_means=None):
     """
     Gaussian Mixture Model with a fixed number of clusters K.
     Parameters:
     - data: Input data points (shape: [N, D] where N is the number of samples and D is the number of features).
     - K: The exact number of clusters.
-    - initial_means: Initial means for the clusters (shape: [K, D]). If not provided, it is initialized using K-means.
+    - initial_means: Prior means for the clusters (shape: [K, D]). If None
+      (default) they are initialised with a K-means fit on ``data``; this
+      anchors ``mu`` near plausible values and breaks the mixture's label
+      symmetry.
     Returns:
     - A model that defines the GMM with K clusters.
     This model assumes that the data is generated from a mixture of K Gaussian distributions.
@@ -27,6 +30,11 @@ def gmm(data, K, initial_means):
     The number of clusters K is fixed and must be specified in advance.
     """
     D = data.shape[1]  # Number of features
+
+    if initial_means is None:
+        from sklearn.cluster import KMeans
+        km = KMeans(n_clusters=K, n_init=10, random_state=0).fit(np.asarray(data))
+        initial_means = jnp.asarray(km.cluster_centers_)
     alpha_prior = 0.5 * jnp.ones(K)
     w = dist.dirichlet(concentration=alpha_prior, name='weights') 
 
@@ -213,6 +221,7 @@ def plot_gmm(data,sampler, figsize = (10, 8)):
     ax.set_xlabel("Feature 1")
     ax.set_ylabel("Feature 2")
     ax.grid(True, linestyle=':', color='gray', alpha=0.6)
-    ax.set_aspect('equal', adjustable='box') 
+    ax.set_aspect('equal', adjustable='box')
 
-    plt.show()
+    fig.tight_layout()
+    return fig, ax

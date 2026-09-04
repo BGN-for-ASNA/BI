@@ -181,16 +181,18 @@ class SampledData:
             x = [f'Var {i}' for i in range(corr_matrix.shape[1])]
             y = [f'Var {i}' for i in range(corr_matrix.shape[0])]
             
-            # Use the original correlation matrix for colors and the formatted text for annotations
-            fig = ff.create_annotated_heatmap(
-               z=corr_matrix, 
-               x=x, 
-               y=y, 
-               annotation_text=formatted_text, # Use the string-formatted matrix here
-               colorscale='Viridis', 
-               **kwargs
-            )
-            
+            # go.Heatmap + texttemplate replaces ff.create_annotated_heatmap,
+            # removed in plotly >= 6.
+            fig = go.Figure(data=go.Heatmap(
+                z=np.asarray(corr_matrix),
+                x=x,
+                y=y,
+                text=formatted_text,
+                texttemplate="%{text}",
+                colorscale='Viridis',
+                **kwargs,
+            ))
+
             # Invert the y-axis to have Var 0 at the bottom
             fig.update_yaxes(autorange='reversed')
             
@@ -419,27 +421,41 @@ class SampledData:
     # -----------------
     # Delegation
     
-    def density(self, title="Density Plot", template="plotly_white", **kwargs):
+    def density(self, title="Density Plot", template="plotly_white", nbinsx=40, **kwargs):
         """
-        Visualizes the distribution of the data using a density plot.
+        Visualizes the distribution of the data as a histogram with a
+        Gaussian-KDE overlay.
+
+        Replaces ``plotly.figure_factory.create_distplot``, removed in
+        plotly >= 6.
         """
+        import numpy as np
         import plotly.graph_objects as go
-        import plotly.express as px
-        import plotly.figure_factory as ff
-        from plotly.colors import n_colors
+        try:
+            from scipy.stats import gaussian_kde
+        except Exception:
+            gaussian_kde = None
 
         if self._data.ndim > 2:
             raise ValueError(f"Density plot is only supported for 1D or 2D data. Your data has {self._data.ndim} dimensions.")
 
         if self._data.ndim == 1:
-            hist_data = [np.array(self._data)]
-            group_labels = ['Sample']
-        else: # 2D
-            hist_data = [np.array(self._data[:, i]) for i in range(self._data.shape[1])]
-            group_labels = [f'Var {i}' for i in range(self._data.shape[1])]
+            series = [np.asarray(self._data)]
+            labels = ['Sample']
+        else:  # 2D
+            series = [np.asarray(self._data[:, i]) for i in range(self._data.shape[1])]
+            labels = [f'Var {i}' for i in range(self._data.shape[1])]
 
-        fig = ff.create_distplot(hist_data, group_labels, bin_size=0.2, **kwargs)
-        fig.update_layout(title_text=title, template=template)
+        fig = go.Figure()
+        for s, lab in zip(series, labels):
+            s = s[np.isfinite(s)]
+            fig.add_trace(go.Histogram(x=s, histnorm='probability density',
+                                       name=lab, opacity=0.55, nbinsx=nbinsx))
+            if gaussian_kde is not None and s.size > 1 and np.ptp(s) > 0:
+                xs = np.linspace(s.min(), s.max(), 200)
+                fig.add_trace(go.Scatter(x=xs, y=gaussian_kde(s)(xs),
+                                         mode='lines', name=f'{lab} KDE'))
+        fig.update_layout(title_text=title, template=template, barmode='overlay')
         fig.show()
         
     def ridgeline(self, title="Ridgeline Plot", template="plotly_white",interactive = True,category_labels=None, offset=2):

@@ -519,6 +519,12 @@ class bf(manip):
             self.models.pca.posterior = self.posteriors
             self.models.pca.get_attributes(self.models.pca.X.T)
 
+        # Record which model was just run so post-fit helpers (m.plot, m.history)
+        # can dispatch on it. svi() does the same; fit() previously did not,
+        # which left m.plot() a silent no-op after a normal m.fit(...).
+        self.run_model_name = self.model_name
+        self.model_name = None
+
     def svi(
         self,
         model=None,
@@ -1072,13 +1078,16 @@ class bf(manip):
             **kwargs: Additional keyword arguments.
         """
         if self.run_model_name == "gmm":
-            plot_gmm(X, sampler=self.sampler, figsize=figsize)
+            return plot_gmm(X, sampler=self.sampler, figsize=figsize)
 
         elif self.run_model_name == "dpmm":
-            self.models.dpmm.plot(X, sampler=self.sampler, figsize=figsize)
+            return self.models.dpmm.plot(X, sampler=self.sampler, figsize=figsize)
+
+        elif self.run_model_name == "bnnc":
+            return self.models.bnnc.plot(X, sampler=self.sampler, figsize=figsize)
 
         elif self.run_model_name == "pca":
-            self.models.pca.plot()
+            return self.models.pca.plot()
 
     def save(self, path=None):
         """

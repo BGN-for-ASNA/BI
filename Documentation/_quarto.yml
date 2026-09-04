@@ -1,6 +1,12 @@
 project:
   type: website
-  
+  render:
+    - "**/*.qmd"
+    - "**/*.md"
+    # R2D2: its PDF build fails in LaTeX ("missing \item") and hangs the
+    # render waiting on an xelatex prompt. Excluded until that is fixed.
+    - "!37.Feature extraction: R2D2.qmd"
+
 
 execute:
   startup: _setup.py

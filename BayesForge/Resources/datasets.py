@@ -513,7 +513,12 @@ class load:
     def iris(self, frame=True, only_path=False):
         """
         Load the iris dataset.
-        
+
+        The four morphological features are standardised (zero mean, unit
+        variance). Columns: ``sepal_length``, ``sepal_width``,
+        ``petal_length``, ``petal_width`` (scaled), ``target`` (int 0-2),
+        ``species`` (name). The file carries no index column.
+
         Returns:
         --------
         bunch : Bunch
@@ -522,16 +527,10 @@ class load:
         description = """
         Iris Dataset
         ============
-        
-        This dataset is famous for illustrating Simpson's paradox.
-        
-        Features include sepal length, sepal width, petal length, and petal width.
+
+        150 samples, 3 species, 4 standardised morphological features
+        (sepal length, sepal width, petal length, petal width).
         """
-        if only_path:
-            return self.data_dir / "iris.csv"
-        if frame:
-            return pd.read_csv(self.data_dir / "iris.csv", index_col=0)
-        
         return self._load_csv("iris.csv", description, frame=frame, only_path=only_path)
 
     def NBDA_events(self, frame=True, only_path=False):

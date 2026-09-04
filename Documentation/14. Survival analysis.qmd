@@ -39,53 +39,117 @@ Here’s an example of a Bayesian survival analysis using the **BayesForge (BF)*
 
 ### Python
 
-```python
+**Data and discrete-time setup** (shared by both approaches below).
+
+```{python}
 from BayesForge import bf
 import numpy as np
 import jax.numpy as jnp
-# Setup device------------------------------------------------
+
 m = bf(platform='cpu')
 
-# Import Data & Data Manipulation ------------------------------------------------
-# Import
-from importlib.resources import files
+# --- Data ------------------------------------------------------------
+# Mastectomy trial. Columns: `time` = follow-up length, `event` = 1 if
+# death was observed, 0 if the patient was censored (left the study
+# event-free), `metastasized` = "yes"/"no".
 data_path = m.load.mastectomy(only_path=True)
-m.data(data_path, sep=',') 
+m.data(data_path, sep=',')
+m.df.metastasized = (m.df.metastasized.values == "yes").astype(np.int64)
 
-m.df.metastasized = (m.df.metastasized == "yes").astype(np.int64)
-m.df.event = jnp.array(m.df.event.values, dtype=jnp.int32)
+# --- Piecewise-constant hazard setup -------------------------------
+# Cut follow-up time into fixed intervals of length 3. For every
+# (subject, interval) this builds two matrices:
+#   death[i, k]    -> 1 if subject i had the event in interval k
+#   exposure[i, k] -> time subject i spent at risk in interval k
+# Censoring is encoded here: after a subject leaves (event OR censoring)
+# its exposure is 0 in every later interval, so it stops contributing
+# to the likelihood without being counted as a death.
+m.models.survival.import_time_even(m.df.time.values, m.df.event.values,
+                                   interval_length=3)
 
-## Create survival object
-m.models.survival.surv_object(time='time', event='event', cov='metastasized', interval_length=3)
+# Register `metastasized` as a patient-level (time-invariant) covariate.
+m.models.survival.import_covF(m.df.metastasized.values, ["metastasized"])
 
-# Plot censoring ------------------------------------------------
-m.models.survival.plot_censoring(cov='metastasized')
+# --- Censoring plot -----------------------------------------------
+# One horizontal line per subject = observed follow-up. Red = censored
+# (event never seen), grey = event observed, black dot = metastasized.
+# Reading it: metastasized patients tend to have shorter lines ending
+# in an event -> a first visual clue of a positive hazard effect.
+m.models.survival.plot_censoring(cov="metastasized")
+```
 
-# Model ------------------------------------------------
-def model(intervals, death, metastasized, exposure):
-    # Parameter prior distributions-------------------------
-    ## Base hazard distribution
-    lambda0 = m.dist.gamma(0.01, 0.01, shape= intervals.shape, name = 'lambda0')
-    ## Covariate effect distribution
-    beta = m.dist.normal(0, 1000, shape = (1,),  name='beta')
-    ### Likelihood
-    #### Compute hazard rate based on covariate effect
-    lambda_ = m.models.survival.hazard_rate(cov = metastasized, beta = beta, lambda0 = lambda0)
-    #### Compute exposure rates
+
+::: {.panel-tabset}
+
+#### Explicit model
+
+The full model written out, to show every prior and the likelihood.
+
+```{python}
+def model(death, cov, exposure, censoring=None):
+    # --- Priors ---------------------------------------------------
+    # Baseline hazard: ONE positive rate per time interval. A
+    # Gamma(0.01, 0.01) prior is almost flat on (0, inf), so the shape
+    # of the hazard over time is driven by the data, not by a
+    # parametric family (Weibull, Gompertz, ...). This is what makes
+    # the model semi-parametric.
+    lambda0 = m.dist.gamma(
+      0.01, 0.01, shape=(exposure.shape[1],),
+      name="Baseline_rate")
+
+    # Covariate effect on the LOG hazard. Normal(0, 10) is weakly
+    # informative: centred on 0 (no effect) but wide enough to let the
+    # data move it. exp(beta) is the hazard ratio for metastasized.
+    beta = m.dist.normal(
+      0, 10, shape=(1,),
+      name="Hazard_rate_metastasized")
+
+    # --- Likelihood -------------------------------------------------
+    # Proportional hazards: lambda[i,k] = lambda0[k] * exp(beta * x_i).
+    # Expected event count mu = lambda * exposure; the 0/1 event
+    # indicator is modelled as Poisson (equivalent to the piecewise
+    # exponential survival likelihood).
+    lambda_ = jnp.exp(beta * cov.squeeze())[:, None] * lambda0[None, :]
     mu = exposure * lambda_
+    m.dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs=death)
 
-    # Likelihood calculation
-    y = m.dist.poisson(mu + jnp.finfo(mu.dtype).tiny, obs = death)
-
-# Run mcmc ------------------------------------------------
-m.fit(model, progress_bar=False) 
-
-# Summary ------------------------------------------------
+# 4 chains and target_accept_prob=0.99: the many near-empty late
+# baseline intervals make the geometry awkward, so a higher acceptance
+# target keeps the step size small enough to mix well.
+m.fit(model, num_samples=2000, num_warmup=2000, num_chains=4,
+      target_accept_prob=0.99, progress_bar=False)
 print(m.summary())
 
-# Plot hazards and survival function ------------------------------------------------
-m.models.survival.plot_surv()
+# Posterior cumulative hazard and survival curves, by covariate group.
+m.models.survival.plot_surv(beta="Hazard_rate_metastasized")
 ```
+
+#### Built-in model
+
+Same model, assembled by BF from the imported survival object. Priors
+are attributes you can override before `fit`.
+
+```{python}
+# Optional: change the default priors (shown with their defaults).
+m.models.survival.baseline_rate_prior = (0.01, 0.01)   # Gamma(conc, rate)
+m.models.survival.hazard_rate_prior_scale = 10.0        # Normal(0, scale)
+
+m.fit(m.models.survival.model)
+print(m.summary())
+
+m.models.survival.plot_surv(beta="Hazard_rate_metastasized")
+```
+
+:::
+
+**Survival plot.** Left: posterior cumulative hazard
+$\Lambda(t) = \sum_k \lambda_0^{(k)}\Delta_k$ per covariate group; right:
+the implied survival $S(t) = e^{-\Lambda(t)}$. Solid line = posterior
+mean, shaded band = 94% credible interval, blue = not metastasized,
+orange = metastasized. The size and direction of the effect are read
+from $\beta$ (equivalently the hazard ratio $e^{\beta}$) in
+`m.summary()`; here $\beta > 0$, i.e. metastasis raises the hazard.
+
 
 ### R
 
@@ -117,7 +181,7 @@ $$
 $$
 
 $$
-\beta \sim \text{Normal}(0,\; 1000)
+\beta \sim \text{Normal}(0,\; 10)
 $$
 
 Where:
@@ -130,11 +194,11 @@ Where:
 
 -   $\lambda_{ik}$ is the hazard rate for subject $i$ in interval $k$, decomposed into a **baseline hazard** $\lambda_0^{(k)}$ and a covariate-specific multiplicative shift.
 
--   $\lambda_0^{(k)}$ is the **baseline hazard** in interval $k$, constant within each interval but free to vary across intervals. This gives the model non-parametric flexibility over time. A Gamma$(0.01, 0.01)$ prior places minimal information on the baseline hazard.
+-   $\lambda_0^{(k)}$ is the **baseline hazard** in interval $k$, constant within each interval but free to vary across intervals. This gives the model non-parametric flexibility over time. A Gamma$(0.01, 0.01)$ prior (BF default `m.models.survival.baseline_rate_prior`) places minimal information on the baseline hazard; on the numpyro backend it is sampled in log space for stability.
 
 -   $X_i$ is the vector of covariates for subject $i$.
 
--   $\beta$ is the vector of regression coefficients. The coefficient $\exp(\beta)$ gives the **hazard ratio**: the multiplicative change in hazard for a unit increase in the corresponding covariate. A wide Normal$(0, 1000)$ prior reflects minimal prior knowledge.
+-   $\beta$ is the vector of regression coefficients. The coefficient $\exp(\beta)$ gives the **hazard ratio**: the multiplicative change in hazard for a unit increase in the corresponding covariate. A weakly informative Normal$(0, 10)$ prior is centred on "no effect" but wide on the log-hazard scale. It is the BF default (`m.models.survival.hazard_rate_prior_scale`).
 
 ### *Survival and hazard functions*
 

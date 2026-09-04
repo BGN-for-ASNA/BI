@@ -180,8 +180,27 @@ class array_manip:
         return jnp.stack([ft, tf], axis=-1)
 
     @staticmethod
+    def edgl_to_mat(edgl, N_id=None):
+        """Dyad edge list (n_dyads, 2) -> (N_id, N_id) adjacency.
+
+        ``N_id`` is optional: a full dyad list has n_dyads = N_id*(N_id-1)/2
+        rows, so the node count is recovered from ``edgl.shape[0]`` when not
+        given.
+        """
+        if N_id is None:
+            import math
+            n = int(edgl.shape[0])                       # N*(N-1)/2
+            N_id = (1 + math.isqrt(1 + 8 * n)) // 2
+            if N_id * (N_id - 1) // 2 != n:
+                raise ValueError(
+                    f"edgl has {n} rows, not a full dyad list for any N; "
+                    "pass N_id explicitly."
+                )
+        return array_manip._edgl_to_mat(edgl, int(N_id))
+
+    @staticmethod
     @partial(jit, static_argnums=(1,))
-    def edgl_to_mat(edgl, N_id):
+    def _edgl_to_mat(edgl, N_id):
         m = jnp.zeros((N_id, N_id))
         urows, ucols = jnp.triu_indices(N_id, 1)
         m = m.at[(ucols, urows)].set(edgl[:, 1])

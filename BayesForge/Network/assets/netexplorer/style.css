@@ -22,6 +22,7 @@ html, body { height: 100%; margin: 0; }
 
 body {
   display: flex;
+  min-height: 0;            /* let flex children scroll instead of overflowing */
   font-family: var(--font);
   color: var(--ink);
   background: var(--bg);
@@ -34,6 +35,11 @@ body {
   flex: 0 0 var(--panel-w);
   width: var(--panel-w);
   height: 100%;
+  /* min-height:0 lets this flex item shrink below its content height so the
+     overflow-y scroll actually engages — otherwise the control list overflows
+     the iframe and the lower fields (Border width, Label size, Link width,
+     Save) can't be reached. */
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--panel-bg);

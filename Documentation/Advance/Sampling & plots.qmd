@@ -16,19 +16,13 @@ m = bf()
 m.dist.normal(0, 1, shape=(4,), sample=True)
 ```
 
-By default (`to_jax=False`) a direct sample is returned as a **`SampledData`** object — a thin wrapper
+By using (`to_jax=False`), a direct sample is returned as a **`SampledData`** object — a thin wrapper
 around a JAX array. It behaves like a JAX array everywhere (arithmetic, indexing, `jnp.*` functions,
 `jit`/`vmap`/`grad`, use as a distribution parameter), and its `repr` reports the dtype so you can see
 the kind and precision at a glance:
 
 
 The extra thing a `SampledData` gives you over a raw array is a set of **built-in plotting methods** and **built-in helper functions**.
-
-If you only want the raw JAX array (no wrapper, no plotting helpers), pass `to_jax=True`:
-
-```{python}
-x = m.dist.normal(0, 1, shape=(1000,), sample=True, to_jax=True)   # plain jax array
-```
 
 ## Plotting helpers
 
@@ -43,17 +37,17 @@ The available methods depend on the **shape** of the sampled array.
 ::: {.panel-tabset}
 #### histogram
 ```{python}
-m.dist.normal(0, 1, shape=(1000,), sample=True).hist() 
+m.dist.normal(0, 1, shape=(1000,), sample=True, to_jax=False).hist() 
 ```
 
 #### kernel
 ```{python}
-m.dist.normal(0, 1, shape=(1000,), sample=True).density()
+m.dist.normal(0, 1, shape=(1000,), sample=True, to_jax=False).density()
 ```
 
 #### PPC
 ```{python}
-m.dist.normal(0,1,shape=(100,4),sample=True).ppc_plot(m.dist.normal(0,1,shape=(100,),sample=True))
+m.dist.normal(0,1,shape=(100,4),sample=True, to_jax=False).ppc_plot(m.dist.normal(0,1,shape=(100,),sample=True, to_jax=False))
 ```
 
 #### Time series — `(n_samples, n_time)`
@@ -61,7 +55,7 @@ m.dist.normal(0,1,shape=(100,4),sample=True).ppc_plot(m.dist.normal(0,1,shape=(1
 Treat the second axis as time and summarise across draws.
 
 ```{python}
-m.dist.gaussian_random_walk(scale=0.5, num_steps=50, shape=(500,), sample=True).timeseries(credible_interval=0.9)
+m.dist.gaussian_random_walk(scale=0.5, num_steps=50, shape=(500,), sample=True, to_jax=False).timeseries(credible_interval=0.9)
 ```
 :::
 
@@ -69,37 +63,37 @@ m.dist.gaussian_random_walk(scale=0.5, num_steps=50, shape=(500,), sample=True).
 ::: {.panel-tabset}
 #### histogram
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4), sample=True).hist() 
+m.dist.normal(0, 1, shape=(1000,4), sample=True, to_jax=False).hist() 
 ```
 
 #### kernel
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4), sample=True).density() 
+m.dist.normal(0, 1, shape=(1000,4), sample=True, to_jax=False).density() 
 ```
 
 #### boxplot
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4), sample=True).boxplot() 
+m.dist.normal(0, 1, shape=(1000,4), sample=True, to_jax=False).boxplot() 
 ```
 
 #### violinplot
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4), sample=True).violinplot() 
+m.dist.normal(0, 1, shape=(1000,4), sample=True, to_jax=False).violinplot() 
 ```
 
 #### pairplot
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4), sample=True).pairplot() 
+m.dist.normal(0, 1, shape=(1000,4), sample=True, to_jax=False).pairplot() 
 ```
 
 #### corr_heatmap
 ```{python}
-m.dist.lkj_cholesky(4, 2, name = 'a', sample = True).corr_heatmap() 
+m.dist.lkj_cholesky(4, 2, name = 'a', sample = True, to_jax=False).corr_heatmap() 
 ```
 
 #### traceplot
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4), sample=True).traceplot() 
+m.dist.normal(0, 1, shape=(1000,4), sample=True, to_jax=False).traceplot() 
 ```
 
 #### surface_3d
@@ -107,7 +101,7 @@ m.dist.normal(0, 1, shape=(1000,4), sample=True).traceplot()
 Computes a 2D Kernel Density Estimate (KDE) using the first two variables. It plots a 3D surface where the X and Y axes represent the variables and the Z axis represents the estimated probability density.
 
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4), sample=True).surface_3d() 
+m.dist.normal(0, 1, shape=(1000,4), sample=True, to_jax=False).surface_3d() 
 ```
 
 #### scatter3d
@@ -115,7 +109,7 @@ m.dist.normal(0, 1, shape=(1000,4), sample=True).surface_3d()
 Takes the first three variables (columns) and plots them directly as points in a 3D space (X, Y, and Z axes). Requires the array to have at least 3 variables (columns).
 
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4), sample=True).scatter3d() 
+m.dist.normal(0, 1, shape=(1000,4), sample=True, to_jax=False).scatter3d() 
 ```
 #### Posterior predictive
 
@@ -127,7 +121,7 @@ Compare draws against observed data.
 
 
 ```{python}
-m.dist.normal(0, 1, shape=(1000,4, 3), sample=True).hist() 
+m.dist.normal(0, 1, shape=(1000,4, 3), sample=True, to_jax=False).hist() 
 ```
 
 
@@ -135,7 +129,7 @@ m.dist.normal(0, 1, shape=(1000,4, 3), sample=True).hist()
 #### 3D scatter — `(n_samples, >=3)`
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).hist()
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True, to_jax=False).hist()
 ```
 
 :::
@@ -146,88 +140,88 @@ In addition to plot helper functions, there are several other helper functions t
 
 ### mean
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).mean(axis=0)
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).mean(axis=0)
 ```
 
 ### std
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).std()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).std()
 ```
 
 ### variance
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).var()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).var()
 ```
 
 ### hdi
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).hdi(cred_mass=0.95)
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).hdi(cred_mass=0.95)
 ```
 
 ### sum
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).sum()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).sum()
 ```
 ### prod
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).prod()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).prod()
 ```
 ### min
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).min()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).min()
 ```
 ### max
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).max()
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True, to_jax=False).max()
 ```
 ### argmin
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).argmin()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).argmin()
 ```
 ### argmax
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).argmax()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).argmax()
 ```
 ### all
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).all()
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True, to_jax=False).all()
 ```
 ### any
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).any()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).any()
 ```
 ### cumsum
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).cumsum()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).cumsum()
 ```
 ### round
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).round()
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True, to_jax=False).round()
 ```
 ### clip
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).clip(0, 1)
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).clip(0, 1)
 ```
 ### ptp
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).ptp()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).ptp()
 ```
 ### sort
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).sort()
+m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True, to_jax=False).sort()
 ```
 
 ### .at[]
@@ -235,14 +229,14 @@ m.dist.normal(0,1, name = 'a', shape=(100,4), sample = True).sort()
 Since the sampled object wraps a JAX array, you can use JAX's `.at[]` syntax for in-place style updates (which return a new object):
 
 ```{python}
-s = m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True)
+s = m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True, to_jax=False)
 s_new = s.at[0, 0, 0].set(0.0)
 ```
 
 ### reshape
 
 ```{python}
-m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True).reshape((100, 20))
+m.dist.normal(0,1, name = 'a', shape=(100,4, 5), sample = True, to_jax=False).reshape((100, 20))
 ```
 
 And many other standard NumPy/JAX array methods like `.flatten()`, `.squeeze()`, `.astype()`, etc., are also available directly on the sampled object.

@@ -10,7 +10,9 @@ authors = [
 ]
 description = "A Python package for BayesForge modeling and diagnostics."
 readme = "README.md"
-requires-python = ">=3.9"
+# arviz >= 1.2 requires Python >= 3.12; jax >= 0.10 / numpyro >= 0.21 also
+# dropped 3.10/3.11. Python 3.12+ is required.
+requires-python = ">=3.12"
 license = {text = "GPL-3.0-or-later"} # Using the standard identifier is slightly cleaner
 keywords = ["python", "Bayesian inferences"]
 classifiers = [
@@ -66,3 +68,4 @@ where = ["."]
 
 [tool.setuptools.package-data]
 "BayesForge.Network" = ["assets/netexplorer/*"]
+"BayesForge.Resources" = ["*.csv", "*.rda", "*.json"]

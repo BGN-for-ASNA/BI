@@ -856,22 +856,23 @@ class survival():
         elif self.cov_all.ndim == 3:
                 return self.model_time_varying(death, cov, exposure, censoring)
 
-    def plot_censoring(self, event='event', time='time', cov='metastasized', xlabel='Time', ylabel='Subject'):
+    def plot_censoring(self, cov=None, event='event', time='time', xlabel='Time', ylabel='Subject'):
         """
         Plots the censoring status of subjects in a time-to-event dataset.
 
+        Uses the arrays populated by ``import_time_even`` (``self.time``,
+        ``self.event``, ``self.patients``) and, when ``cov`` names a fixed
+        covariate imported via ``import_covF``, overlays the subjects for
+        which that covariate equals 1.
+
         Parameters:
         -----------
-        df : pandas.DataFrame
-            A DataFrame containing the time-to-event data.
-        event : str, optional
-            The name of the column in `df` indicating the event status (1 = event occurred, 0 = censored).
-            Default is 'event'.
-        time : str, optional
-            The name of the column in `df` representing the time variable. Default is 'time'.
         cov : str, optional
-            The name of the column in `df` representing a covariate, such as metastasized status.
-            Default is 'metastasized'.
+            Name of a fixed covariate (as passed to ``import_covF``) to
+            overlay as scatter points. If ``None`` or not found, no overlay
+            is drawn.
+        event, time : str, optional
+            Kept for backwards compatibility; unused.
         xlabel : str, optional
             Label for the x-axis. Default is 'Time'.
         ylabel : str, optional
@@ -879,34 +880,37 @@ class survival():
 
         Returns:
         --------
-        None
-            This function generates a plot showing censored and uncensored subjects along with a specified covariate.
+        (fig, ax)
+            The Matplotlib figure and axis showing censored and uncensored
+            subjects along with the specified covariate overlay.
 
 
         """
-        self.get_basic_info(event, time, cov)
+        if self.time is None or self.event is None:
+            raise RuntimeError(
+                "No survival data imported yet. Call import_time_even(...) first."
+            )
+
+        t = np.asarray(self.time)
+        ev = np.asarray(self.event)
+        patients = np.asarray(self.patients)
+        censored = ev == 0
+        uncensored = ev == 1
 
         # Create the figure and axis
         fig, ax = plt.subplots(figsize=(8, 6))
 
         # Plot censored subjects (event = 0) as red horizontal lines
-        ax.hlines(
-            self.patients[ self.event == 0], 0,  self.df[ self.event == 0].loc[:, 'time'], color="C3", label="Censored"
-        )
+        ax.hlines(patients[censored], 0, t[censored], color="C3", label="Censored")
 
         # Plot uncensored subjects (event = 1) as gray horizontal lines
-        ax.hlines(
-             self.patients[ self.event == 1], 0,  self.df[ self.event == 1].loc[:, 'time'], color="C7", label="Uncensored"
-        )
+        ax.hlines(patients[uncensored], 0, t[uncensored], color="C7", label="Uncensored")
 
-        # Add scatter points for subjects with the specified covariate (e.g., metastasized = 1)
-        ax.scatter(
-            self.df[self.df.loc[:,cov] == 1].loc[:, time],
-            self.patients[self.df.loc[:,cov] == 1],
-            color="k",
-            zorder=10,
-            label=cov,
-        )
+        # Add scatter points for subjects with the specified covariate == 1
+        if cov is not None and cov in self.cov_names:
+            cov_vec = np.asarray(self.cov)[:, self.cov_names.index(cov)]
+            mask = cov_vec == 1
+            ax.scatter(t[mask], patients[mask], color="k", zorder=10, label=cov)
 
         # Set plot limits and labels
         ax.set_xlim(left=0)
@@ -919,49 +923,57 @@ class survival():
 
         # Add legend to the plot
         ax.legend(loc="center right")
+        return fig, ax
 
     def plot_surv(self, lambda0 = 'Baseline_rate', beta = 'beta',
-                  xlab='Time', ylab='Survival', covlab = 'treated', title = "Bayesian survival model"):
+                  xlab='Time', ylab='Survival', covlab = 'treated', title = "Bayesian survival model",
+                  hdi_prob = 0.94):
 
-        base_hazard = self.parent.posteriors[lambda0]        
-        met_hazard =self.parent.posteriors[lambda0] * self.parent.posteriors[beta]
+        base_hazard = self.parent.posteriors[lambda0]
+        met_hazard = self.parent.posteriors[lambda0] * self.parent.posteriors[beta]
 
-        fig, (hazard_ax, surv_ax) = plt.subplots(ncols=2, sharex=True, sharey=False, figsize=(16, 6))   
+        # Drop trailing intervals that carry no data (zero total exposure).
+        # Their Baseline_rate stays at the Gamma(0.01, 0.01) prior, whose heavy
+        # tail otherwise blows up the cumulative-hazard mean and HDI band at the
+        # right edge of the plot.
+        exposure_by_interval = np.asarray(self.exposure).sum(axis=0)
+        nz = np.nonzero(exposure_by_interval > 0)[0]
+        n_valid = int(nz.max()) + 1 if nz.size else self.n_intervals
 
-        az.plot_hdi(
-            self.interval_bounds[:-1],
-            self.cum_hazard(base_hazard),
-            ax=hazard_ax,
-            smooth=False,
-            color="C0",
-            fill_kwargs={"label": "Had not metastasized"},
-        )
-        
-        az.plot_hdi(
-            self.interval_bounds[:-1],
-            self.cum_hazard(met_hazard),
-            ax=hazard_ax,
-            smooth=False,
-            color="C1",
-            fill_kwargs={"label": "Metastasized"},
-        )   
+        x = self.interval_bounds[:-1][:n_valid]
 
-        hazard_ax.plot(self.interval_bounds[:-1], jnp.mean(self.cum_hazard(base_hazard), axis = 0), color="darkblue")
-        hazard_ax.plot(self.interval_bounds[:-1], jnp.mean(self.cum_hazard(met_hazard), axis = 0), color="maroon")   
+        def _band(ax, draws, color, label=None):
+            """Equal-tailed credible band over the draw axis (axis 0).
+
+            Replaces az.plot_hdi, which was removed in arviz 1.0 / arviz-stats.
+            """
+            draws = np.asarray(draws)[..., :n_valid]
+            q = 100 * (1 - hdi_prob) / 2
+            lo, hi = np.percentile(draws, [q, 100 - q], axis=0)
+            ax.fill_between(x, lo, hi, color=color, alpha=0.3, label=label)
+
+        fig, (hazard_ax, surv_ax) = plt.subplots(ncols=2, sharex=True, sharey=False, figsize=(16, 6))
+
+        _band(hazard_ax, self.cum_hazard(base_hazard), "C0", "Had not metastasized")
+        _band(hazard_ax, self.cum_hazard(met_hazard), "C1", "Metastasized")
+
+        hazard_ax.plot(x, jnp.mean(self.cum_hazard(base_hazard), axis = 0)[:n_valid], color="darkblue")
+        hazard_ax.plot(x, jnp.mean(self.cum_hazard(met_hazard), axis = 0)[:n_valid], color="maroon")
 
         hazard_ax.set_xlim(0, self.time.max())
         hazard_ax.set_xlabel(xlab)
         hazard_ax.set_ylabel(r"Cumulative hazard $\Lambda(t)$")
-        hazard_ax.legend(loc=2) 
+        hazard_ax.legend(loc=2)
 
-        az.plot_hdi(self.interval_bounds[:-1], self.survival(base_hazard), ax=surv_ax, smooth=False, color="C0")
-        az.plot_hdi(self.interval_bounds[:-1], self.survival(met_hazard), ax=surv_ax, smooth=False, color="C1")  
+        _band(surv_ax, self.survival(base_hazard), "C0")
+        _band(surv_ax, self.survival(met_hazard), "C1")
 
-        surv_ax.plot(self.interval_bounds[:-1], jnp.mean(self.survival(base_hazard), axis = 0), color="darkblue")
-        surv_ax.plot(self.interval_bounds[:-1], jnp.mean(self.survival(met_hazard), axis = 0), color="maroon")   
+        surv_ax.plot(x, jnp.mean(self.survival(base_hazard), axis = 0)[:n_valid], color="darkblue")
+        surv_ax.plot(x, jnp.mean(self.survival(met_hazard), axis = 0)[:n_valid], color="maroon")
 
         surv_ax.set_xlim(0, self.time.max())
         surv_ax.set_xlabel(ylab)
-        surv_ax.set_ylabel("Survival function $S(t)$")  
+        surv_ax.set_ylabel("Survival function $S(t)$")
 
-        fig.suptitle(title);
+        fig.suptitle(title)
+        return fig, (hazard_ax, surv_ax)

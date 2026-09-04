@@ -4,18 +4,19 @@ sidebar: start
 ---
 
 # PCA
-``` python
+```{python}
+#| warning: false
 from BayesForge import bf
 import jax.numpy as jnp
 
 m= bf()
-m.data('iris.csv', sep=',') # Data is already scaled
+m.data(m.load.iris(only_path=True))
 m.data_on_model = dict(
     X=jnp.array(m.df.iloc[:,0:-2].values)
 )
 m.fit(m.models.pca(type="classic"), progress_bar=False) # or robust, sparse, classic, sparse_robust_ard
 
-m.models.pca.plot(
+_ = m.models.pca.plot(
     X=m.df.iloc[:,0:-2].values,
     y=m.df.iloc[:,-2].values, 
     feature_names=m.df.columns[0:-2], 
@@ -27,39 +28,64 @@ m.models.pca.plot(
 
 
 # Survival analysis
-```python
+
+Piecewise-constant (piecewise-exponential) hazard model. Time is cut into
+fixed intervals; `import_time_even` builds the per-interval `death` and
+`exposure` matrices, and censoring is handled by `exposure` dropping to 0
+once a subject leaves the risk set.
+
+```{python}
+#| warning: false
 from BayesForge import bf
 import jax.numpy as jnp
 
 m = bf()
-m.data('mastectomy.csv', sep=',').head()
+data_path = m.load.mastectomy(only_path=True)
+m.data(data_path, sep=',')
 m.df.metastasized = (m.df.metastasized.values == "yes").astype(jnp.int64)
 
-# Import time-steps and events
+# Discretise follow-up time into intervals and register the event indicator.
 m.models.survival.import_time_even(
-    m.df.time.values, 
+    m.df.time.values,
     m.df.event.values, interval_length=3
 )
 
-# To import time-fixed covariates
+# Time-fixed (patient-level) covariates.
 m.models.survival.import_covF(
     m.df.metastasized.values, ['metastasized']
-) 
+)
 
-# To import time-varying covariates ⚠️ Experimental feature
-# m.models.survival.import_covV 
+# Time-varying covariates ⚠️ Experimental feature
+# m.models.survival.import_covV
 
-m.fit(m.models.survival.model, num_samples=500) 
+# Censoring plot: one line per subject (follow-up length), red = censored,
+# grey = event observed, dot = metastasized.
+m.models.survival.plot_censoring(cov='metastasized')
+
+# Priors (shown with their defaults, override before fit):
+#   Baseline_rate ~ Gamma(*baseline_rate_prior)  -> near-flat, one rate/interval
+#   Hazard_rate_<cov> ~ Normal(0, hazard_rate_prior_scale)  -> log-hazard effect
+m.models.survival.baseline_rate_prior = (0.01, 0.01)
+m.models.survival.hazard_rate_prior_scale = 10.0
+
+# 4 chains + target_accept_prob=0.99: the near-empty late baseline intervals
+# make the geometry stiff, so a high acceptance target keeps mixing healthy.
+m.fit(m.models.survival.model, num_samples=2000, num_warmup=2000,
+      num_chains=4, target_accept_prob=0.99, progress_bar=False)
 
 m.summary()
 
-m.models.survival.plot_surv( beta = 'Hazard_rate_metastasized')
+# Posterior cumulative hazard (left) and survival S(t)=exp(-Lambda(t)) (right)
+# by covariate group. Effect size/direction: read beta (hazard ratio e^beta)
+# from m.summary().
+_ = m.models.survival.plot_surv(beta='Hazard_rate_metastasized')
 ```
 
 
 # Gaussian Mixture Models
 
-```python
+```{python}
+#| warning: false
 from BayesForge import bf
 from sklearn.datasets import make_blobs
 m = bf()
@@ -70,18 +96,16 @@ data, true_labels = make_blobs(
     center_box=(-10,10), random_state=101
 )
 
-m.data_on_model = {"data": data,"K": 8 }
-m.fit(m.models.gmm) # Optimize model parameters through MCMC sampling
-m.plot(X=data,sampler=m.sampler)  # ⚠️ Experimental feature
+m.data_on_model = {"data": data, "K": 8}
+m.fit(m.models.gmm, progress_bar=False)  # MCMC over the mixture parameters
+_ = m.plot(X=data, sampler=m.sampler)    # ⚠️ Experimental feature
 ```
 
 
 # Dirichlet Process Mixture Models
 
-
-## Python
-
-```python
+```{python}
+#| warning: false
 from BayesForge import bf
 from sklearn.datasets import make_blobs
 m = bf()
@@ -91,36 +115,19 @@ data, true_labels = make_blobs(
     n_samples=500, centers=8, cluster_std=0.8,
     center_box=(-10,10), random_state=101
 )
-m.data_on_model = dict(data=data,T=10, empirical_bayes=True) # Set empirical_bayes=True for data-driven priors
-m.fit(m.models.dpmm)
-m.plot(data,m.sampler) 
-```
-
-# Bayesian Neural Network Unsupervised Clustering Models
-
-## Python
-
-```python
-from BayesForge import bf
-from sklearn.datasets import make_blobs
-m = bf()
-
-# Generate synthetic data
-data, true_labels = make_blobs(
-    n_samples=1000, centers=9, cluster_std=0.5,
-    center_box=(-10,10), random_state=101
-)
-m.data_on_model = dict(data=data, K=11, D_H1=10, empirical_bayes=True) # Set empirical_bayes=True for data-driven priors
-m.fit(m.models.bnnc, progress_bar=False)
-m.plot(data,m.sampler)
+# T = truncation level (max clusters). method='marginal' integrates out the
+# cluster assignments (NUTS-friendly); 'latent' samples them explicitly.
+# DPMM priors are already centred on the data mean/scale - no flag needed.
+m.data_on_model = dict(data=data, T=10, method='marginal')
+m.fit(m.models.dpmm, num_samples=500, num_warmup=500, num_chains=2,
+      progress_bar=False)
+_ = m.plot(data, m.sampler)
 ```
 
 # Network Models
 
-::: {.panel-tabset group="language"}
-## Python
-```Python
-# Setup device------------------------------------------------
+```{python}
+#| warning: false
 from BayesForge import bf
 import jax.numpy as jnp
 
@@ -135,50 +142,19 @@ kinship = kinship.at[jnp.diag_indices(N)].set(0)
 
 def sim_network(kinship, individual_predictor):
   # Intercept
-  alpha = m.dist.normal(0,1, sample = True)
+  alpha = -8
 
   # SR
   sr = m.net.sender_receiver(individual_predictor, individual_predictor, s_mu = 0.4, r_mu = -0.4, sample = True)
 
   # D
-  DR = m.net.dyadic_effect(kinship, d_sd=2.5, sample = True)
+  DR = m.net.dyadic_effect(kinship, d_sd= 1, sample = True)
 
   return m.dist.bernoulli(logits = alpha + sr + DR, sample = True)
 
 
 network = sim_network(m.net.mat_to_edgl(kinship), individual_predictor)
 
-# Predictive model ------------------------------------------------
-
-m.data_on_model = dict(
-    network = network, 
-    dyadic_predictors = m.net.mat_to_edgl(kinship),
-    focal_individual_predictors = individual_predictor,
-    target_individual_predictors = individual_predictor
-)
-
-
-def model(network, dyadic_predictors, focal_individual_predictors, target_individual_predictors):
-    N_id = network.shape[0]
-
-    # Block ---------------------------------------
-    alpha = m.dist.normal(0,1, sample = True)
-
-    ## SR shape =  N individuals---------------------------------------
-    sr =  m.net.sender_receiver(
-      focal_individual_predictors,
-      target_individual_predictors,
-      s_mu = 0.4, r_mu = -0.4
-    )
-
-    # Dyadic shape = N dyads--------------------------------------  
-    dr = m.net.dyadic_effect(dyadic_predictors, d_sd=2.5) # Diadic effect intercept only 
-
-    m.dist.bernoulli(logits = alpha + sr + dr, obs=network)
-
-m.fit(model, num_samples = 500, num_warmup = 500, num_chains = 1, thinning = 1)
-
+m.net.viz(m.net.edgl_to_mat(network))
 ```
-
-:::
 

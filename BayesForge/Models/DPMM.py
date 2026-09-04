@@ -246,10 +246,23 @@ class dpmm:
         # 1. Flatten chains: (N_chains, N_samples) -> (Total_samples)
         posterior_samples = sampler.get_samples(group_by_chain=False)
 
-        w_samps = posterior_samples['w']          
-        mu_samps = posterior_samples['mu']        
-        Lcorr_samps = posterior_samples['Lcorr']  
-        sigma_samps = posterior_samples['sigma']  
+        w_samps = posterior_samples['w']
+        mu_samps = posterior_samples['mu']
+        Lcorr_samps = posterior_samples['Lcorr']
+        sigma_samps = posterior_samples['sigma']
+
+        # Cap the draws fed to the vmapped consensus / density steps below:
+        # they cost O(S * N_data^2) and O(S * N_grid * T) memory, which OOMs
+        # (kills the kernel) at the full chain length. An evenly-spaced
+        # subsample of a few hundred draws gives the same posterior-predictive.
+        MAX_DRAWS = 300
+        S = w_samps.shape[0]
+        if S > MAX_DRAWS:
+            idx = np.linspace(0, S - 1, MAX_DRAWS).astype(int)
+            w_samps = w_samps[idx]
+            mu_samps = mu_samps[idx]
+            Lcorr_samps = Lcorr_samps[idx]
+            sigma_samps = sigma_samps[idx]
 
         # 2. Calculate Soft Assignments for every sample
         # shape: (Total_Samples, N_data, N_components)
@@ -346,4 +359,5 @@ class dpmm:
         ax.set_ylabel("Feature 2")
         ax.grid(True, linestyle=':', color='gray', alpha=0.6)
 
-        plt.show()
+        fig.tight_layout()
+        return fig, ax

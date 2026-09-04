@@ -226,6 +226,13 @@ height &\sim \text{Normal}(\alpha + \beta * weight, \sigma) \\
 \end{aligned}
 $$
 
+<!-- Only ONE of {Network Exploration, Distributions visualization} can be a
+     tab: each emits a large raw-HTML output (the NetExplorer <iframe>, the
+     Plotly figure) that terminates the panel-tabset and drops every tab after
+     it. Network Exploration is kept as the last tab; Distributions
+     visualization follows as a section right after the tab-set. -->
+
+
 ### Distributions visualization
 ```{python}
 #| label: dist-visualization
@@ -237,11 +244,9 @@ m.dist.normal( 0, 1, name = 'a', shape=(100,2, 4), sample = True, to_jax = False
 ```
 
 :::
-
-
-
 </div>
 :::
+
 
 
 # Gallery {#gallery}
