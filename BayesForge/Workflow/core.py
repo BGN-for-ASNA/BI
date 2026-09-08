@@ -23,8 +23,11 @@ from .metrics import recovery_metrics, sbc_uniformity
 from .results import RecoveryResult, SBCResult, ContrastResult
 from .parallel import run_parallel, probe_parallel_capabilities
 from .diagnostics import annotated_summary, advise
-from .visualization import plot_recovery, plot_sbc_rank, plot_annotated_summary, save_figure
+from .visualization import (plot_recovery, plot_sbc_rank, plot_annotated_summary,
+                            plot_calibration, plot_predictions, save_figure)
 from .param_grid import fixed_params, split_grid_row
+from .ppc import (discover_obs_sites, ppc_replicates, quantile_calibration_table,
+                  compare_calibration_table, DEFAULT_LEVELS)
 
 
 class Workflow:
@@ -437,6 +440,50 @@ class Workflow:
         return probe_parallel_capabilities(m=self.m, verbose=verbose)
 
     # ------------------------------------------------------------------
+    # Posterior predictive calibration / prediction, for ALL observed
+    # variables in the model (not just the first) -- built on m.sample()
+    # and Diagnostic/ppc.py's ppc_ribbon, not a reimplementation of either.
+    # ------------------------------------------------------------------
+    def obs_sites(self, seed=0):
+        """Every OBSERVED variable's site name and observed values in the
+        fitted model, found by tracing it (not by guessing from names) --
+        works for any number of ``obs=`` statements.
+        See :func:`BayesForge.Workflow.ppc.discover_obs_sites`.
+        """
+        return discover_obs_sites(self.m, seed=seed)
+
+    def ppc_calibration(self, samples=500, levels=DEFAULT_LEVELS, max_count=None,
+                        seed=0, obs_names=None):
+        """Bayesian-p-value calibration table across quantile levels (continuous
+        observed variables) or cumulative counts (discrete ones), for every
+        observed variable in the model -- auto-detected, not just the first.
+        See :func:`BayesForge.Workflow.ppc.quantile_calibration_table`.
+        """
+        return quantile_calibration_table(self.m, samples=samples, levels=levels,
+                                          max_count=max_count, seed=seed,
+                                          obs_names=obs_names)
+
+    def compare_ppc_calibration(self, models, samples=500, levels=DEFAULT_LEVELS,
+                                max_count=None, seed=0, obs_names=None):
+        """:meth:`ppc_calibration` for several fitted models at once (e.g. a
+        full vs. reduced model), stacked with a ``model`` column for
+        :meth:`plot_calibration` to compare on one figure.
+
+        Args:
+            models: ``dict[label -> fitted bf instance]``.
+        """
+        return compare_calibration_table(models, samples=samples, levels=levels,
+                                         max_count=max_count, seed=seed,
+                                         obs_names=obs_names)
+
+    def ppc_replicates(self, samples=500, seed=0, obs_names=None):
+        """``(yreps, obs_sites)`` for every observed variable -- one
+        ``m.sample()`` call, not one per variable.
+        See :func:`BayesForge.Workflow.ppc.ppc_replicates`.
+        """
+        return ppc_replicates(self.m, samples=samples, seed=seed, obs_names=obs_names)
+
+    # ------------------------------------------------------------------
     # Visualization
     # ------------------------------------------------------------------
     def plot_recovery(self, result=None, param_names=None):
@@ -446,6 +493,22 @@ class Workflow:
     def plot_sbc(self, result=None, param_names=None, bins=None):
         """Plot a :meth:`sbc` result (default: the most recent one)."""
         return plot_sbc_rank(result or self.last_sbc, param_names=param_names, bins=bins)
+
+    def plot_calibration(self, table=None, band=(0.1, 0.9), **kwargs):
+        """Plot a :meth:`ppc_calibration`/:meth:`compare_ppc_calibration`
+        table (computes :meth:`ppc_calibration` if omitted) -- one panel per
+        observed variable, shaded acceptable band, dashed ideal at 0.5.
+        """
+        return plot_calibration(table if table is not None else self.ppc_calibration(**kwargs),
+                                band=band)
+
+    def plot_predictions(self, samples=500, seed=0, prob=0.5, prob_outer=0.9, obs_names=None):
+        """Prediction plot (median + interval ribbon vs. observation index,
+        observed values overlaid) for EVERY observed variable in the model.
+        Returns ``dict[obs_name -> Figure]``.
+        """
+        return plot_predictions(self.m, samples=samples, seed=seed, prob=prob,
+                                prob_outer=prob_outer, obs_names=obs_names)
 
     def plot_annotated_summary(self, table=None, **kwargs):
         """Plot an :meth:`annotated_summary` table (computes one if omitted)."""

@@ -123,6 +123,105 @@ def plot_annotated_summary(table):
     return fig
 
 
+def plot_calibration(table, band=(0.1, 0.9)):
+    """Bayesian-p-value calibration plot from
+    :func:`~BayesForge.Workflow.ppc.quantile_calibration_table` (or
+    :func:`~BayesForge.Workflow.ppc.compare_calibration_table`) -- one panel
+    per observed variable, y-axis the Bayesian p-value at each quantile
+    level / count, shaded acceptable band, dashed line at the ideal (0.5).
+
+    If ``table`` has a ``model`` column (from ``compare_calibration_table``),
+    each model gets its own line/color per panel, matching the R
+    ``quantile_calibration`` example this mirrors.
+
+    Args:
+        table: DataFrame with columns ``obs``, ``kind``, ``level``,
+            ``p_value`` (and optionally ``model``).
+        band: (lo, hi) shaded "acceptable" p-value range, default (0.1, 0.9).
+
+    Returns:
+        A ``plotly.graph_objects.Figure``.
+    """
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+
+    has_model = "model" in table.columns
+    panels = list(table[["obs", "kind"]].drop_duplicates().itertuples(index=False, name=None))
+    if not panels:
+        return go.Figure()
+    colors = ["#2a78d6", "#eb6834", "#2ca02c", "#9467bd", "#d62728"]
+
+    fig = make_subplots(rows=1, cols=len(panels),
+                        subplot_titles=[f"{obs} ({kind})" for obs, kind in panels])
+    for col, (obs_name, kind) in enumerate(panels, start=1):
+        sub = table[(table["obs"] == obs_name) & (table["kind"] == kind)].sort_values("level")
+        fig.add_hrect(y0=band[0], y1=band[1], fillcolor="#f0efec", opacity=0.6,
+                      line_width=0, row=1, col=col)
+        fig.add_hline(y=0.5, line_dash="dash", line_color="#898781", row=1, col=col)
+
+        if has_model:
+            for i, (label, grp) in enumerate(sub.groupby("model", sort=False)):
+                c = colors[i % len(colors)]
+                fig.add_trace(go.Scatter(
+                    x=grp["level"].astype(str), y=grp["p_value"], mode="lines+markers",
+                    name=str(label), legendgroup=str(label), showlegend=(col == 1),
+                    line=dict(color=c), marker=dict(color=c, size=8),
+                ), row=1, col=col)
+        else:
+            fig.add_trace(go.Scatter(
+                x=sub["level"].astype(str), y=sub["p_value"], mode="lines+markers",
+                showlegend=False, line=dict(color=colors[0]), marker=dict(color=colors[0], size=8),
+            ), row=1, col=col)
+
+        fig.update_yaxes(range=[0, 1], title_text="Bayesian p-value" if col == 1 else None,
+                         row=1, col=col)
+        fig.update_xaxes(title_text=kind, row=1, col=col)
+
+    fig.update_layout(
+        title_text="Posterior predictive calibration",
+        height=420, width=max(420, 380 * len(panels)),
+        plot_bgcolor="white", legend_title_text="model" if has_model else None,
+    )
+    return fig
+
+
+def plot_predictions(m, samples=500, seed=0, prob=0.5, prob_outer=0.9, obs_names=None):
+    """Prediction plot for EVERY observed variable in the model: predicted
+    median + interval ribbon vs. observation index, with actual observed
+    values overlaid.
+
+    Reuses ``Diagnostic/ppc.py``'s existing ``ppc_ribbon`` per observed
+    variable rather than reimplementing the interval-band drawing -- this
+    function's job is only finding every observed variable
+    (:func:`~BayesForge.Workflow.ppc.ppc_replicates`) and calling that
+    existing function once per variable.
+
+    Args:
+        m: A fitted ``bf`` instance.
+        samples: Posterior predictive draws.
+        seed: Passed to ``m.sample()``.
+        prob, prob_outer: Inner/outer interval mass, forwarded to ``ppc_ribbon``.
+        obs_names: Restrict to these observed variables (default: all of them).
+
+    Returns:
+        ``dict[obs_name -> plotly.graph_objects.Figure]`` -- one figure per
+        observed variable (they may have unrelated x-axes/scales, so these
+        are kept separate rather than force-faceted into one figure).
+    """
+    from BayesForge.Workflow.ppc import ppc_replicates
+    from BayesForge.Diagnostic.ppc import ppc_ribbon
+    import numpy as np
+
+    yreps, obs_sites = ppc_replicates(m, samples=samples, seed=seed, obs_names=obs_names)
+    figs = {}
+    for name, y_obs in obs_sites.items():
+        y_obs = np.asarray(y_obs).reshape(-1)
+        x = np.arange(len(y_obs))
+        figs[name] = ppc_ribbon(y_obs, yreps[name], x=x, prob=prob, prob_outer=prob_outer,
+                                title=f"Posterior predictive: {name}")
+    return figs
+
+
 def save_figure(fig, path):
     """Write a plotly figure to a static image file (PNG/PDF/SVG).
 

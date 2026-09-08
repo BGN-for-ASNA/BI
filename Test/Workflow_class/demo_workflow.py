@@ -121,6 +121,40 @@ m.workflow.plot_sbc(sbc_result)
 
 #%%
 # ---------------------------------------------------------------------------
+# 4b. PPC calibration + prediction plots for ALL observed variables --
+# including a model with MORE THAN ONE obs= statement (the case
+# Diagnostic/ppc.py's get_yrep doesn't handle, since it only resolves
+# m.obs_args[0]). Each likelihood needs a distinct name= so numpyro doesn't
+# collide two sites both named "x" -- everything else is unaffected.
+# ---------------------------------------------------------------------------
+def model_two_obs(x, y_continuous, y_count):
+    alpha = m.dist.normal(0, 10, name="alpha")
+    beta  = m.dist.normal(0, 1, name="beta")
+    sigma = m.dist.exponential(1, name="sigma")
+    rate  = m.dist.exponential(1, name="rate")
+    m.dist.normal(alpha + beta * x, sigma, obs=y_continuous, name="y_continuous")
+    m.dist.poisson(jnp.exp(rate + 0.1 * x), obs=y_count, name="y_count")
+
+n_obs = 150
+x_two = m.dist.normal(0, 1, sample=True, shape=(n_obs,))
+y_cont = m.dist.normal(1.0 + 0.5 * x_two, 1.0, sample=True)
+y_cnt = m.dist.poisson(jnp.exp(0.5 + 0.1 * x_two), sample=True)
+
+m.fit(model_two_obs, obs=dict(x=x_two, y_continuous=y_cont, y_count=y_cnt),
+      num_warmup=1000, num_samples=1000, num_chains=4)
+
+print(m.workflow.obs_sites())  # {"y_continuous": array(...), "y_count": array(...)}
+
+calibration = m.workflow.ppc_calibration(samples=500)
+print(calibration)             # kind="quantile" rows for y_continuous, kind="count" for y_count
+m.workflow.plot_calibration(calibration)
+
+pred_figs = m.workflow.plot_predictions(samples=500)
+for obs_name, fig in pred_figs.items():
+    fig.show()                 # one figure per observed variable
+
+#%%
+# ---------------------------------------------------------------------------
 # 5. Fit once on real-shaped data, then use the diagnostics/posterior-arithmetic side
 # ---------------------------------------------------------------------------
 _, data = dgp(n_obs=200)
