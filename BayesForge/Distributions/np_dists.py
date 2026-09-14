@@ -163,6 +163,38 @@ class UnifiedDist:
     def plate(name, shape, **kwargs):
         return numpyro.plate(name, shape, **kwargs)
 
+    @staticmethod
+    def factor(name, log_factor):
+        r"""### Factor
+
+        Adds an arbitrary log-probability (log-likelihood) factor to the probabilistic model.
+
+        This primitive is used to incorporate custom log-likelihood terms, marginalization
+        over discrete/latent variables, Jacobian volume adjustments, or unnormalized potentials
+        that cannot be expressed as standard distribution sample sites.
+
+        #### Args:
+            name (str): Unique identifier for this factor statement site in the model trace.
+            log_factor (jnp.ndarray or float): A scalar or batched log-probability value.
+                If batched, it should typically be evaluated inside a corresponding
+                ``plate`` context matching its batch shape.
+
+        #### Returns:
+            None
+
+        #### Example Usage:
+            # Custom likelihood within a plate:
+            with m.dist.plate("obs", ntotal):
+                m.dist.factor("custom_log_lik", log_lik_per_obs)
+
+            # Scalar total marginal log-likelihood (no plate):
+            m.dist.factor("total_log_lik", jnp.sum(log_lik_per_obs))
+
+        #### Wrapper of:
+            https://num.pyro.ai/en/stable/primitives.html#numpyro.primitives.factor
+        """
+        return numpyro.factor(name, log_factor)
+
     def asymmetric_laplace(self,loc=0.0, scale=1.0, asymmetry=1.0, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
