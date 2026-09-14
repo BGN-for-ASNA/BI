@@ -1,4 +1,5 @@
 # %%
+# https://num.pyro.ai/en/0.13.1/tutorials/discrete_imputation.html
 import numbers
 import numpy as np
 import funsor.ops as ops
@@ -101,4 +102,54 @@ m.fit(model_no_plate)
 m.summary()
 
 # %%
+# Missing Not At Random (MNAR): Missingness conditional on covariate A itself
+A_obs_mnar = random.bernoulli(simkeys[5], 0.9 - 0.8 * A)
+Aobs_mnar = jnp.where(A_obs_mnar, A, -1)
 
+# %%
+# Model with sampling/observation mechanism (MNAR with marginalization without plate)
+def model_mnar_no_plate(A, B, Y):
+    A_isobs = A >= 0
+    mu_A = m.dist.normal(0, 2.5)
+    b_B_A = m.dist.normal(0, 2.5)
+    b_A = m.dist.normal(0, 2.5)
+    b_B = m.dist.normal(0, 2.5)
+    s_Y = m.dist.exponential(1.0)
+    
+    # Observation probabilities conditional on A
+    p_Aobs0 = m.dist.beta(1.0, 1.0)  # P(observed | A=0)
+    p_Aobs1 = m.dist.beta(1.0, 1.0)  # P(observed | A=1)
+    
+    eta_A = mu_A + b_B_A * B
+    dist_A = m.dist.bernoulli(logits=eta_A, create_obj=True)
+    
+    # 1. Likelihood when A is observed (observation indicator = 1)
+    A_valid = jnp.maximum(A, 0)
+    prob_obs = jnp.where(A_valid == 1, p_Aobs1, p_Aobs0)
+    ll_obs = (
+        dist_A.log_prob(A_valid)
+        + m.dist.normal(b_A * A_valid + b_B * B, s_Y, create_obj=True).log_prob(Y)
+        + jnp.log(prob_obs)
+    )
+    
+    # 2. Marginal likelihood when A is missing (observation indicator = 0, marginalize over A in {0, 1})
+    ll_0 = (
+        dist_A.log_prob(0)
+        + m.dist.normal(b_B * B, s_Y, create_obj=True).log_prob(Y)
+        + jnp.log(1.0 - p_Aobs0)
+    )
+    ll_1 = (
+        dist_A.log_prob(1)
+        + m.dist.normal(b_A + b_B * B, s_Y, create_obj=True).log_prob(Y)
+        + jnp.log(1.0 - p_Aobs1)
+    )
+    ll_mis = jnp.logaddexp(ll_0, ll_1)
+    
+    # Total scalar factor across all data (no plate needed)
+    m.dist.factor("log_lik", jnp.sum(jnp.where(A_isobs, ll_obs, ll_mis)))
+
+m.data_on_model = {'A': Aobs_mnar, 'B': B, 'Y': Y}
+m.fit(model_mnar_no_plate)
+m.summary()
+
+#%%
