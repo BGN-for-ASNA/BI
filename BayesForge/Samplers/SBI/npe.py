@@ -29,9 +29,18 @@ import numpyro
 import numpyro.distributions as dist
 from jax.scipy.special import logsumexp
 
+from BayesForge.BNN.bnn import bnn
 from BayesForge.Samplers.SBI.simulate import Simulator, SBIPosterior
 
-_ACT = {"relu": jax.nn.relu, "tanh": jnp.tanh, "gelu": jax.nn.gelu, "silu": jax.nn.silu}
+# Network layers come from BF's BNN module, so NPE and Bayesian NPE share the layer
+# and activation implementations with m.bnn.
+_BNN = bnn()
+
+
+def _check_activation(name):
+    if not callable(getattr(_BNN, name, None)) or name not in _BNN._activation_map:
+        raise ValueError(f"Unknown activation {name!r}. Available: {_BNN.available_activations()}")
+    return name
 
 
 # MLP ------------------------------------------------------------------------------------
@@ -44,10 +53,11 @@ def _mlp_init(key, sizes):
 
 
 def _mlp(params, x, act, last_act=False):
+    """Stack of bnn.layer_linear layers; `act` is a bnn activation name."""
     for i, p in enumerate(params):
-        x = x @ p["W"] + p["b"]
-        if i < len(params) - 1 or last_act:
-            x = act(x)
+        hidden = i < len(params) - 1 or last_act
+        x = _BNN.layer_linear(x, p["W"], activation=act if hidden else None,
+                              bias=p["b"], verbose=False)
     return x
 
 
@@ -59,7 +69,7 @@ class MDN:
         self.D, self.K = dim, n_components
         self.n_tril = dim * (dim + 1) // 2
         self.sizes = (ctx_dim,) + tuple(hidden) + (self.K * (1 + dim + self.n_tril),)
-        self.act = _ACT[activation]
+        self.act = _check_activation(activation)
         self.tril = jnp.tril_indices(dim)
         self.diag = jnp.arange(dim)
 
@@ -96,7 +106,7 @@ class CouplingFlow:
 
     def __init__(self, dim, ctx_dim, hidden=(64, 64), n_layers=6, activation="gelu"):
         self.D = dim
-        self.act = _ACT[activation]
+        self.act = _check_activation(activation)
         self.emb = hidden[-1]
         self.emb_sizes = (ctx_dim,) + tuple(hidden)
         self.layer_sizes = (dim + self.emb,) + tuple(hidden) + (2 * dim,)

@@ -42,15 +42,17 @@ class bnn(activation):
         """
         return list(self._activation_map.keys())
 
-    def layer_linear(self, X, dist, activation=None, bias=False):
-        """        
-        Adds a layer to the BNN with the specified prior distribution and activation function.       
+    def layer_linear(self, X, dist, activation=None, bias=False, verbose=True):
+        """
+        Adds a layer to the BNN with the specified prior distribution and activation function.
 
         Parameters:
         - prior_dist (bf.dist): The prior distribution for the weights of the layer. The shape of the distribution defines the layer's input/output dimensions.
-        - activation (str): The name of the activation function to use after this layer ('relu', 'tanh', 'sigmoid', 'softmax').  
+        - activation (str): The name of the activation function to use after this layer ('relu', 'tanh', 'sigmoid', 'softmax').
+        - verbose (bool): Print the in-development warning (default True).
         """
-        print("⚠️This function is still in development. Use it with caution. ⚠️")
+        if verbose:
+            print("⚠️This function is still in development. Use it with caution. ⚠️")
         if bias is not False:
             prod = jnp.matmul(X, dist) + bias
         else:
