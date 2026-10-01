@@ -1,0 +1,289 @@
+---
+title: "Approximate Bayesian Computation"
+description: "Likelihood-free Bayesian inference: estimate parameters of models you can simulate from but whose likelihood you cannot write down."
+categories: [Simulation-based inference]
+order: 38
+reading-time: true
+---
+
+
+## General Principles
+
+Every model in the previous chapters needs a [<span style="color:#0D6EFD">likelihood 🛈</span>]{#likelihood}: a formula giving the probability of the data for given parameter values. Many scientific models do not have one. Individual-based simulations, stochastic population dynamics, agent-based models or distributions defined only through their quantile function can easily be *simulated*, but their likelihood is intractable, so MCMC cannot be used.
+
+Approximate Bayesian Computation (ABC) replaces the likelihood by simulation. The idea is simple:
+
+1) Draw parameter values $\theta$ from the prior.
+
+2) Simulate a dataset $x_{sim}$ from the model with those parameters.
+
+3) Keep $\theta$ if the simulated data *look like* the observed data, i.e., if the distance between their summary statistics, $d(s(x_{sim}), s(x_{obs}))$, is smaller than a tolerance $\epsilon$.
+
+The accepted values of $\theta$ are draws from an approximation of the posterior distribution, which becomes exact when $\epsilon \to 0$ and the summary statistics are [<span style="color:#0D6EFD">sufficient 🛈</span>]{#sufficient}.
+
+In BF, the model is written exactly as in any other chapter. `m.abc()` uses it only as a *simulator* and never evaluates its likelihood.
+
+
+## Considerations
+
+::: callout-note
+-   ABC needs three ingredients that MCMC does not:
+
+    -   **Summary statistics** $s(x)$: low-dimensional descriptions of a dataset (means, quantiles, regression coefficients...). Comparing raw datasets is hopeless in high dimension, so the quality of the ABC posterior depends on how informative these statistics are. `summary_stats` accepts a function or one of the built-in sets: `"identity"`, `"moments"`, `"quantiles"` and `"robust"` (octile-based location, scale, skewness and kurtosis).
+
+    -   **A distance** $d(\cdot,\cdot)$: by default an Euclidean distance on statistics rescaled by their median absolute deviation, so that every statistic counts equally.
+
+    -   **A tolerance** $\epsilon$: small values give more accurate posteriors but require more simulations. With too large a tolerance, the ABC posterior is wider than the true posterior.
+
+-   Two algorithms are available:
+
+    -   `method="rejection"`: simulate `num_simulations` datasets from the prior and keep the closest fraction `quantile`. Simple, but most simulations are wasted when the prior is wide. `regression_adjust=True` applies the local-linear correction of @beaumont2002approximate.
+
+    -   `method="smc"`: ABC Population Monte Carlo [@beaumont2009adaptive]. The tolerance shrinks over successive rounds and new particles are proposed around the previously accepted ones, which focuses simulations where the posterior is. This is the recommended default.
+
+-   Prior distributions are declared as usual. Particles are moved in the unconstrained space of each parameter, so supports (e.g., $\sigma > 0$) are always respected.
+
+-   The output behaves like any BF fit: `m.summary()`, `m.posteriors` and the `m.diag` plots work as after `m.fit()`.
+:::
+
+## Example
+
+Below is an example code snippet demonstrating *Approximate Bayesian Computation* using the BayesForge (**BF**) package. We use the *g-and-k distribution*, a classic benchmark for likelihood-free inference [@drovandi2011likelihood; @prangle2017gk]. It is a flexible four-parameter distribution (location $A$, scale $B$, skewness $g$ and kurtosis $k$) defined by its quantile function only: simulating from it is trivial, but its density has no closed form, so it cannot be fitted with `m.fit()`. We simulate 500 observations with $A=3$, $B=1$, $g=2$, $k=0.5$ and recover these values with ABC-SMC.
+
+::: {.panel-tabset group="language"}
+## Python
+
+``` {python}
+from BayesForge import bf
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+
+# Setup device------------------------------------------------
+m = bf(platform="cpu")
+
+# Simulate data ------------------------------------------------
+true = {"A": 3.0, "B": 1.0, "g": 2.0, "k": 0.5}
+N = 500
+z = m.dist.normal(0, 1, shape=(N,), sample=True, seed=42)
+y_obs = true["A"] + true["B"] * (1 + 0.8 * jnp.tanh(true["g"] * z / 2)) * (1 + z**2) ** true["k"] * z
+
+
+# Define model (simulator) ------------------------------------------------
+def model(N):
+    # Priors
+    A = m.dist.uniform(0, 10, name="A")
+    B = m.dist.uniform(0, 10, name="B")
+    g = m.dist.uniform(0, 10, name="g")
+    k = m.dist.uniform(0, 10, name="k")
+    # Simulator: g-and-k quantile function applied to standard normal draws
+    z = m.dist.normal(0, 1, shape=(N,), name="z")
+    m.dist.track("y", A + B * (1 + 0.8 * jnp.tanh(g * z / 2)) * (1 + z**2) ** k * z)
+
+
+# Run ABC ------------------------------------------------
+m.abc(
+    model,
+    data={"N": N},
+    observed={"y": y_obs},           # simulated site compared with the data
+    params=["A", "B", "g", "k"],     # z is a nuisance latent, integrated out by simulation
+    summary_stats="robust",          # octile-based location, scale, skewness, kurtosis
+    method="smc",
+    num_simulations=1_000_000,
+    progress_bar=False,
+)
+
+# Summary ------------------------------------------------
+m.summary()
+```
+
+``` {python}
+# Posterior distributions vs true values ------------------------------------------------
+fig, axes = plt.subplots(1, 4, figsize=(12, 3), constrained_layout=True)
+for ax, p in zip(axes, ["A", "B", "g", "k"]):
+    ax.hist(m.posteriors[p], bins=40, density=True, alpha=0.7)
+    ax.axvline(true[p], color="k", ls="--", label="true value")
+    ax.set_title(p)
+axes[0].legend()
+plt.show()
+
+# Tolerance schedule of ABC-SMC ------------------------------------------------
+m.sampler.plot_history()
+plt.show()
+```
+
+## R
+
+``` r
+library(BayesForge)
+m <- importBF(platform = "cpu")
+
+# Simulate data ------------------------------------------------
+N <- 500L
+z <- bf.dist.normal(0, 1, shape = c(N), sample = TRUE, seed = 42L)
+y_obs <- 3 + 1 * (1 + 0.8 * jnp$tanh(2 * z / 2)) * (1 + z^2)^0.5 * z
+
+# Define model (simulator) ------------------------------------------------
+model <- function(N) {
+    # Priors
+    A <- bf.dist.uniform(0, 10, name = "A")
+    B <- bf.dist.uniform(0, 10, name = "B")
+    g <- bf.dist.uniform(0, 10, name = "g")
+    k <- bf.dist.uniform(0, 10, name = "k")
+    # Simulator
+    z <- bf.dist.normal(0, 1, shape = c(N), name = "z")
+    m$dist$track("y", A + B * (1 + 0.8 * jnp$tanh(g * z / 2)) * (1 + z^2)^k * z)
+}
+
+# Run ABC ------------------------------------------------
+m$abc(model,
+      data = list(N = N),
+      observed = list(y = y_obs),
+      params = list("A", "B", "g", "k"),
+      summary_stats = "robust",
+      method = "smc",
+      num_simulations = 1000000L)
+
+# Summary ------------------------------------------------
+m$summary()
+```
+
+## Julia
+```julia
+using BayesForge
+
+# Setup device------------------------------------------------
+m = importBF(platform="cpu")
+
+# Simulate data ------------------------------------------------
+N = 500
+z = m.dist.normal(0, 1, shape = (N,), sample = true, seed = 42)
+y_obs = 3 + 1 * (1 + 0.8 * jnp.tanh(2 * z / 2)) * (1 + z^2)^0.5 * z
+
+# Define model (simulator) ------------------------------------------------
+@BF function model(N)
+    # Priors
+    A = m.dist.uniform(0, 10, name = "A")
+    B = m.dist.uniform(0, 10, name = "B")
+    g = m.dist.uniform(0, 10, name = "g")
+    k = m.dist.uniform(0, 10, name = "k")
+    # Simulator
+    z = m.dist.normal(0, 1, shape = (N,), name = "z")
+    m.dist.track("y", A + B * (1 + 0.8 * jnp.tanh(g * z / 2)) * (1 + z^2)^k * z)
+end
+
+# Run ABC ------------------------------------------------
+m.abc(model, data = Dict("N" => N), observed = Dict("y" => y_obs),
+      params = ["A", "B", "g", "k"], summary_stats = "robust",
+      method = "smc", num_simulations = 1_000_000)
+
+# Summary ------------------------------------------------
+m.summary()
+```
+:::
+
+### Sanity check: ABC vs MCMC on a tractable model
+
+When the likelihood *is* available, ABC should agree with MCMC. Below, the linear regression of [chapter 1](1.%20Linear%20Regression%20for%20continuous%20variable.qmd) is fitted with both. The model code is unchanged: `m.abc()` simulates the `obs=height` site instead of evaluating it. The summary statistics are the least-squares intercept, slope and residual standard deviation, which are sufficient for this model.
+
+``` {python}
+# Data (as in chapter 1) ------------------------------------------------
+def load_howell():
+    m = bf(platform="cpu", print_devices_found=False)
+    m.data(m.load.howell1(only_path=True), sep=";")
+    m.df = m.df[m.df.age > 18]
+    m.scale(["weight"])
+    return m
+
+m_mcmc, m_abc = load_howell(), load_howell()
+
+
+def model(weight, height):
+    a = m_abc.dist.normal(178, 20, name="a")
+    b = m_abc.dist.log_normal(0, 1, name="b")
+    s = m_abc.dist.uniform(0, 50, name="s")
+    m_abc.dist.normal(a + b * weight, s, obs=height)
+
+
+# Summary statistics: least-squares fit of one (simulated) height vector ----------------
+X = jnp.stack([jnp.ones(len(m_abc.df)), jnp.asarray(m_abc.df.weight.values)], axis=1)
+
+def ols(height):
+    coef = jnp.linalg.lstsq(X, height)[0]
+    return jnp.array([coef[0], coef[1], jnp.std(height - X @ coef)])
+
+
+# MCMC (exact likelihood) and ABC (simulation only) ------------------------------------
+m_mcmc.fit(model, progress_bar=False)
+m_abc.abc(model, method="smc", summary_stats=ols, num_simulations=1_000_000,
+          num_rounds=20, min_acceptance=0.005, progress_bar=False)
+
+fig, axes = plt.subplots(1, 3, figsize=(12, 3), constrained_layout=True)
+for ax, p in zip(axes, ["a", "b", "s"]):
+    ax.hist(m_mcmc.posteriors[p], bins=40, density=True, alpha=0.5, label="MCMC (NUTS)")
+    ax.hist(m_abc.posteriors[p], bins=40, density=True, alpha=0.5, label="ABC-SMC")
+    ax.set_title(p)
+axes[0].legend()
+plt.show()
+```
+
+## Mathematical Details
+
+### *Model*
+
+The g-and-k distribution is defined by its quantile function:
+
+$$
+Q(u; A, B, g, k) = A + B \left[1 + c \tanh\left(\frac{g\, z(u)}{2}\right)\right]\left(1 + z(u)^2\right)^{k} z(u)
+$$
+
+where $z(u) = \Phi^{-1}(u)$ is the standard normal quantile and $c = 0.8$ by convention. Simulating is therefore straightforward:
+
+$$
+z_i \sim \text{Normal}(0, 1), \qquad Y_i = Q(\Phi(z_i); A, B, g, k)
+$$
+
+$$
+A, B, g, k \sim \text{Uniform}(0, 10)
+$$
+
+but the density $p(Y_i \mid A, B, g, k)$ requires numerically inverting $Q$ for every observation, and has no closed form.
+
+### *ABC posterior*
+
+ABC replaces the posterior $p(\theta \mid x_{obs}) \propto p(\theta)\, p(x_{obs} \mid \theta)$ by
+
+$$
+p_\epsilon(\theta \mid x_{obs}) \propto p(\theta) \int \mathbb{1}\left[d\big(s(x), s(x_{obs})\big) \le \epsilon\right] p(x \mid \theta)\, dx
+$$
+
+Where:
+
+-   $s(\cdot)$ are the summary statistics and $d(\cdot,\cdot)$ the distance.
+
+-   $\epsilon$ is the tolerance; $p_\epsilon(\theta \mid x_{obs}) \to p(\theta \mid s(x_{obs}))$ as $\epsilon \to 0$, which equals the true posterior when $s$ is sufficient.
+
+-   The integral is never computed: drawing $x \sim p(x \mid \theta)$ and checking the indicator gives an unbiased Monte Carlo estimate, which is all rejection sampling needs.
+
+### *ABC-SMC (Population Monte Carlo)*
+
+At round $t$, with tolerance $\epsilon_t < \epsilon_{t-1}$ (the $\alpha$-quantile of the previous distances), particles are proposed from the previous population $\{\theta_j^{(t-1)}, w_j^{(t-1)}\}$, perturbed with a Gaussian kernel $K_t$ whose covariance is twice the weighted covariance of the population, and accepted if $d \le \epsilon_t$. Accepted particles receive the importance weights:
+
+$$
+w_i^{(t)} \propto \frac{p\big(\theta_i^{(t)}\big)}{\sum_j w_j^{(t-1)} K_t\big(\theta_i^{(t)} \mid \theta_j^{(t-1)}\big)}
+$$
+
+## Notes
+::: callout-note
+-   ABC posteriors are always *at least as wide* as the true posterior: information is lost both in the summary statistics and in the tolerance $\epsilon$. In the sanity check, ABC-SMC matches NUTS only after a million simulations; MCMC remains the method of choice when the likelihood is available.
+
+-   The number of simulations needed grows quickly with the number of summary statistics (the *curse of dimensionality*). Keep the statistics few and informative.
+
+-   When simulations are expensive, or when the same model must be fitted to many datasets, [Neural Posterior Estimation](39.%20Neural%20Posterior%20Estimation.qmd) usually needs far fewer simulations.
+:::
+
+## Reference(s)
+
+@pritchard1999population; @beaumont2002approximate; @beaumont2009adaptive; @cranmer2020frontier
+
+::: {#refs}
+:::

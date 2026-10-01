@@ -616,6 +616,232 @@ class bf(manip):
         self.run_model_name = self.model_name
         self.model_name = None
 
+    # Simulation-based inference (ABC, NPE) ----------------------------------------------------
+    def _sbi_setup(self, model, data, params, observed, summary_stats, batch_size):
+        """Shared set-up for abc()/npe(): resolve model + data, build the simulator."""
+        from BayesForge.Samplers.SBI.simulate import Simulator
+
+        if model is None:
+            model = self.model
+        else:
+            self.model = model
+            if isinstance(model, functools.partial):
+                self.model_name = model.func.__name__
+            elif self.model_name is None:
+                self.model_name = model.__name__
+
+        if data is not None:
+            self.data_on_model = dict(data)
+        elif self.data_on_model is None:
+            self.data_on_model = self.pd_to_jax(self.model)
+
+        return Simulator(
+            self.model,
+            data=self.data_on_model,
+            params=params,
+            observed=observed,
+            summary_stats=summary_stats,
+            batch_size=batch_size,
+        )
+
+    def _sbi_finish(self):
+        self.posteriors = self.sampler.get_samples()
+        self.posteriors_by_chain = self.sampler.get_samples(group_by_chain=True)
+        self.posteriors_full = dict(self.posteriors)
+        self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
+        self.diag = diag(sampler=self.sampler)
+        self.get_history()
+        self.run_model_name = self.model_name
+        self.model_name = None
+
+    def abc(
+        self,
+        model=None,
+        data=None,
+        method="rejection",
+        params=None,
+        observed=None,
+        summary_stats="identity",
+        distance="euclidean",
+        num_simulations=100_000,
+        quantile=0.01,
+        epsilon=None,
+        regression_adjust=False,
+        num_samples=1000,
+        num_particles=None,
+        num_rounds=10,
+        alpha=0.5,
+        min_acceptance=0.01,
+        batch_size=10_000,
+        progress_bar=True,
+        seed=None,
+    ):
+        """Approximate Bayesian Computation: likelihood-free inference by simulation.
+
+        The model is used only as a simulator (prior -> data): its likelihood is
+        never evaluated, so it works for models whose likelihood is intractable.
+
+        Args:
+            model: BF model. Observed sample sites (``obs=``) are simulated.
+            data: dict of model arguments. Defaults to the data set with
+                ``m.data`` / ``m.df`` (as in ``fit``).
+            method: "rejection" (Pritchard et al. 1999) or "smc" (ABC population
+                Monte Carlo, Beaumont et al. 2009).
+            params: names of the parameters to infer (default: all latent sites;
+                remaining latents are nuisance and integrated out by simulation).
+            observed: dict ``{site: value}``; use when the simulator output is a
+                ``m.dist.track`` site rather than an ``obs=`` likelihood.
+            summary_stats: callable applied to one simulated dataset, or one of
+                "identity", "moments", "quantiles", "robust".
+            distance: "euclidean" (on MAD-scaled stats), "mahalanobis" or a
+                callable ``d(s_sim, s_obs)``.
+            num_simulations: rejection: number of simulations; smc: total budget.
+            quantile: rejection: fraction of simulations accepted; smc: fraction
+                kept in round 0.
+            epsilon: tolerance. rejection: accept d <= epsilon (overrides quantile);
+                smc: stop once reached.
+            regression_adjust: rejection only, local-linear adjustment
+                (Beaumont et al. 2002).
+            num_samples: posterior draws returned.
+            num_particles: smc population size (default ``num_samples``).
+            num_rounds, alpha, min_acceptance: smc schedule (tolerance of round t
+                is the alpha-quantile of round t-1 distances).
+            batch_size: simulations per vectorised batch.
+        """
+        from BayesForge.Samplers.SBI.abc import ABC_BF
+
+        sim = self._sbi_setup(model, data, params, observed, summary_stats, batch_size)
+        self.sampler = ABC_BF(
+            sim,
+            method=method,
+            num_simulations=num_simulations,
+            quantile=quantile,
+            epsilon=epsilon,
+            distance=distance,
+            regression_adjust=regression_adjust,
+            num_samples=num_samples,
+            num_particles=num_particles,
+            num_rounds=num_rounds,
+            alpha=alpha,
+            min_acceptance=min_acceptance,
+            progress_bar=progress_bar,
+        ).run(self._resolve_key(seed, "abc"))
+        self._sbi_finish()
+
+    def npe(
+        self,
+        model=None,
+        data=None,
+        estimator="mdn",
+        bayesian=False,
+        params=None,
+        observed=None,
+        summary_stats="identity",
+        num_simulations=10_000,
+        hidden=(64, 64),
+        n_components=5,
+        n_layers=6,
+        activation="gelu",
+        lr=1e-3,
+        batch_size=256,
+        max_steps=20_000,
+        patience=20,
+        prior_scale=1.0,
+        svi_steps=5_000,
+        num_weight_samples=100,
+        num_samples=1000,
+        sim_batch_size=10_000,
+        progress_bar=True,
+        seed=None,
+    ):
+        """Neural Posterior Estimation: learn q(theta | x) from simulations.
+
+        Trains a neural conditional density estimator on (theta, x) pairs drawn
+        from the model's prior predictive. The result is *amortised*: use
+        ``m.npe_posterior(new_data)`` to get the posterior of other datasets
+        without new simulations or retraining.
+
+        Args:
+            model, data, params, observed, summary_stats: as in ``abc``.
+            estimator: "mdn" (mixture density network) or "flow" (conditional
+                affine-coupling normalizing flow).
+            bayesian: if True, Bayesian NPE (Delaunoy et al. 2024): a prior is put
+                on the network weights and their posterior approximated with SVI;
+                the posterior estimate averages over network draws.
+            num_simulations: simulation budget for training.
+            hidden, n_components, n_layers, activation: network architecture.
+            lr, batch_size, max_steps, patience: Adam training with early
+                stopping on a 10% validation split.
+            prior_scale: Bayesian NPE weight prior scale (N(0, prior_scale/sqrt(fan_in))).
+            svi_steps, num_weight_samples: Bayesian NPE SVI steps and number of
+                network draws.
+            num_samples: posterior draws returned for the observed data.
+        """
+        from BayesForge.Samplers.SBI.npe import NPE_BF
+
+        sim = self._sbi_setup(model, data, params, observed, summary_stats, sim_batch_size)
+        self.sampler = NPE_BF(
+            sim,
+            estimator=estimator,
+            bayesian=bayesian,
+            num_simulations=num_simulations,
+            hidden=hidden,
+            n_components=n_components,
+            n_layers=n_layers,
+            activation=activation,
+            lr=lr,
+            batch_size=batch_size,
+            max_steps=max_steps,
+            patience=patience,
+            prior_scale=prior_scale,
+            svi_steps=svi_steps,
+            num_weight_samples=num_weight_samples,
+            num_samples=num_samples,
+            progress_bar=progress_bar,
+        ).run(self._resolve_key(seed, "npe"))
+        self._sbi_finish()
+
+    def npe_posterior(self, x_obs, num_samples=1000, seed=None):
+        """Amortised posterior of a new dataset from the trained NPE (no retraining).
+
+        Args:
+            x_obs: new observed data: an array (single observed site) or a dict
+                ``{site: value}``.
+        Returns:
+            dict of posterior draws.
+        """
+        if not hasattr(self.sampler, "sample_posterior"):
+            raise RuntimeError("Run m.npe(...) first.")
+        return self.sampler.sample_posterior(
+            self._resolve_key(seed, "npe_posterior"), x_obs, num_samples
+        )
+
+    def sbc_coverage(self, n_test=200, n_post=500, levels=None, plot=True, ax=None,
+                     label=None, seed=None):
+        """Expected coverage of the NPE posterior (simulation-based calibration).
+
+        Draws n_test (theta*, x*) pairs from the prior predictive and checks how
+        often theta* falls in the posterior highest-density region of each
+        nominal level. Calibrated: on the diagonal; below: over-confident.
+        """
+        if not hasattr(self.sampler, "coverage"):
+            raise RuntimeError("Run m.npe(...) first.")
+        tab = self.sampler.coverage(
+            self._resolve_key(seed, "coverage"), n_test=n_test, n_post=n_post, levels=levels
+        )
+        if plot:
+            import matplotlib.pyplot as plt
+
+            if ax is None:
+                _, ax = plt.subplots(figsize=(4.5, 4.5))
+            ax.plot([0, 1], [0, 1], "k--", lw=1)
+            ax.plot(tab.nominal, tab.empirical, lw=2, label=label)
+            ax.set_xlabel("Nominal credibility level")
+            ax.set_ylabel("Empirical coverage")
+            if label is not None:
+                ax.legend()
+        return tab
+
     # Random number generator ----------------------------------------------------------------
 
     def randint(self, low, high, shape):

@@ -1,0 +1,323 @@
+---
+title: "Neural Posterior Estimation"
+description: "Train a neural network on simulations to approximate the posterior of any dataset, and make it robust to small simulation budgets with Bayesian NPE."
+categories: [Simulation-based inference, Neural Networks]
+order: 39
+reading-time: true
+---
+
+
+## General Principles
+
+Like [Approximate Bayesian Computation](38.%20Approximate%20Bayesian%20Computation.qmd), Neural Posterior Estimation (NPE) performs Bayesian inference for models that can be simulated but whose likelihood is intractable. Instead of accepting or rejecting simulations, NPE *learns* the posterior:
+
+1) Simulate many pairs $(\theta, x)$ from the model: $\theta$ from the prior, then a dataset $x$ given $\theta$.
+
+2) Train a neural network $q_\phi(\theta \mid x)$, a [<span style="color:#0D6EFD">conditional density estimator 🛈</span>]{#cde}, to predict the distribution of $\theta$ from the (summary statistics of the) data $x$.
+
+3) Evaluate the trained network at the observed data: $q_\phi(\theta \mid x_{obs})$ approximates the posterior $p(\theta \mid x_{obs})$.
+
+Because every simulation is used (none is rejected), NPE typically needs far fewer simulations than ABC. And because the network has learned the posterior for *every* possible dataset, it is **amortized**: once trained, the posterior of a new dataset costs one forward pass, with no new simulations.
+
+**Bayesian NPE** (BNPE) addresses NPE's main weakness: with a small simulation budget, the network over-fits and produces posteriors that are *too narrow*. BNPE places a prior on the network weights $\phi$ and averages the posterior estimate over the plausible networks, which gives wider, more conservative posteriors when there is little training data [@delaunoy2024low].
+
+
+## Considerations
+
+::: callout-note
+-   The model is written as in any BF chapter; `m.npe()` uses it only as a simulator. As in ABC, the data are summarized with `summary_stats` (a function, or `"identity"`, `"moments"`, `"quantiles"`, `"robust"`). NPE copes with more statistics than ABC, since the network learns which ones matter.
+
+-   Two density estimators are available through `estimator`:
+
+    -   `"mdn"` (default): a *mixture density network* [@bishop1994mixture], the posterior is a mixture of `n_components` multivariate Normal distributions whose weights, means and covariances are outputs of a neural network.
+
+    -   `"flow"`: a conditional *normalizing flow* [@dinh2017density], a chain of `n_layers` invertible transformations of a Normal distribution. More flexible for strongly non-Gaussian posteriors.
+
+-   Parameters are learned in the unconstrained space of their prior support and transformed back, so constraints such as $\sigma > 0$ always hold.
+
+-   A posterior estimated by NPE must be **checked for calibration**. `m.sbc_coverage()` simulates new $(\theta^*, x^*)$ pairs and measures how often $\theta^*$ falls in the $\alpha\%$ highest-posterior-density region: a calibrated posterior lies on the diagonal, an over-confident one below it [@hermans2022trust].
+
+-   Use `bayesian=True` (Bayesian NPE) when simulations are expensive and the budget is small (hundreds to a few thousands). It is slower to train, as the posterior of the network weights is approximated with stochastic variational inference.
+:::
+
+## Example
+
+Below is an example code snippet demonstrating *Neural Posterior Estimation* using the BayesForge (**BF**) package. We reuse the g-and-k distribution of the [ABC chapter](38.%20Approximate%20Bayesian%20Computation.qmd), whose likelihood is intractable, and recover $A=3$, $B=1$, $g=2$, $k=0.5$ from 500 observations. ABC-SMC needed one million simulations; NPE uses 20 000.
+
+::: {.panel-tabset group="language"}
+## Python
+
+``` {python}
+from BayesForge import bf
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+
+# Setup device------------------------------------------------
+m = bf(platform="cpu")
+
+# Simulate data ------------------------------------------------
+def g_and_k(z, A, B, g, k):
+    return A + B * (1 + 0.8 * jnp.tanh(g * z / 2)) * (1 + z**2) ** k * z
+
+true = {"A": 3.0, "B": 1.0, "g": 2.0, "k": 0.5}
+N = 500
+y_obs = g_and_k(m.dist.normal(0, 1, shape=(N,), sample=True, seed=42), **true)
+
+
+# Define model (simulator) ------------------------------------------------
+def model(N):
+    # Priors
+    A = m.dist.uniform(0, 10, name="A")
+    B = m.dist.uniform(0, 10, name="B")
+    g = m.dist.uniform(0, 10, name="g")
+    k = m.dist.uniform(0, 10, name="k")
+    # Simulator
+    z = m.dist.normal(0, 1, shape=(N,), name="z")
+    m.dist.track("y", g_and_k(z, A, B, g, k))
+
+
+# Run NPE ------------------------------------------------
+m.npe(
+    model,
+    data={"N": N},
+    observed={"y": y_obs},
+    params=["A", "B", "g", "k"],
+    summary_stats="robust",
+    estimator="mdn",              # mixture density network
+    num_simulations=20_000,
+    progress_bar=False,
+)
+
+# Summary ------------------------------------------------
+m.summary()
+```
+
+``` {python}
+# Posterior distributions vs true values ------------------------------------------------
+fig, axes = plt.subplots(1, 4, figsize=(12, 3), constrained_layout=True)
+for ax, p in zip(axes, ["A", "B", "g", "k"]):
+    ax.hist(m.posteriors[p], bins=40, density=True, alpha=0.7)
+    ax.axvline(true[p], color="k", ls="--", label="true value")
+    ax.set_title(p)
+axes[0].legend()
+plt.show()
+```
+
+## R
+
+``` r
+library(BayesForge)
+m <- importBF(platform = "cpu")
+
+# Simulate data ------------------------------------------------
+g_and_k <- function(z, A, B, g, k) {
+    A + B * (1 + 0.8 * jnp$tanh(g * z / 2)) * (1 + z^2)^k * z
+}
+N <- 500L
+y_obs <- g_and_k(bf.dist.normal(0, 1, shape = c(N), sample = TRUE, seed = 42L), 3, 1, 2, 0.5)
+
+# Define model (simulator) ------------------------------------------------
+model <- function(N) {
+    # Priors
+    A <- bf.dist.uniform(0, 10, name = "A")
+    B <- bf.dist.uniform(0, 10, name = "B")
+    g <- bf.dist.uniform(0, 10, name = "g")
+    k <- bf.dist.uniform(0, 10, name = "k")
+    # Simulator
+    z <- bf.dist.normal(0, 1, shape = c(N), name = "z")
+    m$dist$track("y", g_and_k(z, A, B, g, k))
+}
+
+# Run NPE ------------------------------------------------
+m$npe(model,
+      data = list(N = N),
+      observed = list(y = y_obs),
+      params = list("A", "B", "g", "k"),
+      summary_stats = "robust",
+      estimator = "mdn",
+      num_simulations = 20000L)
+
+# Summary ------------------------------------------------
+m$summary()
+```
+
+## Julia
+```julia
+using BayesForge
+
+# Setup device------------------------------------------------
+m = importBF(platform="cpu")
+
+# Simulate data ------------------------------------------------
+g_and_k(z, A, B, g, k) = A + B * (1 + 0.8 * jnp.tanh(g * z / 2)) * (1 + z^2)^k * z
+N = 500
+y_obs = g_and_k(m.dist.normal(0, 1, shape = (N,), sample = true, seed = 42), 3, 1, 2, 0.5)
+
+# Define model (simulator) ------------------------------------------------
+@BF function model(N)
+    # Priors
+    A = m.dist.uniform(0, 10, name = "A")
+    B = m.dist.uniform(0, 10, name = "B")
+    g = m.dist.uniform(0, 10, name = "g")
+    k = m.dist.uniform(0, 10, name = "k")
+    # Simulator
+    z = m.dist.normal(0, 1, shape = (N,), name = "z")
+    m.dist.track("y", g_and_k(z, A, B, g, k))
+end
+
+# Run NPE ------------------------------------------------
+m.npe(model, data = Dict("N" => N), observed = Dict("y" => y_obs),
+      params = ["A", "B", "g", "k"], summary_stats = "robust",
+      estimator = "mdn", num_simulations = 20_000)
+
+# Summary ------------------------------------------------
+m.summary()
+```
+:::
+
+### Amortization: new datasets without retraining
+
+The trained network gives the posterior of *any* dataset generated by the same model. `m.npe_posterior()` evaluates it for three new datasets in a fraction of a second, without new simulations or training.
+
+``` {python}
+new_truths = [
+    {"A": 2.0, "B": 0.5, "g": 1.0, "k": 0.2},
+    {"A": 5.0, "B": 2.0, "g": 3.0, "k": 0.1},
+    {"A": 7.0, "B": 1.5, "g": 0.5, "k": 0.8},
+]
+
+fig, axes = plt.subplots(1, 4, figsize=(12, 3), constrained_layout=True)
+for i, th in enumerate(new_truths):
+    y_new = g_and_k(m.dist.normal(0, 1, shape=(N,), sample=True, seed=100 + i), **th)
+    post = m.npe_posterior(y_new)  # amortized: one forward pass
+    for ax, p in zip(axes, ["A", "B", "g", "k"]):
+        line = ax.hist(post[p], bins=40, density=True, alpha=0.5, label=f"dataset {i + 1}")
+        ax.axvline(th[p], color=line[2][0].get_facecolor(), ls="--", alpha=1)
+        ax.set_title(p)
+axes[0].legend()
+plt.show()
+```
+
+### Bayesian NPE with a small simulation budget
+
+With only 1 000 simulations, a standard NPE network over-fits. The coverage plot shows its credible regions contain the true parameter less often than they claim (curve below the diagonal): the posteriors are over-confident. Bayesian NPE averages over the posterior of the network weights and produces conservative posteriors (curve on or above the diagonal).
+
+``` {python}
+fig, ax = plt.subplots(figsize=(4.5, 4.5))
+for bayesian, label in [(False, "NPE"), (True, "Bayesian NPE")]:
+    m_small = bf(platform="cpu", print_devices_found=False)
+    m_small.npe(model, data={"N": N}, observed={"y": y_obs}, params=["A", "B", "g", "k"],
+                summary_stats="robust", num_simulations=1_000, bayesian=bayesian,
+                progress_bar=False)
+    m_small.sbc_coverage(n_test=200, ax=ax, label=label)
+ax.set_title("Expected coverage, 1 000 simulations")
+plt.show()
+```
+
+### Sanity check: NPE vs MCMC on a tractable model
+
+On the linear regression of [chapter 1](1.%20Linear%20Regression%20for%20continuous%20variable.qmd), whose likelihood is available, NPE trained on 10 000 simulations agrees with NUTS. The summary statistics are the least-squares intercept, slope and residual standard deviation. Here we use the normalizing-flow estimator, whose tails are better behaved than those of a Gaussian mixture.
+
+``` {python}
+def load_howell():
+    m = bf(platform="cpu", print_devices_found=False)
+    m.data(m.load.howell1(only_path=True), sep=";")
+    m.df = m.df[m.df.age > 18]
+    m.scale(["weight"])
+    return m
+
+m_mcmc, m_npe = load_howell(), load_howell()
+
+
+def model(weight, height):
+    a = m_npe.dist.normal(178, 20, name="a")
+    b = m_npe.dist.log_normal(0, 1, name="b")
+    s = m_npe.dist.uniform(0, 50, name="s")
+    m_npe.dist.normal(a + b * weight, s, obs=height)
+
+
+X = jnp.stack([jnp.ones(len(m_npe.df)), jnp.asarray(m_npe.df.weight.values)], axis=1)
+
+def ols(height):
+    coef = jnp.linalg.lstsq(X, height)[0]
+    return jnp.array([coef[0], coef[1], jnp.std(height - X @ coef)])
+
+
+m_mcmc.fit(model, progress_bar=False)
+m_npe.npe(model, estimator="flow", summary_stats=ols, num_simulations=10_000,
+          progress_bar=False)
+
+fig, axes = plt.subplots(1, 3, figsize=(12, 3), constrained_layout=True)
+for ax, p in zip(axes, ["a", "b", "s"]):
+    ax.hist(m_mcmc.posteriors[p], bins=40, density=True, alpha=0.5, label="MCMC (NUTS)")
+    ax.hist(m_npe.posteriors[p], bins=40, density=True, alpha=0.5, label="NPE")
+    ax.set_title(p)
+axes[0].legend()
+plt.show()
+```
+
+## Mathematical Details
+
+### *Model*
+
+The g-and-k simulator is described in the [ABC chapter](38.%20Approximate%20Bayesian%20Computation.qmd):
+
+$$
+z_i \sim \text{Normal}(0, 1), \qquad Y_i = A + B \left[1 + 0.8 \tanh\left(\frac{g z_i}{2}\right)\right]\left(1 + z_i^2\right)^{k} z_i
+$$
+
+$$
+A, B, g, k \sim \text{Uniform}(0, 10)
+$$
+
+### *Neural Posterior Estimation*
+
+NPE fits the network parameters $\phi$ by minimizing the expected negative log-density of the parameters that generated each simulated dataset:
+
+$$
+\hat\phi = \arg\min_\phi \; \mathbb{E}_{\theta \sim p(\theta),\, x \sim p(x \mid \theta)}\left[-\log q_\phi\big(\theta \mid s(x)\big)\right] \approx \arg\min_\phi \; -\frac{1}{M}\sum_{j=1}^{M} \log q_\phi\big(\theta_j \mid s(x_j)\big)
+$$
+
+This loss is minimized when $q_\phi(\theta \mid x) = p(\theta \mid x)$ for every $x$ [@papamakarios2016fast; @greenberg2019automatic], which is why a single trained network is valid for all datasets (amortization).
+
+For the mixture density network:
+
+$$
+q_\phi(\theta \mid x) = \sum_{c=1}^{C} \pi_c(x)\; \text{MVNormal}\big(\theta \mid \mu_c(x), \Sigma_c(x)\big)
+$$
+
+Where:
+
+-   $C$ is the number of mixture components (`n_components`).
+
+-   $\pi_c(x)$, $\mu_c(x)$ and the Cholesky factor of $\Sigma_c(x)$ are outputs of a multilayer perceptron with input $s(x)$ and weights $\phi$.
+
+### *Bayesian NPE*
+
+Bayesian NPE treats $\phi$ as unknown, with prior $\phi \sim \text{Normal}(0, \sigma_\phi^2)$ and the simulations $\mathcal{D} = \{(\theta_j, x_j)\}$ as data:
+
+$$
+q(\theta \mid x) = \int q_\phi(\theta \mid x)\; p(\phi \mid \mathcal{D})\, d\phi \approx \frac{1}{S}\sum_{s=1}^{S} q_{\phi_s}(\theta \mid x), \qquad \phi_s \sim \hat p(\phi \mid \mathcal{D})
+$$
+
+where $\hat p(\phi \mid \mathcal{D})$ is a mean-field Normal approximation of the weight posterior fitted by stochastic variational inference. When $\mathcal{D}$ is small, $p(\phi \mid \mathcal{D})$ is wide and the mixture over networks widens the posterior estimate [@delaunoy2024low].
+
+### *Expected coverage*
+
+For test pairs $(\theta^*_i, x^*_i)$ drawn from the model, the expected coverage at level $1-\alpha$ is the proportion of $\theta^*_i$ inside the $(1-\alpha)$ highest-density region of $q(\theta \mid x^*_i)$ [@hermans2022trust]. A calibrated estimator has expected coverage equal to $1-\alpha$ for every $\alpha$.
+
+## Notes
+::: callout-note
+-   NPE trades simulations for training: 20 000 simulations instead of the one million used by ABC-SMC, but a network must be trained. It pays off when simulations are expensive or when many datasets must be analysed with the same model.
+
+-   An NPE posterior is only as good as the network fit. Always inspect the training curve (`m.sampler.plot_loss()`) and the expected coverage (`m.sbc_coverage()`) before interpreting the results.
+
+-   The trained network is only valid for data similar to the simulations: observed data far outside the prior predictive distribution (model misspecification) give unreliable posteriors.
+:::
+
+## Reference(s)
+
+@papamakarios2016fast; @greenberg2019automatic; @cranmer2020frontier; @hermans2022trust; @delaunoy2024low
+
+::: {#refs}
+:::
