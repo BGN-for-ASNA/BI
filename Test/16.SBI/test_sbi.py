@@ -118,3 +118,20 @@ def test_bayesian_npe_is_wider_than_npe_with_small_budget():
         cov = m.sbc_coverage(n_test=50, n_post=200, levels=[0.5, 0.9], plot=False)
         assert list(cov.columns) == ["nominal", "empirical"]
     assert sds[True] > sds[False]
+
+
+# ABC random forest -------------------------------------------------------------------
+@pytest.mark.parametrize("joint", [False, True])
+def test_abc_rf_recovers_analytic_posterior_and_ignores_noise_stat(joint):
+    m = _bf()
+
+    # Second statistic is uninformative about mu (pure function of the noise scale).
+    stats = lambda y: jnp.stack([jnp.mean(y), jnp.std(y - jnp.mean(y))])
+    m.abc_rf(_normal_model(m), data={"y": Y}, summary_stats=stats,
+             stat_names=["mean", "resid_sd"], num_simulations=10_000,
+             n_estimators=200, max_features=1.0,  # few stats: consider all at each split
+             joint=joint, progress_bar=False, seed=0)
+    _check(m, mean_tol=0.1, sd_rtol=0.5)
+    imp = m.sampler.importance.iloc[:, 0]
+    assert imp["mean"] > imp["resid_sd"]
+    assert m.sampler.oob.loc["mu", "oob_r2"] > 0.9

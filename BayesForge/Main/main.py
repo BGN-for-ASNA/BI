@@ -728,6 +728,69 @@ class bf(manip):
         ).run(self._resolve_key(seed, "abc"))
         self._sbi_finish()
 
+    def abc_rf(
+        self,
+        model=None,
+        data=None,
+        params=None,
+        observed=None,
+        summary_stats="identity",
+        stat_names=None,
+        num_simulations=10_000,
+        n_estimators=500,
+        min_samples_leaf=5,
+        max_features=1 / 3,
+        joint=False,
+        num_samples=1000,
+        n_jobs=-1,
+        batch_size=10_000,
+        progress_bar=True,
+        seed=None,
+    ):
+        """ABC random forests (Raynal et al. 2019): likelihood-free inference
+        without tolerance or distance.
+
+        A reference table of (theta, s(x)) is simulated from the prior
+        predictive and a regression random forest is trained to predict each
+        parameter from the summary statistics. The forest's leaves define
+        weights on the reference table (quantile regression forest), which give
+        the posterior at the observed statistics. Requires scikit-learn.
+
+        Args:
+            model, data, params, observed, summary_stats: as in ``abc``. Many
+                (even weakly informative) statistics can be supplied: the forest
+                selects the useful ones.
+            stat_names: names of the summary statistics, used in
+                ``m.sampler.importance`` and ``m.sampler.plot_importance()``.
+            num_simulations: size of the reference table.
+            n_estimators, min_samples_leaf, max_features: forest settings
+                (max_features=1/3 of the statistics, as in Raynal et al.).
+            joint: False (default) trains one forest per scalar parameter
+                (accurate marginals, independent draws across parameters);
+                True trains one multi-output forest and keeps posterior
+                correlations.
+            num_samples: posterior draws returned.
+            n_jobs: parallel jobs for scikit-learn (-1 = all cores).
+        """
+        from BayesForge.Samplers.SBI.abc_rf import ABCRF_BF
+
+        sim = self._sbi_setup(model, data, params, observed, summary_stats, batch_size)
+        key = self._resolve_key(seed, "abc_rf")
+        self.sampler = ABCRF_BF(
+            sim,
+            num_simulations=num_simulations,
+            n_estimators=n_estimators,
+            min_samples_leaf=min_samples_leaf,
+            max_features=max_features,
+            joint=joint,
+            stat_names=stat_names,
+            num_samples=num_samples,
+            n_jobs=n_jobs,
+            random_state=int(jax.random.randint(key, (), 0, 2**31 - 1)),
+            progress_bar=progress_bar,
+        ).run(key)
+        self._sbi_finish()
+
     def npe(
         self,
         model=None,
