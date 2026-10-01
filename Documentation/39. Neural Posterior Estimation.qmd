@@ -49,7 +49,10 @@ Below is an example code snippet demonstrating *Neural Posterior Estimation* usi
 
 ``` {python}
 from BayesForge import bf
+import jax
 import jax.numpy as jnp
+import numpyro
+import numpyro.distributions as dist
 import matplotlib.pyplot as plt
 
 # Setup device------------------------------------------------
@@ -62,8 +65,104 @@ def g_and_k(z, A, B, g, k):
 true = {"A": 3.0, "B": 1.0, "g": 2.0, "k": 0.5}
 N = 500
 y_obs = g_and_k(m.dist.normal(0, 1, shape=(N,), sample=True, seed=42), **true)
+```
 
+::: {.panel-tabset}
 
+#### From scratch
+
+The algorithm written out step by step (what `m.npe(estimator="mdn")` does): simulate a training set, map the parameters to the real line and standardise everything, build a mixture density network from BF's BNN layers (`m.bnn.layer_linear`), train it with Adam and early stopping, and evaluate it at the observed data.
+
+``` {python}
+# Summary statistics: octile-based location, scale, skewness, kurtosis ----------------
+def robust_stats(y):
+    e = jnp.quantile(y, jnp.arange(1, 8) / 8)
+    iqr = e[5] - e[1]
+    return jnp.stack([e[3], iqr, (e[5] + e[1] - 2 * e[3]) / iqr,
+                      (e[6] - e[4] + e[2] - e[0]) / iqr])
+
+# 1. Training set: (theta, s) pairs from the prior predictive ------------------------
+M = 20_000
+k1, k2 = jax.random.split(jax.random.PRNGKey(0))
+theta = jax.random.uniform(k1, (M, 4), minval=0.0, maxval=10.0)       # Uniform(0, 10)
+y_sim = g_and_k(jax.random.normal(k2, (M, N)), *[theta[:, i, None] for i in range(4)])
+s = jax.vmap(robust_stats)(y_sim)
+
+# 2. Unconstrained, standardised targets and inputs ----------------------------------
+u = jax.scipy.special.logit(theta / 10)                                # (0, 10) -> real line
+u_mean, u_sd = u.mean(0), u.std(0)
+s_mean, s_sd = s.mean(0), s.std(0)
+un, sn = (u - u_mean) / u_sd, (s - s_mean) / s_sd
+
+# 3. Mixture density network built from BF's BNN layers ------------------------------
+D, K, H = 4, 5, 64                    # parameters, mixture components, hidden units
+n_tril = D * (D + 1) // 2             # entries of a Cholesky factor
+sizes = [4, H, H, K * (1 + D + n_tril)]
+tril, diag = jnp.tril_indices(D), jnp.arange(D)
+
+def init(key):
+    keys = jax.random.split(key, len(sizes) - 1)
+    return [{"W": jax.random.normal(k, (a, b)) / jnp.sqrt(a), "b": jnp.zeros(b)}
+            for k, a, b in zip(keys, sizes[:-1], sizes[1:])]
+
+def mdn(params, c):
+    """q(u | c): mixture of K multivariate normals whose parameters are an MLP of c."""
+    h = c
+    for i, p in enumerate(params):
+        act = "gelu" if i < len(params) - 1 else None
+        h = m.bnn.layer_linear(h, p["W"], activation=act, bias=p["b"], verbose=False)
+    logits = h[..., :K]                                                 # mixture weights
+    loc = h[..., K:K + K * D].reshape(h.shape[:-1] + (K, D))           # means
+    L = jnp.zeros(h.shape[:-1] + (K, D, D)).at[..., tril[0], tril[1]].set(
+        h[..., K + K * D:].reshape(h.shape[:-1] + (K, n_tril)))       # Cholesky factors
+    L = L.at[..., diag, diag].set(jax.nn.softplus(L[..., diag, diag]) + 1e-3)
+    return dist.MixtureSameFamily(dist.Categorical(logits=logits),
+                                  dist.MultivariateNormal(loc, scale_tril=L))
+
+# 4. Train: minimise -log q(u | s) with Adam, mini-batches and early stopping --------
+def loss(params, u, c):
+    return -mdn(params, c).log_prob(u).mean()
+
+opt = numpyro.optim.Adam(1e-3)
+
+def train(un, sn, key, n_chunks=100, patience=20):
+    n_val = un.shape[0] // 10                                          # 10% validation
+    @jax.jit
+    def chunk(state, key):                                             # 200 Adam steps
+        def step(state, k):
+            idx = jax.random.randint(k, (256,), n_val, un.shape[0])
+            g = jax.grad(loss)(opt.get_params(state), un[idx], sn[idx])
+            return opt.update(g, state), None
+        state, _ = jax.lax.scan(step, state, jax.random.split(key, 200))
+        return state, loss(opt.get_params(state), un[:n_val], sn[:n_val])
+    k_init, k_train = jax.random.split(key)
+    state = opt.init(init(k_init))
+    best, wait = jnp.inf, 0
+    for k in jax.random.split(k_train, n_chunks):
+        state, val = chunk(state, k)
+        if val < best - 1e-4:
+            best, params, wait = val, opt.get_params(state), 0          # keep best network
+        else:
+            wait += 1
+            if wait == patience:
+                break
+    return params
+
+params = train(un, sn, jax.random.PRNGKey(1))
+
+# 5. Posterior at the observed data ----------------------------------------------------
+c_obs = (robust_stats(y_obs) - s_mean) / s_sd
+u_post = mdn(params, c_obs).sample(jax.random.PRNGKey(3), (1000,)) * u_sd + u_mean
+posterior = 10 * jax.nn.sigmoid(u_post)                                # back to (0, 10)
+for i, p in enumerate(["A", "B", "g", "k"]):
+    print(f"{p}: mean = {posterior[:, i].mean():.2f}, sd = {posterior[:, i].std():.2f}")
+```
+
+#### Built-in function
+
+The same analysis with `m.npe()`. The model is written as any BF model; `m.npe()` turns it into the simulator above, handles the transforms and standardisation, and trains the network.
+
+``` {python}
 # Define model (simulator) ------------------------------------------------
 def model(N):
     # Priors
@@ -95,13 +194,20 @@ m.summary()
 ``` {python}
 # Posterior distributions vs true values ------------------------------------------------
 fig, axes = plt.subplots(1, 4, figsize=(12, 3), constrained_layout=True)
-for ax, p in zip(axes, ["A", "B", "g", "k"]):
-    ax.hist(m.posteriors[p], bins=40, density=True, alpha=0.7)
+for i, (ax, p) in enumerate(zip(axes, ["A", "B", "g", "k"])):
+    ax.hist(m.posteriors[p], bins=40, density=True, alpha=0.5, label="m.npe()")
+    ax.hist(posterior[:, i], bins=40, density=True, alpha=0.5, label="from scratch")
     ax.axvline(true[p], color="k", ls="--", label="true value")
     ax.set_title(p)
 axes[0].legend()
 plt.show()
+
+# Training curve ------------------------------------------------
+m.sampler.plot_loss()
+plt.show()
 ```
+
+:::
 
 ## R
 
@@ -202,6 +308,79 @@ plt.show()
 
 With only 1 000 simulations, a standard NPE network over-fits. The coverage plot shows its credible regions contain the true parameter less often than they claim (curve below the diagonal): the posteriors are over-confident. Bayesian NPE averages over the posterior of the network weights and produces conservative posteriors (curve on or above the diagonal).
 
+::: {.panel-tabset}
+
+#### From scratch
+
+Bayesian NPE written out (what `m.npe(bayesian=True)` does): a standard network is trained first; its weights then become random variables of a BF model, with Normal priors, fitted with BF's stochastic variational inference (`m.svi`) starting from the trained network. The posterior estimate averages the mixture densities of 100 networks drawn from the weight posterior. Expected coverage is computed by checking, for simulated test pairs $(\theta^*, x^*)$, the mass of the smallest highest-density region that contains $\theta^*$.
+
+``` {python}
+from numpyro.infer import Trace_ELBO
+from numpyro.infer.autoguide import AutoNormal
+from numpyro.infer.initialization import init_to_value
+
+# Small budget: the first 1 000 simulations of the training set
+un_s, sn_s = un[:1000], sn[:1000]
+params_small = train(un_s, sn_s, jax.random.PRNGKey(5))               # standard NPE
+
+# Network weights as random variables of a BF model ---------------------------------
+def bnpe(u, c):
+    params = [{"W": m.dist.normal(0, 1 / jnp.sqrt(a), shape=(a, b), name=f"W{i}"),
+               "b": m.dist.normal(0, 1, shape=(b,), name=f"b{i}")}
+              for i, (a, b) in enumerate(zip(sizes[:-1], sizes[1:]))]
+    m.dist.factor("loglik", mdn(params, c).log_prob(u).sum())         # sum_j log q(u_j | s_j)
+
+start = {f"{n}{i}": p[n] for i, p in enumerate(params_small) for n in ("W", "b")}
+guide = AutoNormal(bnpe, init_loc_fn=init_to_value(values=start), init_scale=1e-3)
+```
+
+``` {python}
+#| output: false
+m_b = bf(platform="cpu", print_devices_found=False)
+m_b.data_on_model = {"u": un_s, "c": sn_s}
+m_b.svi(bnpe, guide=guide, optim=numpyro.optim.Adam(1e-3), loss=Trace_ELBO(),
+        num_steps=5000, num_samples=100)                               # 100 network draws
+```
+
+``` {python}
+nets = [[{"W": m_b.posteriors[f"W{i}"][j], "b": m_b.posteriors[f"b{i}"][j]} for i in range(3)]
+        for j in range(100)]
+
+# log q(u | c) and sampling, for NPE (one network) and Bayesian NPE (100 networks) -----
+def log_q(u, c, bayesian):
+    if not bayesian:
+        return mdn(params_small, c).log_prob(u)
+    lp = jnp.stack([mdn(p, c).log_prob(u) for p in nets])
+    return jax.scipy.special.logsumexp(lp, axis=0) - jnp.log(len(nets))
+
+def sample_q(key, c, n, bayesian):
+    if not bayesian:
+        return mdn(params_small, c).sample(key, (n,))
+    keys = jax.random.split(key, len(nets))
+    return jnp.concatenate([mdn(p, c).sample(k, (n // len(nets),)) for p, k in zip(nets, keys)])
+
+# Expected coverage on 100 test simulations (from the end of the training set) --------
+levels = jnp.linspace(0.01, 0.99, 50)
+fig, ax = plt.subplots(figsize=(4.5, 4.5))
+ax.plot([0, 1], [0, 1], "k--", lw=1)
+for bayesian, label in [(False, "NPE"), (True, "Bayesian NPE")]:
+    ranks = []
+    for i, key in enumerate(jax.random.split(jax.random.PRNGKey(7), 100)):
+        u_true, c = un[-1 - i], sn[-1 - i]
+        draws = sample_q(key, c, 500, bayesian)
+        # mass of the smallest HPD region containing the true value
+        ranks.append(jnp.mean(log_q(draws, c, bayesian) > log_q(u_true[None], c, bayesian)[0]))
+    ranks = jnp.array(ranks)
+    ax.plot(levels, [(ranks <= a).mean() for a in levels], lw=2, label=label)
+ax.set_xlabel("Nominal credibility level")
+ax.set_ylabel("Empirical coverage")
+ax.set_title("From scratch, 1 000 simulations")
+ax.legend()
+plt.show()
+```
+
+#### Built-in function
+
 ``` {python}
 fig, ax = plt.subplots(figsize=(4.5, 4.5))
 for bayesian, label in [(False, "NPE"), (True, "Bayesian NPE")]:
@@ -213,6 +392,8 @@ for bayesian, label in [(False, "NPE"), (True, "Bayesian NPE")]:
 ax.set_title("Expected coverage, 1 000 simulations")
 plt.show()
 ```
+
+:::
 
 ### Sanity check: NPE vs MCMC on a tractable model
 
@@ -278,33 +459,83 @@ $$
 \hat\phi = \arg\min_\phi \; \mathbb{E}_{\theta \sim p(\theta),\, x \sim p(x \mid \theta)}\left[-\log q_\phi\big(\theta \mid s(x)\big)\right] \approx \arg\min_\phi \; -\frac{1}{M}\sum_{j=1}^{M} \log q_\phi\big(\theta_j \mid s(x_j)\big)
 $$
 
-This loss is minimized when $q_\phi(\theta \mid x) = p(\theta \mid x)$ for every $x$ [@papamakarios2016fast; @greenberg2019automatic], which is why a single trained network is valid for all datasets (amortization).
+This loss is the expected Kullback-Leibler divergence $\mathbb{E}_{p(x)}\big[\text{KL}\big(p(\theta \mid x)\,\|\,q_\phi(\theta \mid x)\big)\big]$ up to a constant, so it is minimized when $q_\phi(\theta \mid x) = p(\theta \mid x)$ for every $x$ [@papamakarios2016fast; @greenberg2019automatic]. This is why a single trained network is valid for all datasets (amortization).
 
-For the mixture density network:
+### *Training set and transforms*
+
+`m.npe()` performs the following steps.
+
+1.  **Simulation.** $M$ pairs (`num_simulations`) are drawn from the prior predictive distribution, exactly as for ABC (see the [ABC chapter](38.%20Approximate%20Bayesian%20Computation.qmd)): $\theta_j \sim p(\theta)$, $x_j \sim p(x \mid \theta_j)$, $s_j = s(x_j)$. Pairs with non-finite values are dropped.
+
+2.  **Unconstrained parameters.** Each parameter is mapped to the real line by the bijection of its prior support, $u_j = T^{-1}(\theta_j)$ (for $\text{Uniform}(0, 10)$: $u = \text{logit}(\theta/10)$). The network models $q(u \mid s)$, so every sample $\theta = T(u)$ automatically respects the support.
+
+3.  **Standardisation.** Targets and inputs are standardised with the means and standard deviations of the training set: $\tilde u = (u - \bar u)/\text{sd}(u)$ and $\tilde s = (s - \bar s)/\text{sd}(s)$. The density of the original $u$ includes the Jacobian of this rescaling: $\log q(u \mid s) = \log \tilde q(\tilde u \mid \tilde s) - \sum_d \log \text{sd}(u_d)$.
+
+4.  **Training.** 10% of the pairs are held out for validation. The network is trained with Adam (learning rate `lr`) on mini-batches of `batch_size` pairs; every 200 steps the validation loss is computed, the best network so far is kept, and training stops when the validation loss has not improved for `patience` evaluations, or after `max_steps` steps.
+
+5.  **Posterior.** For the observed data, $\tilde s_{obs}$ is fed to the network, `num_samples` draws $\tilde u \sim \tilde q(\cdot \mid \tilde s_{obs})$ are un-standardised and mapped back with $\theta = T(u)$. `m.npe_posterior(x_new)` repeats this step for a new dataset, without new simulations.
+
+### *Mixture density network* (`estimator="mdn"`)
 
 $$
-q_\phi(\theta \mid x) = \sum_{c=1}^{C} \pi_c(x)\; \text{MVNormal}\big(\theta \mid \mu_c(x), \Sigma_c(x)\big)
+q_\phi(u \mid s) = \sum_{c=1}^{C} \pi_c(s)\; \text{MVNormal}\big(u \mid \mu_c(s),\, L_c(s) L_c(s)^\top\big)
 $$
 
 Where:
 
--   $C$ is the number of mixture components (`n_components`).
+-   $C$ is the number of mixture components (`n_components`), and $D$ the number of (scalar) parameters.
 
--   $\pi_c(x)$, $\mu_c(x)$ and the Cholesky factor of $\Sigma_c(x)$ are outputs of a multilayer perceptron with input $s(x)$ and weights $\phi$.
+-   A multilayer perceptron (`hidden` layers of BF's `m.bnn.layer_linear`, activation `activation`) maps $\tilde s$ to $C\,(1 + D + D(D+1)/2)$ outputs: the logits of the weights $\pi_c$ (softmax), the means $\mu_c$, and the lower-triangular Cholesky factors $L_c$.
+
+-   The diagonal of each $L_c$ is made positive with $\text{softplus}(\cdot) + 10^{-3}$, so every covariance matrix $L_c L_c^\top$ is valid.
+
+### *Normalizing flow* (`estimator="flow"`)
+
+The flow transforms $u$ into a standard Normal variable $z$ through `n_layers` affine coupling layers [@dinh2017density]. Each layer uses a binary mask $m$ (alternating between layers) and keeps the masked coordinates unchanged:
+
+$$
+u' = m \odot u + (1 - m) \odot \big(u \odot e^{a(m \odot u,\, h)} + b(m \odot u,\, h)\big)
+$$
+
+where $a(\cdot)$ and $b(\cdot)$ are outputs of a multilayer perceptron that sees only the unchanged coordinates and an embedding $h$ of the summary statistics, and $a = 2\tanh(\cdot/2)$ is bounded for stability. The Jacobian of each layer is triangular, so the density is
+
+$$
+\log q_\phi(u \mid s) = \log \text{Normal}(z \mid 0, I) + \sum_{\text{layers}} \sum_{d} (1 - m_d)\, a_d
+$$
+
+and sampling inverts the layers in reverse order, $u = \big(u' - b\big) \odot e^{-a}$ on the transformed coordinates.
 
 ### *Bayesian NPE*
 
-Bayesian NPE treats $\phi$ as unknown, with prior $\phi \sim \text{Normal}(0, \sigma_\phi^2)$ and the simulations $\mathcal{D} = \{(\theta_j, x_j)\}$ as data:
+Bayesian NPE treats the network weights $\phi$ as unknown, with the simulations $\mathcal{D} = \{(u_j, s_j)\}$ as data [@delaunoy2024low]:
 
 $$
-q(\theta \mid x) = \int q_\phi(\theta \mid x)\; p(\phi \mid \mathcal{D})\, d\phi \approx \frac{1}{S}\sum_{s=1}^{S} q_{\phi_s}(\theta \mid x), \qquad \phi_s \sim \hat p(\phi \mid \mathcal{D})
+W^{(l)} \sim \text{Normal}\left(0, \frac{\sigma_\phi^2}{n_{in}^{(l)}}\right), \qquad b^{(l)} \sim \text{Normal}(0, \sigma_\phi^2), \qquad p(\mathcal{D} \mid \phi) = \prod_{j=1}^{M} q_\phi(u_j \mid s_j)
 $$
 
-where $\hat p(\phi \mid \mathcal{D})$ is a mean-field Normal approximation of the weight posterior fitted by stochastic variational inference. When $\mathcal{D}$ is small, $p(\phi \mid \mathcal{D})$ is wide and the mixture over networks widens the posterior estimate [@delaunoy2024low].
+where $n_{in}^{(l)}$ is the number of inputs of layer $l$ and $\sigma_\phi$ is `prior_scale`. The weight posterior is approximated by a mean-field Normal distribution $\hat p_\lambda(\phi) = \prod_k \text{Normal}(\phi_k \mid \mu_k, \sigma_k^2)$ that maximizes the evidence lower bound (stochastic variational inference, `svi_steps` Adam steps on mini-batches):
+
+$$
+\text{ELBO}(\lambda) = \mathbb{E}_{\hat p_\lambda(\phi)}\left[\sum_{j=1}^{M} \log q_\phi(u_j \mid s_j) + \log p(\phi) - \log \hat p_\lambda(\phi)\right]
+$$
+
+The means $\mu_k$ start at the weights of the trained standard network and the scales at $10^{-3}$. The posterior estimate averages the mixture densities of $S$ networks (`num_weight_samples`) drawn from $\hat p_\lambda$:
+
+$$
+q(u \mid s) = \int q_\phi(u \mid s)\; p(\phi \mid \mathcal{D})\, d\phi \approx \frac{1}{S}\sum_{k=1}^{S} q_{\phi_k}(u \mid s), \qquad \phi_k \sim \hat p_\lambda(\phi)
+$$
+
+and sampling draws an equal number of values from each network. When $\mathcal{D}$ is small, the weight posterior is wide and the mixture over networks widens the posterior estimate.
 
 ### *Expected coverage*
 
-For test pairs $(\theta^*_i, x^*_i)$ drawn from the model, the expected coverage at level $1-\alpha$ is the proportion of $\theta^*_i$ inside the $(1-\alpha)$ highest-density region of $q(\theta \mid x^*_i)$ [@hermans2022trust]. A calibrated estimator has expected coverage equal to $1-\alpha$ for every $\alpha$.
+For $n$ test pairs $(\theta^*_i, x^*_i)$ simulated from the model (`n_test`), `m.sbc_coverage()` draws $K$ samples $u_{ik} \sim q(\cdot \mid s(x^*_i))$ (`n_post`) and computes the mass of the smallest highest-density region that contains the true value:
+
+$$
+r_i = \frac{1}{K}\sum_{k=1}^{K} \mathbb{1}\left[q(u_{ik} \mid s_i) > q(u^*_i \mid s_i)\right]
+$$
+
+The true value lies inside the $(1-\alpha)$ highest-density region when $r_i \le 1 - \alpha$, so the empirical coverage at level $1-\alpha$ is $\frac{1}{n}\sum_i \mathbb{1}[r_i \le 1 - \alpha]$ [@hermans2022trust]. A calibrated estimator has empirical coverage equal to $1-\alpha$ for every $\alpha$; a curve below the diagonal reveals over-confident posteriors, above the diagonal conservative ones.
 
 ## Notes
 ::: callout-note

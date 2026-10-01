@@ -55,6 +55,7 @@ Below is an example code snippet demonstrating *Approximate Bayesian Computation
 
 ``` {python}
 from BayesForge import bf
+import jax
 import jax.numpy as jnp
 import matplotlib.pyplot as plt
 
@@ -62,12 +63,99 @@ import matplotlib.pyplot as plt
 m = bf(platform="cpu")
 
 # Simulate data ------------------------------------------------
+def g_and_k(z, A, B, g, k):
+    """g-and-k quantile function applied to standard normal draws z."""
+    return A + B * (1 + 0.8 * jnp.tanh(g * z / 2)) * (1 + z**2) ** k * z
+
 true = {"A": 3.0, "B": 1.0, "g": 2.0, "k": 0.5}
 N = 500
-z = m.dist.normal(0, 1, shape=(N,), sample=True, seed=42)
-y_obs = true["A"] + true["B"] * (1 + 0.8 * jnp.tanh(true["g"] * z / 2)) * (1 + z**2) ** true["k"] * z
+y_obs = g_and_k(m.dist.normal(0, 1, shape=(N,), sample=True, seed=42), **true)
+```
 
+::: {.panel-tabset}
 
+#### From scratch
+
+The algorithm written out step by step (what `m.abc(method="smc")` does), using JAX only. The simulator is a vectorised function, the summary statistics are the four robust octile statistics, and the priors are $\text{Uniform}(0, 10)$.
+
+``` {python}
+# Summary statistics: octile-based location, scale, skewness, kurtosis ----------------
+def robust_stats(y):
+    e = jnp.quantile(y, jnp.arange(1, 8) / 8)                  # octiles E1..E7
+    iqr = e[5] - e[1]
+    return jnp.stack([e[3], iqr, (e[5] + e[1] - 2 * e[3]) / iqr,
+                      (e[6] - e[4] + e[2] - e[0]) / iqr])
+
+# Simulator: parameters (n, 4) -> summary statistics (n, 4) ---------------------------
+@jax.jit
+def simulate(key, theta):
+    z = jax.random.normal(key, (theta.shape[0], N))
+    y = g_and_k(z, *[theta[:, i, None] for i in range(4)])
+    return jax.vmap(robust_stats)(y)
+
+s_obs = robust_stats(y_obs)
+lower, upper = jnp.zeros(4), jnp.full(4, 10.0)                  # Uniform(0, 10) priors
+key = jax.random.PRNGKey(0)
+
+# Round 0: rejection ABC from the prior ------------------------------------------------
+n_particles, n0, budget = 1000, 100_000, 1_000_000
+key, k1, k2 = jax.random.split(key, 3)
+theta = jax.random.uniform(k1, (n0, 4), minval=lower, maxval=upper)
+s = simulate(k2, theta)
+scale = 1.4826 * jnp.median(jnp.abs(s - jnp.median(s, 0)), 0)  # MAD of each statistic
+distance = lambda s: jnp.sqrt(jnp.sum(((s - s_obs) / scale) ** 2, axis=1))
+d = distance(s)
+keep = jnp.argsort(d)[:n_particles]                             # closest 1%
+theta, d, w = theta[keep], d[keep], jnp.full(n_particles, 1 / n_particles)
+n_sims = n0
+
+# Rounds 1, 2, ...: population Monte Carlo ---------------------------------------------
+batch = 2000
+for t in range(1, 20):
+    eps = jnp.quantile(d, 0.5)                                  # new, smaller tolerance
+    mean = w @ theta
+    cov = 2 * ((theta - mean).T * w) @ (theta - mean)           # kernel = 2 x weighted covariance
+    L = jnp.linalg.cholesky(cov)
+    new_theta, new_d, n_prop = [], [], 0
+    while sum(len(x) for x in new_theta) < n_particles and n_sims + n_prop < budget:
+        key, ka, kp, ks = jax.random.split(key, 4)
+        parents = jax.random.choice(ka, n_particles, (batch,), p=w)        # resample
+        prop = theta[parents] + jax.random.normal(kp, (batch, 4)) @ L.T   # perturb
+        inside = jnp.all((prop > lower) & (prop < upper), axis=1)         # prior > 0
+        dp = distance(simulate(ks, prop))                                  # simulate
+        accepted = inside & (dp <= eps)                                    # accept
+        new_theta.append(prop[accepted])
+        new_d.append(dp[accepted])
+        n_prop += batch
+    n_sims += n_prop
+    new_theta = jnp.concatenate(new_theta)
+    if new_theta.shape[0] < n_particles:                         # budget exhausted
+        break
+    new_theta, new_d = new_theta[:n_particles], jnp.concatenate(new_d)[:n_particles]
+    # Importance weights: prior / mixture of kernels around the previous particles.
+    # The prior is uniform, so the numerator is a constant.
+    log_kernel = jax.vmap(lambda th: jax.scipy.stats.multivariate_normal.logpdf(th, theta, cov)
+                          + jnp.log(w))(new_theta)
+    w = jnp.exp(-jax.scipy.special.logsumexp(log_kernel, axis=1))
+    theta, d, w = new_theta, new_d, w / w.sum()
+    acceptance = n_particles / n_prop
+    print(f"round {t}: epsilon = {eps:.3f}, acceptance = {acceptance:.3f}")
+    if acceptance < 0.01:
+        break
+
+# Posterior: resample the weighted particles -------------------------------------------
+key, k = jax.random.split(key)
+posterior = theta[jax.random.choice(k, n_particles, (1000,), p=w)]
+print(f"{n_sims} simulations")
+for i, p in enumerate(["A", "B", "g", "k"]):
+    print(f"{p}: mean = {posterior[:, i].mean():.2f}, sd = {posterior[:, i].std():.2f}")
+```
+
+#### Built-in function
+
+The same analysis with `m.abc()`. The model is written as any BF model: `m.abc()` turns it into the simulator above, computes the summary statistics, scales the distance and runs the SMC rounds.
+
+``` {python}
 # Define model (simulator) ------------------------------------------------
 def model(N):
     # Priors
@@ -77,7 +165,7 @@ def model(N):
     k = m.dist.uniform(0, 10, name="k")
     # Simulator: g-and-k quantile function applied to standard normal draws
     z = m.dist.normal(0, 1, shape=(N,), name="z")
-    m.dist.track("y", A + B * (1 + 0.8 * jnp.tanh(g * z / 2)) * (1 + z**2) ** k * z)
+    m.dist.track("y", g_and_k(z, A, B, g, k))
 
 
 # Run ABC ------------------------------------------------
@@ -99,8 +187,9 @@ m.summary()
 ``` {python}
 # Posterior distributions vs true values ------------------------------------------------
 fig, axes = plt.subplots(1, 4, figsize=(12, 3), constrained_layout=True)
-for ax, p in zip(axes, ["A", "B", "g", "k"]):
-    ax.hist(m.posteriors[p], bins=40, density=True, alpha=0.7)
+for i, (ax, p) in enumerate(zip(axes, ["A", "B", "g", "k"])):
+    ax.hist(m.posteriors[p], bins=40, density=True, alpha=0.5, label="m.abc()")
+    ax.hist(posterior[:, i], bins=40, density=True, alpha=0.5, label="from scratch")
     ax.axvline(true[p], color="k", ls="--", label="true value")
     ax.set_title(p)
 axes[0].legend()
@@ -110,6 +199,8 @@ plt.show()
 m.sampler.plot_history()
 plt.show()
 ```
+
+:::
 
 ## R
 
@@ -264,13 +355,80 @@ Where:
 
 -   The integral is never computed: drawing $x \sim p(x \mid \theta)$ and checking the indicator gives an unbiased Monte Carlo estimate, which is all rejection sampling needs.
 
+### *From a BF model to a simulator*
+
+`m.abc()` runs the model forward: every prior is sampled, and every observed site (`obs=...`, or the site named in `observed=`) is *simulated* instead of being conditioned on the data. When a likelihood such as `m.dist.normal(mu, s, obs=y)` has fewer dimensions than `y`, it is expanded to the shape of the data, so that one draw is a complete dataset. Latent variables that are not listed in `params` (here the $z_i$) are nuisance variables: they are drawn and discarded, which integrates them out. Simulations run in vectorised, compiled batches of `batch_size`.
+
+### *Summary statistics*
+
+For one simulated dataset $y_{1:n}$, the built-in sets are:
+
+-   `"identity"`: $s(y) = y$.
+
+-   `"moments"`: $s(y) = \big(\bar y,\; \hat\sigma,\; \tfrac{1}{n}\sum_i z_i^3,\; \tfrac{1}{n}\sum_i z_i^4\big)$ with $z_i = (y_i - \bar y)/\hat\sigma$.
+
+-   `"quantiles"`: the octiles $E_1, \dots, E_7$ ($E_j$ is the $j/8$ empirical quantile).
+
+-   `"robust"` [@drovandi2011likelihood]: location $S_A = E_4$, scale $S_B = E_6 - E_2$, skewness $S_g = (E_6 + E_2 - 2E_4)/S_B$ and kurtosis $S_k = (E_7 - E_5 + E_3 - E_1)/S_B$, which respond mainly to $A$, $B$, $g$ and $k$ respectively.
+
+### *Distance*
+
+Statistics live on different scales, so the default Euclidean distance divides each one by its median absolute deviation (MAD) over the simulations from the prior:
+
+$$
+d(s, s_{obs}) = \sqrt{\sum_{q=1}^{Q} \left(\frac{s_q - s_{obs,q}}{\text{MAD}_q}\right)^2}, \qquad \text{MAD}_q = 1.4826\; \text{median}_j \left|s_{jq} - \text{median}_i\, s_{iq}\right|
+$$
+
+(the standard deviation is used if a MAD is zero). `distance="mahalanobis"` uses $\sqrt{(s - s_{obs})^\top \hat\Sigma_s^{-1}(s - s_{obs})}$, where $\hat\Sigma_s$ is the covariance of the simulated statistics.
+
+### *Unconstrained parameterisation*
+
+Each parameter is mapped to the real line by the bijection of its prior support, $u = T^{-1}(\theta)$ (e.g., $u = \log \sigma$ for $\sigma > 0$, $u = \text{logit}(\theta/10)$ for $\text{Uniform}(0, 10)$). ABC-SMC moves particles in $u$, where any value is valid, and uses the prior density of $u$, which includes the Jacobian of the transform:
+
+$$
+p_U(u) = p\big(T(u)\big)\, \left|\det \frac{\partial T(u)}{\partial u}\right|
+$$
+
+### *Rejection ABC*
+
+1.  Draw $\theta_j \sim p(\theta)$ and $x_j \sim p(x \mid \theta_j)$, for $j = 1, \dots, M$ (`num_simulations`).
+
+2.  Compute $d_j = d(s(x_j), s(x_{obs}))$.
+
+3.  Keep the $\lceil q M \rceil$ smallest distances (`quantile` $= q$), so $\epsilon = d_{(\lceil qM \rceil)}$; or keep all $d_j \le \epsilon$ when `epsilon` is given.
+
+With `regression_adjust=True` [@beaumont2002approximate], the accepted parameters are corrected for the remaining discrepancy $s_j - s_{obs}$. A weighted linear regression of $u_j$ on $s_j - s_{obs}$, with Epanechnikov weights $K_j = 1 - (d_j/\epsilon)^2$, gives
+
+$$
+(\hat\alpha, \hat\beta) = \arg\min_{\alpha,\beta} \sum_j K_j \,\big\| u_j - \alpha - \beta^\top (s_j - s_{obs}) \big\|^2, \qquad u_j^{*} = u_j - \hat\beta^\top (s_j - s_{obs})
+$$
+
+and the adjusted $u_j^{*}$ are mapped back to $\theta_j^* = T(u_j^*)$.
+
 ### *ABC-SMC (Population Monte Carlo)*
 
-At round $t$, with tolerance $\epsilon_t < \epsilon_{t-1}$ (the $\alpha$-quantile of the previous distances), particles are proposed from the previous population $\{\theta_j^{(t-1)}, w_j^{(t-1)}\}$, perturbed with a Gaussian kernel $K_t$ whose covariance is twice the weighted covariance of the population, and accepted if $d \le \epsilon_t$. Accepted particles receive the importance weights:
+ABC-SMC [@beaumont2009adaptive] runs a sequence of decreasing tolerances $\epsilon_0 > \epsilon_1 > \dots$, each population of $P$ particles (`num_particles`) serving as a proposal for the next.
+
+1.  **Round 0.** Rejection ABC with $M_0 = \min(P/q,\ \text{budget}/4)$ simulations, keeping the $P$ closest: particles $u_j^{(0)}$, weights $w_j^{(0)} = 1/P$, tolerance $\epsilon_0 = \max_j d_j$.
+
+2.  **Round $t$.** Set $\epsilon_t$ to the $\alpha$-quantile of the distances of the previous population (`alpha` $= 0.5$). Repeat until $P$ particles are accepted:
+
+    -   pick a parent $u_j^{(t-1)}$ with probability $w_j^{(t-1)}$,
+    -   perturb it: $u^\star \sim \text{Normal}\big(u_j^{(t-1)}, \Sigma_t\big)$ with $\Sigma_t = 2\,\widehat{\text{Cov}}_w\big(u^{(t-1)}\big)$, twice the weighted covariance of the population,
+    -   discard it if $p_U(u^\star) = 0$, otherwise simulate $x^\star \sim p\big(x \mid T(u^\star)\big)$,
+    -   accept it if $d(s(x^\star), s(x_{obs})) \le \epsilon_t$.
+
+3.  **Weights.** Each accepted particle is weighted by its prior density over the density of the proposal that generated it, a mixture of kernels around the previous particles:
 
 $$
-w_i^{(t)} \propto \frac{p\big(\theta_i^{(t)}\big)}{\sum_j w_j^{(t-1)} K_t\big(\theta_i^{(t)} \mid \theta_j^{(t-1)}\big)}
+w_i^{(t)} \propto \frac{p_U\big(u_i^{(t)}\big)}{\sum_{j=1}^{P} w_j^{(t-1)}\; \text{Normal}\big(u_i^{(t)} \mid u_j^{(t-1)}, \Sigma_t\big)}
 $$
+
+4.  **Stop** when `num_rounds` is reached, when the acceptance rate falls below `min_acceptance`, when the simulation budget (`num_simulations`) is spent, or when `epsilon` is reached. The effective sample size $1/\sum_i (w_i^{(t)})^2$ is reported for each round.
+
+5.  **Output.** `num_samples` draws are resampled from the final weighted population and mapped back to $\theta = T(u)$.
+
+In the from-scratch code, the priors are uniform, so the particles are perturbed directly in $\theta$, proposals outside $(0, 10)$ are discarded, and the numerator of the weights is a constant.
 
 ## Notes
 ::: callout-note
