@@ -15,7 +15,7 @@ Crucially, **the scenario settings travel with the results**: every row of the r
 
 Write a function that runs **one** simulation and returns the numbers you care about. `run_simulations` calls it once per scenario, in parallel, and stacks the results into a `pandas` DataFrame.
 
-``` python
+```{.python .no-test}
 from BayesForge import bf, grid, run_simulations
 
 def one_sim(<your scenario parameters>, seed, **_):
@@ -47,7 +47,7 @@ Always give `one_sim` a `**_` catch-all so extra injected keys cannot break it.
 
 Workers are *spawned*, which re-imports the calling script. Without the guard the module level runs again in every worker:
 
-``` python
+```{.python .no-test}
 if __name__ == "__main__":
     res = run_simulations(one_sim, scenarios)
 ```
@@ -100,6 +100,9 @@ if __name__ == "__main__":
     res = run_simulations(one_sim, scenarios)
 
     print(res[["sim", "N", "b_true", "b_hat", "elapsed_s"]].head())
+
+    # Mean absolute error of the slope per scenario
+    print((res.b_hat - res.b_true).abs().groupby([res.N, res.b_true]).mean())
 ```
 
 `res` is a tidy DataFrame — the grid columns `N` and `b_true` are joined onto every row automatically:
@@ -113,9 +116,9 @@ if __name__ == "__main__":
 4    4  100     0.0  -0.13      8.184
 ```
 
-So the analysis is a `groupby`, with nothing to join by hand:
+So the analysis is a `groupby`, with nothing to join by hand (the last line of the script above):
 
-``` python
+```{.python .no-test}
 (res.b_hat - res.b_true).abs().groupby([res.N, res.b_true]).mean()
 ```
 
@@ -147,7 +150,7 @@ Chains and simulations compete for the same cores, so `num_chains`, `workers` an
 
 **`chain_method='parallel'`** puts one chain on one JAX device, so it needs a device per chain. Pass `num_chains` to the runner and take it back in your function, so the core budget and the fit can never disagree:
 
-``` python
+```{.python .no-test}
 def one_sim(N, seed, num_chains, **_):
     ...
     m.fit(model, obs=data, num_chains=num_chains,
@@ -188,7 +191,7 @@ Asking a fit for `num_chains=4` with `chain_method='parallel'` *without* telling
 
 Inspecting failures without losing the rest of the batch:
 
-``` python
+```{.python .no-test}
 res = run_simulations(one_sim, scenarios, on_error="record")
 res[res.error.notna()][["sim", "N", "error"]]
 ```
@@ -200,7 +203,7 @@ Each worker JIT-compiles the model on its first fit. When the model is built fre
 
 To do this, ensure your global model function accepts `m` (the simulation's specific `bf` instance) as an argument, and wrap it in a `lambda` when calling `m.fit`:
 
-``` python
+```{.python .no-test}
 # 1. Define the model globally, requiring 'm' as an argument
 def linreg(m, x=None, y=None):
     a = m.dist.normal(0.0, 5.0, name="a")

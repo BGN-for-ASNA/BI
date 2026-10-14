@@ -9,11 +9,21 @@ The BF class can import data from a csv file or from a dictionary for data that 
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
-m.data(data_path, sep=';') 
+from BayesForge import bf
+
+m = bf(platform="cpu")
+data_path = m.load.howell1(only_path=True)  # path to a bundled example csv
+m.data(data_path, sep=';')
+m.df.head()  # the data frame is stored in m.df
 ```
 ## R
 ``` R
-m$data(data_path,  sep=';')
+library(BayesForge)
+
+m <- importBF(platform = "cpu")
+data_path <- m$load$howell1(only_path = TRUE)  # path to a bundled example csv
+m$data(data_path, sep = ';')
+head(m$df)
 ```
 :::
 
@@ -23,19 +33,20 @@ First you need to create your own dictionary with the data.
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
-m.data_on_model = dict(
-    ID1 = Value1,
-    ID2 = Value2, 
-)
+import jax.numpy as jnp
 
+m.data_on_model = dict(
+    y = jnp.array([1.2, 0.7, 2.3]),    # a vector
+    A = jnp.eye(3),                     # a matrix (e.g. a network)
+)
 ```
 
 ## R
 ``` R
-keys <- c("ID1","ID2")
-values <- list(Value1,Value2)
-data = py_dict(keys, values, convert = TRUE)
-m$data_on_model=data
+m$data_on_model <- list(
+    y = jnp$array(c(1.2, 0.7, 2.3)),   # a vector
+    A = jnp$eye(3L)                     # a matrix (e.g. a network)
+)
 ```
 :::
 

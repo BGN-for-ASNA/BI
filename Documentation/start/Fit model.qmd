@@ -3,15 +3,83 @@ title: "Fit model"
 sidebar: start
 ---
 
-Once a function is defined declaring the model, you can fit the model to the data using the ```fit``` function.
+Once a function is defined declaring the model, you can fit the model to the data using the ```fit``` function. By default `fit()` runs the No-U-Turn Sampler (NUTS) with 4 chains of 1000 warm-up and 1000 sampling iterations, using the data stored in `m.data_on_model` (filled by `m.data()` / `m.data_to_model()` or assigned directly).
 
 ::: {.panel-tabset group="language"}
 ## Python
 ``` python
+from BayesForge import bf
+
+m = bf(platform="cpu")
+m.data(m.load.howell1(only_path=True), sep=";")
+m.df = m.df[m.df.age > 18]
+m.scale(["weight"])
+
+def model(weight, height):
+    a = m.dist.normal(178, 20, name="a")
+    b = m.dist.log_normal(0, 1, name="b")
+    s = m.dist.uniform(0, 50, name="s")
+    m.dist.normal(a + b * weight, s, obs=height)
+
 m.fit(model)  # Optimize model parameters through MCMC sampling
+m.summary()
 ```
 ## R
 ``` R
+library(BayesForge)
+
+m <- importBF(platform = "cpu")
+m$data(m$load$howell1(only_path = TRUE), sep = ";")
+m$df <- m$df[m$df$age > 18, ]
+m$scale(list("weight"))
+m$data_to_model(list("weight", "height"))
+
+model <- function(height, weight) {
+    a <- bf.dist.normal(178, 20, name = "a")
+    b <- bf.dist.log_normal(0, 1, name = "b")
+    s <- bf.dist.uniform(0, 50, name = "s")
+    bf.dist.normal(a + b * weight, s, obs = height)
+}
+
 m$fit(model) # Optimize model parameters through MCMC sampling
+m$summary()
+```
+## Julia
+``` julia
+using PyBayesForge
+
+m = importBF(platform = "cpu")
+m.data(m.load.howell1(only_path = true), sep = ';')
+m.df = m.df[m.df.age > 18]
+m.scale(["weight"])
+
+@BF function model(weight, height)
+    a = m.dist.normal(178, 20, name = 'a')
+    b = m.dist.log_normal(0, 1, name = 'b')
+    s = m.dist.uniform(0, 50, name = 's')
+    m.dist.normal(a + b * weight, s, obs = height)
+end
+
+m.fit(model)  # Optimize model parameters through MCMC sampling
+m.summary()
 ```
 :::
+
+## Main arguments
+
+| Argument | Default | Description |
+|---|---|---|
+| `model` | — | The model function. Its arguments are matched by name to the entries of `m.data_on_model`. |
+| `obs` | `None` | Optional dictionary of data; replaces `m.data_on_model` for this fit. |
+| `num_warmup` | `1000` | Warm-up (adaptation) iterations per chain; discarded. |
+| `num_samples` | `1000` | Posterior draws kept per chain. |
+| `num_chains` | `4` | Number of chains. |
+| `chain_method` | `"parallel"` | `"parallel"` (one device per chain), `"vectorized"` or `"sequential"`. |
+| `thinning` | `1` | Keep every *n*-th draw. |
+| `target_accept_prob` | `0.8` | NUTS target acceptance rate; raise (e.g. `0.95`) when there are divergences. |
+| `max_tree_depth` | `10` | Maximum NUTS tree depth. |
+| `dense_mass` | `False` | Use a dense (full-covariance) mass matrix. |
+| `progress_bar` | `True` | Show a progress bar. |
+| `seed` | `None` | Explicit sampler seed; by default derived from `rand_seed` (see [Random and fixed seeds](Random and fixed seeds.qmd)). |
+
+After fitting, posterior draws are in `m.posteriors` (a dictionary of arrays), and `m.summary()` returns the posterior summary table.
