@@ -33,6 +33,7 @@ except Exception:
 
 import functools
 import cloudpickle
+import os
 
 from BayesForge.SetDevice.set import setup_device, setup_multi_device
 
@@ -114,6 +115,7 @@ class bf(manip):
         # Works on both CPU (virtual devices via XLA_FLAGS) and GPU (physical).
         # Provides m.n_devices, m.n_gpus, m.shard(), m.replicate().
         import jax
+        self._platform = platform
         self.n_gpus    = len(jax.devices('gpu')) if platform == 'gpu' else 0
         self.n_devices = len(jax.devices(platform))
         self._data_sharding = None
@@ -1089,13 +1091,40 @@ class bf(manip):
         elif self.run_model_name == "pca":
             return self.models.pca.plot()
 
+    # Device-bound attributes (JAX Mesh / NamedSharding hold jaxlib Device
+    # handles, which cannot be pickled). They are dropped on save and rebuilt
+    # from the devices available when the object is loaded.
+    _DEVICE_STATE = ("mesh", "_data_sharding", "_rep_sharding")
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        for key in self._DEVICE_STATE:
+            state[key] = None
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        platform = state.get("_platform")
+        if platform is not None and state.get("n_devices", 1) > 1:
+            from BayesForge.SetDevice.set import setup_multi_device
+            try:
+                self.mesh, self._data_sharding, self._rep_sharding = \
+                    setup_multi_device(platform)
+            except RuntimeError:
+                # Saved on a machine with devices this one lacks (e.g. GPU):
+                # the object stays usable for analysis, without sharding.
+                pass
+
     def save(self, path=None):
         """
         Save the BF object state to a file using cloudpickle.
         Includes data_on_model, model, posteriors, and other attributes.
 
         Args:
-            path (str, optional): File path to save the object. Defaults to '{model_name}_bi.pkl' or 'BF_model.pkl' in CWD.
+            path (str, optional): File path to save the object. Defaults to '{model_name}_bf.pkl' or 'bf_model.pkl' in CWD.
+
+        Returns:
+            str: The path the object was written to.
         """
         if path is None:
             path = f"{self.model_name}_bf.pkl" if self.model_name else "bf_model.pkl"
@@ -1103,9 +1132,13 @@ class bf(manip):
         try:
             with open(path, "wb") as f:
                 cloudpickle.dump(self, f)
-            print(f"BF object successfully saved to {path}")
-        except Exception as e:
-            print(f"Error saving BF object: {e}")
+        except Exception:
+            # Never leave a truncated file behind that load() would choke on.
+            if os.path.exists(path):
+                os.remove(path)
+            raise
+        print(f"BF object successfully saved to {path}")
+        return path
 
     @staticmethod
     def load(path=None):
@@ -1121,14 +1154,10 @@ class bf(manip):
         if path is None:
             path = "bf_model.pkl"
 
-        try:
-            with open(path, "rb") as f:
-                obj = cloudpickle.load(f)
-            print(f"BF object successfully loaded from {path}")
-            return obj
-        except Exception as e:
-            print(f"Error loading BF object: {e}")
-            return None
+        with open(path, "rb") as f:
+            obj = cloudpickle.load(f)
+        print(f"BF object successfully loaded from {path}")
+        return obj
 
     # ------------------------------------------------------------------
     # Multi-GPU helpers
