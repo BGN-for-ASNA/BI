@@ -866,7 +866,8 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
     diag_obj.rank           = lambda include=None, exclude=None, filtered=True, **kw: _plot_rank(m, include, exclude, filtered=filtered, **kw)
     diag_obj.plot_ess       = lambda include=None, exclude=None, filtered=True, **kw: _plot_ess_evolution(m, include, exclude, filtered=filtered, **kw)
     diag_obj.loo            = _loo
-    diag_obj.WAIC           = _waic
+    diag_obj.waic           = _waic
+    diag_obj.WAIC           = _waic  # backward-compatible alias
     diag_obj.model_checks   = _model_checks
     # regression
     diag_obj.plot_regression = _plot_regression_bound

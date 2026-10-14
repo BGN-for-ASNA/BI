@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 # Shared ArviZ-1.x-compatible helpers (NumPy-backed idata for LOO + native,
 # ArviZ-free WAIC computed from the NumPyro log-likelihood).
 from BayesForge.Diagnostic.Diag2 import (
+    _az_from_dict,
     _numpyro_idata_with_loglik,
     _pointwise_loglik,
     _waic,
@@ -55,7 +56,7 @@ class diag():
             for name, samp in zip(var_names, self.sampler.posterior):
                 trace[name] = samp
     
-            self.trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
+            self.trace = _az_from_dict({"posterior": trace, "sample_stats": sample_stats})
             self.priors_name = var_names
             return self.trace
 
