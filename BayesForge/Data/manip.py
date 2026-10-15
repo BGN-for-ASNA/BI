@@ -89,14 +89,21 @@ class manip():
         """## Create index encoding for categorical columns
         
         ### Args:
-            - *cols* (str or list): Columns to encode. Use 'all' for all object-type columns
-            
+            - *cols* (str or list): Columns to encode. Use 'all' for all text
+              (object) and categorical columns, e.g. R factors.
+
+        Codes are 0-based and follow the category order: the level order of a
+        pandas Categorical or R factor, alphabetical for text columns.
+        ``m.index_map[col]`` maps each code to its level.
+
         ### Returns:
             - *pd.DataFrame*: DataFrame with encoded columns
         """
         self.index_map = {}
         if cols == 'all':
-            colCat = list(self.df.select_dtypes(['object']).columns)    
+            # 'category' too: an R factor arrives as a pandas Categorical, whose
+            # level order (set in R) is kept by .astype("category") below.
+            colCat = list(self.df.select_dtypes(['object', 'category']).columns)
             for a in range(len(colCat)):                
                 self.df["index_"+ colCat[a]] =  self.df.loc[:,colCat[a]].astype("category").cat.codes
                 self.df["index_"+ colCat[a]] = self.df["index_"+ colCat[a]].astype(np.int64)
