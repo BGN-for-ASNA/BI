@@ -373,6 +373,9 @@ class bf(manip):
             progress_bar: Whether to show progress bar.
             jit_model_args: Whether to JIT model arguments.
             seed: Random seed.
+            init_strategy: NumPyro initialisation strategy, or ``"pathfinder"``
+                to start each chain from a distinct multi-path Pathfinder draw
+                (see :meth:`pathfinder`; needs the optional ``blackjax``).
             sampler: MCMC kernel, one of `"nuts"` (default; also for models
                 whose discrete latents are exactly enumerated), `"mixed_hmc"`
                 (HMC + Gibbs for mixed discrete/continuous models),
@@ -492,6 +495,22 @@ class bf(manip):
                 latent_dim=self.data_on_model["latent_dim"],
                 type=model.type,
             )
+
+        if isinstance(init_strategy, str):
+            if init_strategy != "pathfinder":
+                raise ValueError(f"Unknown init_strategy {init_strategy!r}: pass a "
+                                 "numpyro.infer init_to_* function or 'pathfinder'.")
+            if self.backend != "numpyro":
+                raise ValueError("init_strategy='pathfinder' needs the numpyro backend.")
+            # Start each chain from a distinct multi-path Pathfinder draw: chains
+            # begin near the posterior, so a much shorter warmup is enough.
+            from BayesForge.Samplers.pathfinder import Pathfinder_BF
+            self.pathfinder_init = Pathfinder_BF(
+                self.model, num_samples=max(num_chains, 100)
+            ).run(self._resolve_key(seed, "pathfinder_init"), **self.data_on_model)
+            if init_params is None:
+                init_params = self.pathfinder_init.init_params(num_chains)
+            init_strategy = numpyro.infer.init_to_uniform
 
         if self.backend == "numpyro":
             from BayesForge.Samplers.mcmc_numpyro import mcmc_numpyro
@@ -718,6 +737,58 @@ class bf(manip):
 
         self.run_model_name = self.model_name
         self.model_name = None
+
+    def pathfinder(self, model=None, obs=None, num_paths=4, num_samples=1000,
+                   num_draws_per_path=1000, maxiter=100, seed=None, **lbfgs_kwargs):
+        """Approximate the posterior with multi-path Pathfinder (seconds, not minutes).
+
+        Each of ``num_paths`` L-BFGS runs fits a Gaussian approximation along
+        its optimisation path; the pooled draws are resampled with
+        Pareto-smoothed importance weights (Zhang et al. 2022). Results go to
+        ``m.posteriors`` as after :meth:`fit`. ``m.pathfinder_info["pareto_k"]``
+        > 0.7 means the approximation is unreliable: then use it only to
+        initialise NUTS with ``m.fit(..., init_strategy="pathfinder")``.
+
+        Needs the optional dependency ``blackjax``.
+
+        Args:
+            model: Model function (defaults to the last one).
+            obs: Data dict (defaults to ``m.data_on_model``).
+            num_paths: Number of independent Pathfinder runs.
+            num_samples: Draws returned after importance resampling.
+            num_draws_per_path: Draws taken from each path's approximation.
+            maxiter: Maximum L-BFGS iterations per path.
+            seed: Random seed (defaults to the model's random stream).
+            **lbfgs_kwargs: Passed to ``blackjax.vi.pathfinder.approximate``.
+        """
+        if self.backend != "numpyro":
+            raise ValueError("pathfinder() needs the numpyro backend.")
+        if model is not None:
+            self.model = model
+            self.model_name = (model.func.__name__ if isinstance(model, functools.partial)
+                               else (self.model_name or model.__name__))
+        if obs is not None:
+            self.data_on_model = obs
+        if self.data_on_model is None:
+            self.data_on_model = self.pd_to_jax(self.model)
+
+        from BayesForge.Samplers.pathfinder import Pathfinder_BF
+        self.sampler = Pathfinder_BF(
+            self.model, num_paths=num_paths, num_samples=num_samples,
+            num_draws_per_path=num_draws_per_path, maxiter=maxiter, **lbfgs_kwargs,
+        ).run(self._resolve_key(seed, "pathfinder"), **self.data_on_model)
+        self.sampler_name = "pathfinder"
+        self.posteriors = self.sampler.get_samples()
+        self.posteriors_by_chain = self.sampler.get_samples(group_by_chain=True)
+        self.posteriors_full = dict(self.posteriors)
+        self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
+        self.pathfinder_info = {"pareto_k": self.sampler.pareto_k,
+                                "num_paths": num_paths,
+                                "path_elbo": self.sampler.path_elbo}
+        self.diag = diag(sampler=self.sampler)
+        self.run_model_name = self.model_name
+        self.model_name = None
+        return self
 
     # Random number generator ----------------------------------------------------------------
 
