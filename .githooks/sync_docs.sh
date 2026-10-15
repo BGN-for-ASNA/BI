@@ -96,7 +96,12 @@ if [ "$SHOULD_SYNC" = true ]; then
             echo -e "${GREEN}[BF-Sync] RAG cache successfully invalidated.${NC}"
         fi
 
-        # Commit changes in BF_mcp if it has a .git repo
+        # Commit changes in BF_mcp if it has a .git repo.
+        # Git runs hooks with GIT_DIR (and GIT_INDEX_FILE, ...) exported for
+        # the BF repo: without unsetting them, the `git add/commit` below
+        # would stage mcp_server/Documentation/ into BF itself and commit it
+        # there (this is how 674aea44 added 450 mcp_server/ files to BF).
+        unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_COMMON_DIR
         if [ -d "$BF_MCP_DIR/.git" ]; then
             echo -e "${BLUE}[BF-Sync] Checking for staging changes in BF_mcp...${NC}"
             cd "$BF_MCP_DIR" || exit 1
