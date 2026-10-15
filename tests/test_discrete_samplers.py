@@ -100,7 +100,7 @@ def _new_session(seed=7):
 
 
 @pytest.mark.slow
-def test_nmix_discrete_gibbs_matches_enumeration():
+def test_nmix_discrete_gibbs_matches_enumeration(verify):
     """`discrete_gibbs` posterior of λ and p = exact-enumeration posterior
     (NUTS), within Monte Carlo error (|z| < 3, MCSE from the ESS).
 
@@ -150,6 +150,9 @@ def test_nmix_discrete_gibbs_matches_enumeration():
         b = m_gibbs.posteriors_by_chain[key]
         assert float(az.rhat(np.asarray(b))) < 1.05, f"{key}: Gibbs chains did not mix"
         z = _z_mcse(a, b)
+        verify.record(quantity=key, reference="NUTS + exact enumeration of N",
+                      criterion="|z| < 3", value=z, passed=abs(z) < 3, ref=a, new=b,
+                      ref_label="NUTS (enumerated)", new_label="discrete_gibbs")
         assert abs(z) < 3, (
             f"{key}: enum mean={np.mean(a):.3f}, gibbs mean={np.mean(b):.3f}, z={z:.2f}"
         )
@@ -190,7 +193,7 @@ def _ari(true, pred):
 
 
 @pytest.mark.slow
-def test_dpmm_latent_recovers_clusters():
+def test_dpmm_latent_recovers_clusters(verify):
     """DPMM `latent` fit with `discrete_gibbs` recovers 3 clusters (ARI > 0.9)."""
     m = _new_session(seed=_DPMM["SEED"])
     m.fit(
@@ -205,6 +208,8 @@ def test_dpmm_latent_recovers_clusters():
     z = np.asarray(m.posteriors["z"]).reshape(-1, _Z_DPMM.size)
     aris = [_ari(_Z_DPMM, zd) for zd in z]
     mean_ari = float(np.mean(aris))
+    verify.record(quantity="mean ARI vs simulated clusters", reference="simulated labels",
+                  criterion="> 0.9", value=mean_ari, passed=mean_ari > 0.9)
     assert mean_ari > 0.9, f"mean ARI={mean_ari:.3f} (per-draw: {np.round(aris, 3)})"
     print(f"test_dpmm_latent_recovers_clusters: OK (mean ARI={mean_ari:.3f})")
 
@@ -231,7 +236,7 @@ def _mixture_stats(m):
 
 
 @pytest.mark.slow
-def test_mixed_hmc_matches_enumeration():
+def test_mixed_hmc_matches_enumeration(verify):
     """MixedHMC (component labels sampled) = NUTS with the labels summed out,
     within Monte Carlo error, on label-invariant summaries."""
 
@@ -259,6 +264,9 @@ def test_mixed_hmc_matches_enumeration():
     for key in a:
         assert float(az.rhat(b[key])) < 1.05, f"{key}: MixedHMC chains did not mix"
         z = _z_mcse(a[key], b[key])
+        verify.record(quantity=key, reference="NUTS + exact enumeration",
+                      criterion="|z| < 3", value=z, passed=abs(z) < 3, ref=a[key], new=b[key],
+                      ref_label="NUTS (enumerated)", new_label="mixed_hmc")
         assert abs(z) < 3, f"{key}: enum {a[key].mean():.3f}, mixed {b[key].mean():.3f}, z={z:.2f}"
         print(f"  {key}: enum {a[key].mean():.3f} | mixed {b[key].mean():.3f} | z={z:.2f}")
 
@@ -266,7 +274,7 @@ def test_mixed_hmc_matches_enumeration():
 _Y_GIBBS = jnp.asarray(_rng_smoke.normal(1.5, 1.0, size=30))
 
 
-def test_hmc_gibbs_matches_nuts():
+def test_hmc_gibbs_matches_nuts(verify):
     m = _new_session()
 
     def model(y):
@@ -300,7 +308,11 @@ def test_hmc_gibbs_matches_nuts():
     ref.fit(model, obs={"y": _Y_GIBBS}, num_warmup=500, num_samples=1000,
             num_chains=2, progress_bar=False)
     for key in ("x", "s"):
-        z = _z_mcse(ref.posteriors_by_chain[key], m.posteriors_by_chain[key])
+        a, b = ref.posteriors_by_chain[key], m.posteriors_by_chain[key]
+        z = _z_mcse(a, b)
+        verify.record(quantity=key, reference="plain NUTS", criterion="|z| < 3",
+                      value=z, passed=abs(z) < 3, ref=a, new=b,
+                      ref_label="NUTS", new_label="hmc_gibbs")
         assert abs(z) < 3, f"{key}: z={z:.2f}"
     x_mean = float(np.asarray(m.posteriors["x"]).mean())
     print(f"test_hmc_gibbs_matches_nuts: OK (x_mean={x_mean:.2f})")
@@ -342,9 +354,5 @@ def test_non_numpyro_backend_rejects_other_samplers():
 
 
 if __name__ == "__main__":
-    test_nmix_discrete_gibbs_matches_enumeration()
-    test_dpmm_latent_recovers_clusters()
-    test_mixed_hmc_matches_enumeration()
-    test_hmc_gibbs_matches_nuts()
-    test_sampler_args_validated()
-    print("1.7 verification: all tests passed.")
+    import sys
+    sys.exit(pytest.main([__file__, "-s"]))

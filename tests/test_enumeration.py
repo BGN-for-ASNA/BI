@@ -99,7 +99,7 @@ def _means(m):
     return {k: np.asarray(v).mean(axis=0) for k, v in m.posteriors.items()}
 
 
-def test_enum_matches_default():
+def test_enum_matches_default(verify):
     """Same posterior before (implicit) and after (explicit `enum=True`).
 
     Fixed seed, |Δ| < 1e-10 on every posterior draw of every shared site.
@@ -119,12 +119,15 @@ def test_enum_matches_default():
         a = np.asarray(m_default.posteriors[k], dtype=np.float64)
         b = np.asarray(m_enum.posteriors[k], dtype=np.float64)
         delta = np.max(np.abs(a - b))
+        verify.record(quantity=k, reference="implicit enumeration (NumPyro)",
+                      criterion="max |Δ| < 1e-10", value=delta, passed=delta < 1e-10,
+                      ref=a, new=b, ref_label="implicit", new_label="enum=True")
         assert delta < 1e-10, f"site {k!r}: max |Δ| = {delta}"
     print("test_enum_matches_default: OK "
           f"(sites={sorted(m_enum.posteriors)}, max |Δ| < 1e-10)")
 
 
-def test_enum_is_exact_enumeration():
+def test_enum_is_exact_enumeration(verify):
     """`enum=True` is exactly `infer={"enumerate": "parallel"}`.
 
     Locks the flag-to-infer mapping, and proves the discrete latent is
@@ -139,7 +142,10 @@ def test_enum_is_exact_enumeration():
     for k in m_enum.posteriors:
         a = np.asarray(m_enum.posteriors[k], dtype=np.float64)
         b = np.asarray(m_infer.posteriors[k], dtype=np.float64)
-        assert np.max(np.abs(a - b)) == 0.0, f"site {k!r} differs from infer-dict path"
+        delta = np.max(np.abs(a - b))
+        verify.record(quantity=k, reference='infer={"enumerate": "parallel"}',
+                      criterion="max |Δ| = 0", value=delta, passed=delta == 0.0)
+        assert delta == 0.0, f"site {k!r} differs from infer-dict path"
     # Sanity: the mixture recovers the two modes (labels can swap).
     mu = np.asarray(m_enum.posteriors["mu"]).reshape(-1, 2).mean(axis=0)
     lo, hi = sorted(float(x) for x in mu)
@@ -149,6 +155,6 @@ def test_enum_is_exact_enumeration():
 
 
 if __name__ == "__main__":
-    test_enum_matches_default()
-    test_enum_is_exact_enumeration()
-    print("1.6 verification: all tests passed.")
+    import sys
+    import pytest
+    sys.exit(pytest.main([__file__, "-s"]))
