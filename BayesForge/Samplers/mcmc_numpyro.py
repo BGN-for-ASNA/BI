@@ -1,11 +1,63 @@
 import numpyro
-from numpyro.infer import MCMC, NUTS, Predictive
+from numpyro.infer import MCMC, NUTS, HMC, Predictive
+from numpyro.infer import MixedHMC, DiscreteHMCGibbs, HMCGibbs
 from numpyro.handlers import condition
 from BayesForge.Data.manip import manip
-import jax 
+import jax
+
+#: Sampler names accepted by ``m.fit(sampler=...)``.
+SAMPLERS = ("nuts", "mixed_hmc", "discrete_gibbs", "hmc_gibbs")
+
+
+def build_kernel(
+    sampler,
+    model,
+    nuts_kwargs,
+    gibbs_fn=None,
+    gibbs_sites=None,
+    num_discrete_updates=None,
+):
+    """Build the NumPyro MCMC kernel selected by ``sampler``.
+
+    * ``"nuts"`` -- plain NUTS (default, continuous models and models
+      whose discrete latents are exactly enumerated).
+    * ``"mixed_hmc"`` -- :class:`MixedHMC` (HMC for the continuous sites,
+      Gibbs for the discrete ones). Requires discrete latent sites and an
+      HMC -- not NUTS -- inner kernel, which is built here from the same
+      tuning arguments.
+    * ``"discrete_gibbs"`` -- :class:`DiscreteHMCGibbs`: NUTS for the
+      continuous sites, automatic Gibbs updates for the discrete ones.
+    * ``"hmc_gibbs"`` -- :class:`HMCGibbs`: NUTS combined with a
+      user-supplied ``gibbs_fn`` over ``gibbs_sites``.
+    """
+    if sampler == "nuts":
+        return NUTS(model, **nuts_kwargs)
+    if sampler == "mixed_hmc":
+        hmc_kwargs = {
+            k: v for k, v in nuts_kwargs.items() if k != "max_tree_depth"
+        }
+        if hmc_kwargs.get("trajectory_length") is None:
+            # HMC (unlike NUTS) rejects trajectory_length=None; fall back
+            # to its 2π default.
+            hmc_kwargs.pop("trajectory_length", None)
+        inner = HMC(model, **hmc_kwargs)
+        return MixedHMC(inner, num_discrete_updates=num_discrete_updates)
+    inner = NUTS(model, **nuts_kwargs)
+    if sampler == "discrete_gibbs":
+        return DiscreteHMCGibbs(inner)
+    if sampler == "hmc_gibbs":
+        if gibbs_fn is None or gibbs_sites is None:
+            raise ValueError(
+                'sampler="hmc_gibbs" requires both `gibbs_fn` and '
+                "`gibbs_sites` (or use sampler='discrete_gibbs' for "
+                "automatic discrete Gibbs updates)."
+            )
+        return HMCGibbs(inner, gibbs_fn=gibbs_fn, gibbs_sites=list(gibbs_sites))
+    raise ValueError(f"Unknown sampler {sampler!r}. Choose from {SAMPLERS}.")
+
 
 def mcmc_numpyro(
-    model = None, 
+    model = None,
     potential_fn=None,
     kinetic_fn=None,
     step_size=1.0,
@@ -20,7 +72,7 @@ def mcmc_numpyro(
     find_heuristic_step_size=False,
     forward_mode_differentiation=False,
     regularize_mass_matrix=True,
-    
+
     num_warmup = 500,
     num_samples = 500,
     num_chains=1,
@@ -29,26 +81,38 @@ def mcmc_numpyro(
     chain_method="parallel",
     progress_bar=True,
     jit_model_args=False,
-    seed = 0
+    seed = 0,
+    sampler="nuts",
+    gibbs_fn=None,
+    gibbs_sites=None,
+    num_discrete_updates=None,
 ):
+    nuts_kwargs = dict(
+        potential_fn=potential_fn,
+        kinetic_fn=kinetic_fn,
+        step_size=step_size,
+        inverse_mass_matrix=inverse_mass_matrix,
+        adapt_step_size=adapt_step_size,
+        adapt_mass_matrix=adapt_mass_matrix,
+        dense_mass=dense_mass,
+        target_accept_prob=target_accept_prob,
+        trajectory_length=trajectory_length,
+        max_tree_depth=max_tree_depth,
+        init_strategy=init_strategy,
+        find_heuristic_step_size=find_heuristic_step_size,
+        forward_mode_differentiation=forward_mode_differentiation,
+        regularize_mass_matrix=regularize_mass_matrix,
+    )
+    kernel = build_kernel(
+        sampler,
+        model,
+        nuts_kwargs,
+        gibbs_fn=gibbs_fn,
+        gibbs_sites=gibbs_sites,
+        num_discrete_updates=num_discrete_updates,
+    )
     return MCMC(
-                NUTS(
-                    model,
-                    potential_fn=potential_fn,
-                    kinetic_fn=kinetic_fn,
-                    step_size=step_size,
-                    inverse_mass_matrix=inverse_mass_matrix,
-                    adapt_step_size=adapt_step_size,
-                    adapt_mass_matrix=adapt_mass_matrix,
-                    dense_mass=dense_mass,
-                    target_accept_prob=target_accept_prob,
-                    trajectory_length=trajectory_length,
-                    max_tree_depth=max_tree_depth,
-                    init_strategy=init_strategy,
-                    find_heuristic_step_size=find_heuristic_step_size,
-                    forward_mode_differentiation=forward_mode_differentiation,
-                    regularize_mass_matrix=regularize_mass_matrix
-                ), 
+                kernel,
                 num_warmup = num_warmup,
                 num_samples = num_samples,
                 num_chains=num_chains,
@@ -59,4 +123,3 @@ def mcmc_numpyro(
                 jit_model_args=jit_model_args
             )
 
- 

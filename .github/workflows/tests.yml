@@ -29,5 +29,15 @@ jobs:
 
       # Unit/regression tests plus every Python example of the "Get started"
       # documentation pages (tests/test_doc_examples.py).
+      # tests/conftest.py prints a table of the statistical checks, adds it
+      # to the job summary and writes tests/_report/ (table + plots).
       - name: Run tests
         run: python -m pytest tests -q
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-report-py${{ matrix.python-version }}
+          path: tests/_report/
+          if-no-files-found: ignore
