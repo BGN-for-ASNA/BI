@@ -3,7 +3,7 @@ title: "Define model"
 sidebar: start
 ---
 
-You can define your model by declaring a new function. The function should take the data as input and return the predicted values.
+A model is a function whose arguments are the data (matched by name to the entries of `m.data_on_model`). Inside it, you declare the priors of the parameters and the likelihood of the observed data; it does not need to return anything.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -21,22 +21,36 @@ def model(Y, X):
 ## R
 ``` R
 model <- function(Y, X){
-  # Define the model here — the parameter name is taken from the variable name
-    a = m$dist$normal(0, 1)
-    b = m$dist$normal(1, 1)
-    s = m$dist$exponential(1)
-    m$dist$normal(a + b * X, s, obs = Y)
+    # In R, give every parameter its name explicitly
+    a <- bf.dist.normal(0, 1, name = "a")
+    b <- bf.dist.normal(1, 1, name = "b")
+    s <- bf.dist.exponential(1, name = "s")
+    bf.dist.normal(a + b * X, s, obs = Y)
 }
 ```
+
+## Julia
+``` julia
+@BF function model(Y, X)
+    # Define the model here — the parameter name is taken from the variable name
+    a = m.dist.normal(0, 1)
+    b = m.dist.normal(1, 1)
+    s = m.dist.exponential(1)
+    m.dist.normal(a + b * X, s, obs = Y)
+end
+```
+
+In Julia, prefix the model function with the `@BF` macro, which lets BayesForge call it and adds the parameter names.
 :::
 
 Note the additional ```obs``` argument when declaring the likelihood function. This argument is used to specify the observed data.
 
 ### The `name` argument is optional
 
-Every prior needs a unique name so it can be tracked in the posterior. You **no longer have to pass it
-explicitly**: when `name` is omitted, BayesForge infers it from the variable the distribution is
-assigned to. In the model above, `a = m.dist.normal(0, 1)` registers a parameter named `"a"`,
+Every prior needs a unique name so it can be tracked in the posterior. In **Python** and in **Julia**
+(`@BF` models) you do not have to pass it: when `name` is omitted, BayesForge infers it from the
+variable the distribution is assigned to. In **R**, pass `name =` for every parameter, as in the
+example above (an R function cannot see the variable its result is assigned to). In the model above, `a = m.dist.normal(0, 1)` registers a parameter named `"a"`,
 `b = ...` registers `"b"`, and so on.
 
 You can still pass `name=` to override the inferred name — this is useful when the posterior name must

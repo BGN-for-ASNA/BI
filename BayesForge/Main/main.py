@@ -34,6 +34,7 @@ except Exception:
 import functools
 import cloudpickle
 import os
+import numpy as np
 
 from BayesForge.SetDevice.set import setup_device, setup_multi_device
 
@@ -58,6 +59,18 @@ from BayesForge.Models.GMM import *
 from BayesForge.Models.DPMM import *
 from BayesForge.ML.ml import ml
 from BayesForge.BNN.bnn import bnn
+
+
+def _as_count(value, name):
+    """Return a whole-number float (e.g. 1000.0 passed from R) as an int.
+
+    Integers and non-numbers (None, tuples) are returned unchanged.
+    """
+    if isinstance(value, float):
+        if not value.is_integer():
+            raise ValueError(f"{name} must be a whole number, got {value}")
+        return int(value)
+    return value
 
 
 class bf(manip):
@@ -249,6 +262,14 @@ class bf(manip):
         self.seed = seed
 
     def latex(self):
+        """Write the fitted model as LaTeX equations (one line per prior and likelihood).
+
+        The equations are built from the model's Python source and displayed in
+        notebooks. Works for models written in Python.
+
+        Returns:
+            str: A LaTeX ``align*`` environment.
+        """
         from BayesForge.PostModel.to_latex import to_latex
 
         return to_latex(self.model)
@@ -338,6 +359,12 @@ class bf(manip):
             jit_model_args: Whether to JIT model arguments.
             seed: Random seed.
         """
+        # Counts arrive as floats from R (where 1000 is a double): accept
+        # whole numbers, reject anything else with a clear message.
+        num_warmup, num_samples, num_chains, thinning, max_tree_depth = (
+            _as_count(v, n) for v, n in ((num_warmup, "num_warmup"), (num_samples, "num_samples"),
+                                         (num_chains, "num_chains"), (thinning, "thinning"),
+                                         (max_tree_depth, "max_tree_depth")))
         self.num_chains = num_chains
 
         # Sharding is declared here, per fit. fit(shard=None) (the default)
@@ -470,11 +497,22 @@ class bf(manip):
                                 'accept_prob', 'adapt_state.step_size')
             self._extra_fields_requested = tuple(extra_fields)
             self._max_tree_depth = max_tree_depth
-            self.sampler.run(
-                self._resolve_key(seed, "fit"),
-                extra_fields=self._extra_fields_requested,
-                **run_data,
-            )
+            try:
+                self.sampler.run(
+                    self._resolve_key(seed, "fit"),
+                    extra_fields=self._extra_fields_requested,
+                    **run_data,
+                )
+            except AssertionError as e:
+                if "all sites must have unique names" not in str(e):
+                    raise
+                raise ValueError(
+                    f"{e}. Two model parameters have the same name. Give each "
+                    "distribution a unique name= (e.g. a = m.dist.normal(0, 1, "
+                    "name='a')). Names are only inferred automatically from the "
+                    "assigned variable in Python models and Julia @BF models, "
+                    "not in models written in R."
+                ) from e
             self.extra_fields = self.sampler.get_extra_fields()
             self.extra_fields_by_chain = self.sampler.get_extra_fields(
                 group_by_chain=True)
@@ -951,15 +989,20 @@ class bf(manip):
         # Modify the function's signature to make the observed argument optional
         sig = inspect.signature(model)
         parameters = []
+        seen_default = False
         for name, param in sig.parameters.items():
             if name in obs:
-                parameters.append(
-                    inspect.Parameter(
-                        name, inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None
-                    )
+                param = inspect.Parameter(
+                    name, inspect.Parameter.POSITIONAL_OR_KEYWORD, default=None
                 )
-            else:
-                parameters.append(param)
+            elif (seen_default and param.default is inspect.Parameter.empty
+                  and param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD):
+                # A required argument cannot follow an optional one
+                # (e.g. model(y, x) with y observed): make it keyword-only.
+                # BF always passes the data by keyword.
+                param = param.replace(kind=inspect.Parameter.KEYWORD_ONLY)
+            seen_default = seen_default or param.default is not inspect.Parameter.empty
+            parameters.append(param)
 
         def model_with_None(*args, **kwargs):
             # Default values for obs arguments if not passed
@@ -1008,8 +1051,12 @@ class bf(manip):
             remove_obs = False
 
         if remove_obs:
-            for intem in self.obs_args:
-                del data[intem]
+            # Observed sites are found by tracing the model (this also works
+            # for models defined in R or Julia, whose source cannot be parsed);
+            # their data entries are set to None so that they are simulated
+            # rather than conditioned on.
+            observed = [k for k in self._observed_sites(data).values() if k is not None]
+            data = {k: (None if k in observed else v) for k, v in data.items()}
 
         if posterior == False:
             posterior = None
@@ -1030,6 +1077,42 @@ class bf(manip):
             self.model2, posterior_samples=posterior, num_samples=samples
         )
         return predictive(rng_key, **data)
+    def _observed_sites(self, data=None):
+        """Observed sample sites of the model and the data entry each one uses.
+
+        Args:
+            data (dict, optional): Model data. Defaults to ``m.data_on_model``.
+
+        Returns:
+            dict: ``{site name: data key}``; the key is ``None`` when the
+            observed value is not one of the data entries (e.g. ``obs=y - 1``).
+        """
+        from numpyro import handlers
+        if data is None:
+            data = self.data_on_model
+        try:
+            with handlers.seed(rng_seed=0):
+                trace = handlers.trace(self.model).get_trace(**data)
+        except Exception:
+            # e.g. new data without the outcome: fall back to the source scan
+            return {k: k for k in (self.obs_args or []) if k in data}
+
+        def same(a, b):
+            if a is b:
+                return True
+            try:
+                a, b = np.asarray(a), np.asarray(b)
+            except Exception:
+                return False
+            return a.shape == b.shape and a.dtype.kind in "biuf" and np.array_equal(a, b)
+
+        sites = {}
+        for name, site in trace.items():
+            if site["type"] == "sample" and site.get("is_observed") and site.get("value") is not None:
+                sites[name] = next((k for k, v in data.items() if same(v, site["value"])), None)
+        self.obs_args = [k for k in sites.values() if k is not None]
+        return sites
+
     # Log probability ----------------------------------------------------------------------------
     def log_prob(self, model, seed=None, **kwargs):
         """

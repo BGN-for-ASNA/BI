@@ -1,3 +1,4 @@
+import inspect
 """
 JAX+Plotly diagnostic methods for BF models.
 
@@ -629,6 +630,49 @@ def _resolve_obs_y(m):
     )
 
 
+_PPC_NOTE = ("``y`` and ``yrep`` default to the model's observed outcome and its "
+             "posterior predictive draws (``m.diag.get_yrep()``).")
+_M_NOTE = "The fitted model ``m`` is supplied automatically."
+
+
+def _documented(method, target, note, defaults_none=(), drop=()):
+    """Give a bound diag method the docstring and signature of ``target``.
+
+    The signature shown to users drops arguments the binding supplies
+    (``drop``) and marks arguments it fills in by default as optional
+    (``defaults_none``).
+    """
+    sig = inspect.signature(target)
+    params = [p.replace(default=None) if p.name in defaults_none else p
+              for p in sig.parameters.values() if p.name not in drop]
+    method.__signature__ = sig.replace(parameters=params)
+    method.__name__ = target.__name__
+    doc = inspect.getdoc(target) or ""
+    summary, _, rest = doc.partition("\n")
+    method.__doc__ = f"{summary}\n\n{note}\n{rest}".rstrip() + "\n"
+    return method
+
+
+def _bind_plot(m, plot_fn, summary):
+    """m.diag version of a posterior plot taking (m, include, exclude, filtered)."""
+    def method(include=None, exclude=None, filtered=True, **kw):
+        return plot_fn(m, include, exclude, filtered=filtered, **kw)
+    method.__name__ = plot_fn.__name__.lstrip("_")
+    method.__doc__ = f"""{summary}
+
+    Args:
+        include (str or list of str, optional): Parameters to plot (default: all).
+        exclude (str or list of str, optional): Parameters to leave out.
+        filtered (bool): Use ``m.posteriors`` (True, default) or every sampled
+            site, ``m.posteriors_full`` (False).
+        **kw: Passed to the plotting function (e.g. ``figsize``).
+
+    Returns:
+        plotly.graph_objects.Figure
+    """
+    return method
+
+
 def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
     """Bind plotting and diagnostic methods onto a diag instance.
 
@@ -660,6 +704,21 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
     # ---- convergence metrics: ArviZ (default) or JAX --------------------
     def _summary(include=None, exclude=None, round_to=2, hdi_prob=0.89,
                  filter_regex=None, filtered=True, kind="all"):
+        """Posterior summary table (mean, sd, credible interval, ESS, R-hat, MCSE).
+
+        Args:
+            include (str or list of str, optional): Parameters to summarise (default: all).
+            exclude (str or list of str, optional): Parameters to leave out.
+            round_to (int): Number of decimals. Defaults to 2.
+            hdi_prob (float): Probability mass of the credible interval. Defaults to 0.89.
+            filter_regex (str, optional): Regular expression on parameter names (JAX backend).
+            filtered (bool): Use ``m.posteriors`` (True) or every sampled site,
+                ``m.posteriors_full`` (False). Defaults to True.
+            kind (str): ``"all"``, ``"stats"`` or ``"diagnostics"``. Defaults to ``"all"``.
+
+        Returns:
+            pandas.DataFrame: One row per parameter element.
+        """
         if backend == ARVIZ:
             var_names = _as_var_names(include)
             kw = {}
@@ -675,6 +734,21 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
                           hdi_prob=hdi_prob, group_by_chain=True)
 
     def _rhat(include=None, exclude=None, filtered=True, method="rank"):
+        """Potential scale reduction factor (R-hat) of each parameter.
+
+        Values close to 1 (below 1.01) indicate that the chains have mixed.
+        Requires more than one chain.
+
+        Args:
+            include (str or list of str, optional): Parameters to check (default: all).
+            exclude (str or list of str, optional): Parameters to leave out.
+            filtered (bool): Use ``m.posteriors`` (True) or ``m.posteriors_full`` (False).
+            method (str): R-hat variant, ``"rank"`` (rank-normalised split R-hat,
+                default) or ``"split"``.
+
+        Returns:
+            R-hat per parameter.
+        """
         if backend == ARVIZ:
             var_names = _as_var_names(include)
             kw = {"method": method}
@@ -685,6 +759,17 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
                        include=include, exclude=exclude)
 
     def _ess(include=None, exclude=None, kind="bulk", filtered=True):
+        """Effective sample size of each parameter.
+
+        Args:
+            include (str or list of str, optional): Parameters to check (default: all).
+            exclude (str or list of str, optional): Parameters to leave out.
+            kind (str): ``"bulk"`` (default) or ``"tail"`` ESS.
+            filtered (bool): Use ``m.posteriors`` (True) or ``m.posteriors_full`` (False).
+
+        Returns:
+            ESS per parameter.
+        """
         if backend == ARVIZ:
             var_names = _as_var_names(include)
             kw = {"method": kind}
@@ -695,6 +780,18 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
                       include=include, exclude=exclude, kind=kind)
 
     def _mcse(include=None, exclude=None, kind="mean", filtered=True):
+        """Monte Carlo standard error of each parameter's posterior summary.
+
+        Args:
+            include (str or list of str, optional): Parameters to check (default: all).
+            exclude (str or list of str, optional): Parameters to leave out.
+            kind (str): Summary whose error is estimated: ``"mean"`` (default),
+                ``"sd"`` or a quantile.
+            filtered (bool): Use ``m.posteriors`` (True) or ``m.posteriors_full`` (False).
+
+        Returns:
+            MCSE per parameter.
+        """
         if backend == ARVIZ:
             import arviz as az
             var_names = _as_var_names(include)
@@ -706,6 +803,16 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
                        include=include, exclude=exclude, kind=kind)
 
     def _model_checks(include=None, exclude=None, filter_regex=None, filtered=True):
+        """Show the standard convergence plots in one call.
+
+        Displays posterior densities, autocorrelation, trace, forest and pair plots.
+
+        Args:
+            include (str or list of str, optional): Parameters to plot (default: all).
+            exclude (str or list of str, optional): Parameters to leave out.
+            filter_regex (str, optional): Regular expression on parameter names.
+            filtered (bool): Use ``m.posteriors`` (True) or ``m.posteriors_full`` (False).
+        """
         kw = dict(include=include, exclude=exclude, filter_regex=filter_regex, filtered=filtered)
         print("Posterior Plots:");   diag_obj.posterior(**kw).show()
         print("\nAutocorrelation:"); diag_obj.autocor(**kw).show()
@@ -715,6 +822,22 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
 
     def _loo(log_likelihood=None, pointwise=False, scale="log", reff=None,
              var_name=None):
+        """Pareto-smoothed importance-sampling leave-one-out cross-validation (PSIS-LOO).
+
+        Estimates the expected log pointwise predictive density (ELPD) of the
+        fitted model. Use ``m.diag.compare({"m1": m1, "m2": m2})`` to rank models.
+
+        Args:
+            log_likelihood (array, optional): Pointwise log-likelihood
+                (chains, draws, observations). Computed from the model by default.
+            pointwise (bool): Also return per-observation values and Pareto k. Defaults to False.
+            scale (str): ``"log"`` (default), ``"negative_log"`` or ``"deviance"``.
+            reff (float, optional): Relative MCMC efficiency; estimated from the chains by default.
+            var_name (str, optional): Observed variable to use when the model has several.
+
+        Returns:
+            ELPD estimate, its standard error and the effective number of parameters (p_loo).
+        """
         if backend == ARVIZ and log_likelihood is None:
             return _az_diag_for(m).loo(pointwise=pointwise, var_name=var_name,
                                        reff=reff, scale=scale)
@@ -730,6 +853,18 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
         return jd.loo(log_likelihood, pointwise=pointwise, scale=scale, reff=reff)
 
     def _waic(log_likelihood=None, pointwise=False, scale="log", var_name=None):
+        """Widely applicable information criterion (WAIC).
+
+        Args:
+            log_likelihood (array, optional): Pointwise log-likelihood
+                (chains, draws, observations). Computed from the model by default.
+            pointwise (bool): Also return per-observation values. Defaults to False.
+            scale (str): ``"log"`` (default), ``"negative_log"`` or ``"deviance"``.
+            var_name (str, optional): Observed variable to use when the model has several.
+
+        Returns:
+            ELPD estimate (``elpd_waic``), its standard error and ``p_waic``.
+        """
         if backend == ARVIZ and log_likelihood is None:
             return _az_diag_for(m).WAIC(pointwise=pointwise, var_name=var_name,
                                         scale=scale)
@@ -742,6 +877,14 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
 
     # ---- PPC helpers that auto-generate yrep from m ---------------------
     def _get_yrep(seed=0):
+        """Posterior predictive draws of the observed outcome.
+
+        Args:
+            seed (int): Seed of the predictive simulation. Defaults to 0.
+
+        Returns:
+            Array of shape (draws, observations).
+        """
         return _ppc.get_yrep(m, seed=seed)
 
     # ---- regression overlay ---------------------------------------------
@@ -749,122 +892,47 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
                                x_range=None, n_points=200, seed=42, **kw):
         return _plot_regression(m, x_var, y_obs=y_obs, n=n, link_inv=link_inv,
                                 x_range=x_range, n_points=n_points, seed=seed, **kw)
+    _documented(_plot_regression_bound, _plot_regression, _M_NOTE, drop=("m",))
 
     # ---- PPC bindings (y + yrep) ----------------------------------------
-    def _ppc_density(y=None, yrep=None, n=50, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_density(y, yrep, n=n, **kw)
-
-    def _ppc_hist(y=None, yrep=None, n=8, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_hist(y, yrep, n=n, **kw)
-
-    def _ppc_boxplot(y=None, yrep=None, n=20, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_boxplot(y, yrep, n=n, **kw)
-
-    def _ppc_stat(y=None, yrep=None, stat="mean", **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_stat(y, yrep, stat=stat, **kw)
-
-    def _ppc_stat_2d(y=None, yrep=None, stat1="mean", stat2="sd", **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_stat_2d(y, yrep, stat1=stat1, stat2=stat2, **kw)
-
-    def _ppc_intervals(y=None, yrep=None, x=None, prob=0.5, prob_outer=0.9, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_intervals(y, yrep, x=x, prob=prob, prob_outer=prob_outer, **kw)
-
-    def _ppc_ribbon(y=None, yrep=None, x=None, prob=0.5, prob_outer=0.9, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_ribbon(y, yrep, x=x, prob=prob, prob_outer=prob_outer, **kw)
-
-    def _ppc_error_scatter(y=None, yrep=None, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_error_scatter(y, yrep, **kw)
-
-    def _ppc_error_hist(y=None, yrep=None, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_error_hist(y, yrep, **kw)
-
-    def _ppc_scatter(y=None, yrep=None, n_reps=9, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_scatter(y, yrep, n_reps=n_reps, **kw)
-
-    def _ppc_loo_pit(y=None, yrep=None, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_loo_pit(y, yrep, **kw)
-
-    def _ppc_loo_intervals(y=None, yrep=None, x=None, prob=0.9, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_loo_intervals(y, yrep, x=x, prob=prob, **kw)
-
-    def _ppc_rootogram(y=None, yrep=None, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_rootogram(y, yrep, **kw)
-
-    def _ppc_bars(y=None, yrep=None, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _ppc.ppc_bars(y, yrep, **kw)
+    def _bind_ppc(plot_fn):
+        """m.diag version of a ppc_* plot: y and yrep default to the model's
+        observed outcome and its posterior predictive draws."""
+        def method(y=None, yrep=None, **kw):
+            if yrep is None:
+                yrep = _get_yrep()
+            if y is None:
+                y = _resolve_obs_y(m)
+            return plot_fn(y, yrep, **kw)
+        return _documented(method, plot_fn, _PPC_NOTE, defaults_none=("y", "yrep"))
 
     # ---- sensitivity bindings -------------------------------------------
     def _influence(log_likelihood=None, x=None, y=None, **kw):
         return _sens.influence_plot(m=m, log_likelihood=log_likelihood,
                                     x=x, y=y, **kw)
-
-    def _calibration(y=None, yrep=None, levels=None, **kw):
-        if yrep is None: yrep = _get_yrep()
-        if y is None:
-            y = _resolve_obs_y(m)
-        return _sens.calibration_plot(y, yrep, levels=levels, **kw)
+    _documented(_influence, _sens.influence_plot, _M_NOTE, drop=("m",))
 
     def _divergence_energy(**kw):
         return _sens.divergence_energy_plot(m, **kw)
+    _documented(_divergence_energy, _sens.divergence_energy_plot, _M_NOTE, drop=("m",))
 
     def _multimodality(param_names=None, **kw):
         return _sens.multimodality_check(m=m, param_names=param_names, **kw)
+    _documented(_multimodality, _sens.multimodality_check, _M_NOTE, drop=("m",))
 
     # ---- wire everything up --------------------------------------------
     diag_obj.summary        = _summary
     diag_obj.rhat           = _rhat
     diag_obj.ess            = _ess
     diag_obj.mcse           = _mcse
-    diag_obj.plot_trace     = lambda include=None, exclude=None, filtered=True, **kw: _plot_trace(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.posterior      = lambda include=None, exclude=None, filtered=True, **kw: _plot_posterior(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.autocor        = lambda include=None, exclude=None, filtered=True, **kw: _plot_autocor(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.forest         = lambda include=None, exclude=None, filtered=True, **kw: _plot_forest(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.density        = lambda include=None, exclude=None, filtered=True, **kw: _plot_density(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.pair           = lambda include=None, exclude=None, filtered=True, **kw: _plot_pair(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.rank           = lambda include=None, exclude=None, filtered=True, **kw: _plot_rank(m, include, exclude, filtered=filtered, **kw)
-    diag_obj.plot_ess       = lambda include=None, exclude=None, filtered=True, **kw: _plot_ess_evolution(m, include, exclude, filtered=filtered, **kw)
+    diag_obj.plot_trace     = _bind_plot(m, _plot_trace, "Trace plot of each chain (mixing and stationarity).")
+    diag_obj.posterior      = _bind_plot(m, _plot_posterior, "Posterior density of each parameter with its credible interval.")
+    diag_obj.autocor        = _bind_plot(m, _plot_autocor, "Autocorrelation of the draws of each parameter, per chain.")
+    diag_obj.forest         = _bind_plot(m, _plot_forest, "Forest plot: posterior mean and credible interval of each parameter.")
+    diag_obj.density        = _bind_plot(m, _plot_density, "Posterior density of each parameter, one curve per chain.")
+    diag_obj.pair           = _bind_plot(m, _plot_pair, "Pairwise scatter plots of the draws (correlations, funnels, multimodality).")
+    diag_obj.rank           = _bind_plot(m, _plot_rank, "Rank plots: histograms of draw ranks per chain (uniform when chains agree).")
+    diag_obj.plot_ess       = _bind_plot(m, _plot_ess_evolution, "Evolution of the effective sample size as draws accumulate.")
     diag_obj.loo            = _loo
     diag_obj.waic           = _waic
     diag_obj.WAIC           = _waic  # backward-compatible alias
@@ -873,29 +941,29 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
     diag_obj.plot_regression = _plot_regression_bound
     diag_obj.get_yrep        = _get_yrep
     # PPC — distributions
-    diag_obj.ppc_density     = _ppc_density
-    diag_obj.ppc_hist        = _ppc_hist
-    diag_obj.ppc_boxplot     = _ppc_boxplot
+    diag_obj.ppc_density     = _bind_ppc(_ppc.ppc_density)
+    diag_obj.ppc_hist        = _bind_ppc(_ppc.ppc_hist)
+    diag_obj.ppc_boxplot     = _bind_ppc(_ppc.ppc_boxplot)
     # PPC — statistics
-    diag_obj.ppc_stat        = _ppc_stat
-    diag_obj.ppc_stat_2d     = _ppc_stat_2d
+    diag_obj.ppc_stat        = _bind_ppc(_ppc.ppc_stat)
+    diag_obj.ppc_stat_2d     = _bind_ppc(_ppc.ppc_stat_2d)
     # PPC — intervals
-    diag_obj.ppc_intervals   = _ppc_intervals
-    diag_obj.ppc_ribbon      = _ppc_ribbon
+    diag_obj.ppc_intervals   = _bind_ppc(_ppc.ppc_intervals)
+    diag_obj.ppc_ribbon      = _bind_ppc(_ppc.ppc_ribbon)
     # PPC — errors
-    diag_obj.ppc_error_scatter = _ppc_error_scatter
-    diag_obj.ppc_error_hist    = _ppc_error_hist
+    diag_obj.ppc_error_scatter = _bind_ppc(_ppc.ppc_error_scatter)
+    diag_obj.ppc_error_hist  = _bind_ppc(_ppc.ppc_error_hist)
     # PPC — scatter
-    diag_obj.ppc_scatter     = _ppc_scatter
+    diag_obj.ppc_scatter     = _bind_ppc(_ppc.ppc_scatter)
     # PPC — discrete
-    diag_obj.ppc_rootogram   = _ppc_rootogram
-    diag_obj.ppc_bars        = _ppc_bars
+    diag_obj.ppc_rootogram   = _bind_ppc(_ppc.ppc_rootogram)
+    diag_obj.ppc_bars        = _bind_ppc(_ppc.ppc_bars)
     # PPC — LOO
-    diag_obj.ppc_loo_pit     = _ppc_loo_pit
-    diag_obj.ppc_loo_intervals = _ppc_loo_intervals
+    diag_obj.ppc_loo_pit     = _bind_ppc(_ppc.ppc_loo_pit)
+    diag_obj.ppc_loo_intervals = _bind_ppc(_ppc.ppc_loo_intervals)
     # sensitivity
     diag_obj.influence       = _influence
-    diag_obj.calibration     = _calibration
+    diag_obj.calibration     = _bind_ppc(_sens.calibration_plot)
     diag_obj.divergence_energy = _divergence_energy
     diag_obj.multimodality   = _multimodality
     # A staticmethod object stored on an INSTANCE is not unwrapped by the

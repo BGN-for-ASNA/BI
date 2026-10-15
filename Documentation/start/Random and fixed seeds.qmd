@@ -189,6 +189,28 @@ linear_model <- function(Y, X) {
 m$fit(linear_model, num_samples = 500, num_warmup = 200)
 post <- m$posteriors
 ```
+
+## Julia
+```julia
+using PyBayesForge
+
+# Run with fixed seed
+m = importBF(rand_seed = 123)
+
+X = collect(range(-2, 2; length = 50))
+Y = 1.5 .+ 2.0 .* X .+ 0.3 .* sin.(5 .* X)
+m.data_on_model = pydict(X = jnp.array(X), Y = jnp.array(Y))
+
+@BF function linear_model(Y, X)
+    a = m.dist.normal(0, 1, name = "a")
+    b = m.dist.normal(0, 1, name = "b")
+    sigma = m.dist.exponential(1, name = "sigma")
+    m.dist.normal(a + b * X, sigma, obs = Y)
+end
+
+m.fit(linear_model, num_samples = 500, num_warmup = 200)
+post = m.posteriors
+```
 :::
 
 ---
@@ -224,6 +246,19 @@ draw_2 <- m$dist$normal(0, 1, sample = TRUE)
 
 print(draw_1)
 print(draw_2)
+```
+
+## Julia
+```julia
+using PyBayesForge
+
+m = importBF(rand_seed = 42)
+
+draw_1 = m.dist.normal(0, 1, sample = true)
+draw_2 = m.dist.normal(0, 1, sample = true)
+
+println(draw_1)
+println(draw_2)
 ```
 :::
 

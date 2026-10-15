@@ -232,14 +232,14 @@ class array_manip:
     @staticmethod
     @jit
     def vec_node_to_edgle(sr):
-        """_summary_
+        """Pair node-level values into dyads (upper triangle, i < j).
 
         Args:
-            sr (2D array): Each column represent an characteristic or effect and  each row represent the value of i for the characteristic of the given column
+            sr (2D array): Node values, shape (N, 2): column 0 is the value used
+                for the first node of a dyad, column 1 for the second.
 
         Returns:
-            (2D array): return and edgelist of all dyads combination (excluding diagonal).
-            First column represent the value fo individual i  in the first column of argument sr, the second column the value of j in the second column of argument sr
+            (2D array): Shape (N*(N-1)/2, 2); row (i, j) holds ``sr[i, 0]`` and ``sr[j, 1]``.
         """
         N = sr.shape[0]
         urows, ucols = jnp.triu_indices(N, k=1)
@@ -267,6 +267,14 @@ class array_manip:
     @staticmethod
     @jit
     def to_binary_matrix(m):
+        """Binarise a weight matrix: 1 where the weight is positive, 0 elsewhere.
+
+        Args:
+            m (jax.Array): Weight matrix.
+
+        Returns:
+            jax.Array: Integer matrix of 0s and 1s with the same shape.
+        """
         return jnp.where(m > 0, 1, 0)
 
     @staticmethod

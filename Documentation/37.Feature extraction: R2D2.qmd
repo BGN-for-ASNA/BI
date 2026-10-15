@@ -45,7 +45,7 @@ Think of it as a **variance budget**. A single prior on $R^2$ opens a pot of "ex
 
 ## Example
 
-Below is an example code snippet demonstrating an *R2D2 prior* on the regression coefficients using the Bayesian Inference (**BI**) package. A Beta prior on the expected $R^2$ is transformed into a global variance, which is then decomposed through a Dirichlet simplex into local variances for each of the two predictors (weight and age). This example is based on @gelman2022r2d2.
+Below is an example code snippet demonstrating an *R2D2 prior* on the regression coefficients using BayesForge (**BF**). A Beta prior on the expected $R^2$ is transformed into a global variance, which is then decomposed through a Dirichlet simplex into local variances for each of the two predictors (weight and age). This example is based on @gelman2022r2d2.
 
 ::: {.panel-tabset group="language"}
 ## Python
@@ -90,8 +90,8 @@ m.summary()  # Get posterior distributions
 
 ## R
 ```R
-library(BayesianInference)
-m=importBI(platform='cpu')
+library(BayesForge)
+m=importBF(platform='cpu')
 
 # Import Data & Data Manipulation ------------------------------------------------
 m$data(m$load$howell1(only_path = T), sep=';') # Import
@@ -127,10 +127,10 @@ m$summary() # Get posterior distributions
 
 ## Julia
 ```Julia
-using BayesianInference
+using PyBayesForge
 
 # Setup device------------------------------------------------
-m = importBI(platform="cpu")
+m = importBF(platform="cpu")
 
 # Import Data & Data Manipulation ------------------------------------------------
 # Import
@@ -140,7 +140,7 @@ m.df = m.df[m.df.age > 18] # Subset data to adults
 m.scale(["weight", "age"]) # Normalize
 
 # Define model ------------------------------------------------
-@BI function model(height, weight, age)
+@BF function model(height, weight, age)
     # R2D2 prior: Beta prior on the expected R^2 of the model
     r2 = m.dist.beta(1 / 3, 3, name = "r2")
     sigma = m.dist.exponential(1, name = "s")

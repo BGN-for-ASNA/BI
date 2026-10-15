@@ -34,6 +34,24 @@ class Neteffect(array_manip):
     # Sender receiver  ----------------------
     
     def nodes_random_effects(self,N_id,  sr_sigma_mu = 0, sr_sigma_sd = 2.5, cholesky_dim = 2, cholesky_density = 2.5, sample = False):
+        """Correlated sender and receiver random effects for each node (non-centred).
+
+        Defines ``sr_raw`` ~ Normal(0, 1), ``sr_sigma`` ~ TruncatedNormal(mu, sd, low=0)
+        and ``sr_L`` ~ LKJCholesky, and returns ``sr_rf = (diag(sr_sigma) sr_L sr_raw)^T``.
+
+        Args:
+            N_id (int): Number of nodes.
+            sr_sigma_mu (float): Location of the prior on the two standard deviations. Defaults to 0.
+            sr_sigma_sd (float): Scale of that prior. Defaults to 2.5.
+            cholesky_dim (int): Dimension of the correlation matrix (2: sender, receiver).
+            cholesky_density (float): LKJ concentration; larger values favour weak
+                correlations. Defaults to 2.5.
+            sample (bool): Draw values directly instead of defining model sites.
+
+        Returns:
+            tuple: ``(sr_rf, sr_raw, sr_sigma, sr_L)``; ``sr_rf`` has shape (N_id, 2)
+            with sender effects in column 0 and receiver effects in column 1.
+        """
         sr_raw =  dist.normal(0, 1, shape=(2, N_id), name = 'sr_raw', sample = sample)
         sr_sigma =  dist.truncated_normal(sr_sigma_mu, sr_sigma_sd, low = 0, shape= (2,), name = 'sr_sigma', sample = sample)
         sr_L = dist.lkj_cholesky(cholesky_dim, cholesky_density, name = "sr_L", sample = sample)
@@ -44,17 +62,22 @@ class Neteffect(array_manip):
    
     def nodes_terms(self, sender_predictors = None, receiver_predictors = None,
                     s_mu = 0, s_sd = 1, r_mu = 0, r_sd = 1, sample = False):
-        """_summary_
+        """Fixed effects of node predictors on sending and receiving ties.
+
         Args:
-            idx (2D, jax array): An edglist of ids.
-            focal_individual_predictors (2D jax array): each column represent node characteristics.
-            target_individual_predictors (2D jax array): each column represent node characteristics.
-            s_mu (int, optional): Default mean prior for focal_effect, defaults to 0.
-            s_sd (int, optional): Default sd prior for focal_effect, defaults to 1.
-            r_mu (int, optional): Default mean prior for target_effect, defaults to 0.
-            r_sd (int, optional): Default sd prior for target_effect, defaults to 1.
+            sender_predictors (2D jax array, optional): Node predictors of sending,
+                shape (N, K_s); each column is a node characteristic.
+            receiver_predictors (2D jax array, optional): Node predictors of receiving,
+                shape (N, K_r). At least one of the two must be given.
+            s_mu (float): Prior mean of the sender coefficients. Defaults to 0.
+            s_sd (float): Prior sd of the sender coefficients. Defaults to 1.
+            r_mu (float): Prior mean of the receiver coefficients. Defaults to 0.
+            r_sd (float): Prior sd of the receiver coefficients. Defaults to 1.
+            sample (bool): Draw values directly instead of defining model sites.
+
         Returns:
-            _type_: terms, focal_effects, target_effects
+            tuple: ``(terms, sender_effects, receiver_effects)``; ``terms`` has shape
+            (N, 2): the linear predictor of sending (column 0) and receiving (column 1).
         """
         if sender_predictors is None and receiver_predictors is None:
             raise ValueError("At least one of sender_predictors or receiver_predictors must be provided.")
@@ -274,7 +297,7 @@ class Neteffect(array_manip):
             b (2D array): Matrix of block model prior matrix (squared)
 
         Returns:
-            _type_: 1D array representing the probability of links from i-> j 
+            2D array: Shape (N_dyads, 2): the block prior for i -> j and for j -> i of each dyad.
         """
 
         v = Neteffect.vec_node_to_edgle(jnp.stack([v, v], axis= 1)).astype(int)
