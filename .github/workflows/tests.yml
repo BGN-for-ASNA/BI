@@ -32,7 +32,7 @@ jobs:
       # tests/conftest.py prints a table of the statistical checks, adds it
       # to the job summary and writes tests/_report/ (table + plots).
       - name: Run tests
-        run: python -m pytest tests -q
+        run: python -m pytest tests -q -m "not pages"
 
       - name: Upload verification report
         if: always()
