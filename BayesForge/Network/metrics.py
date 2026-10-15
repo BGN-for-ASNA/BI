@@ -17,6 +17,15 @@ class met:
     
     @jit
     def normalize(x, m):
+        """Divide a node-level measure by the maximum possible degree, N - 1.
+
+        Args:
+            x (jax.Array): Node-level values, shape (N,).
+            m (jax.Array): The network's adjacency matrix, shape (N, N).
+
+        Returns:
+            jax.Array: ``x / (N - 1)``.
+        """
         return x / (m.shape[0]-1)
         
     # Network utils
@@ -92,13 +101,34 @@ class met:
 
     @staticmethod
     def cc(m, nodes=None, weighted=False):
-        if weighted:
-            return met.onnela_clustering_coefficient(m)
-        return met.clustering_coefficient(m)
+        """Local clustering coefficient of each node.
+
+        Args:
+            m (jax.Array): Adjacency (or weight) matrix, shape (N, N); entry [i, j] is the tie from i to j.
+            nodes (array of int, optional): Return only these nodes (default: all).
+            weighted (bool): Use the weighted (Onnela et al. 2005) coefficient
+                instead of the binary one. Defaults to False.
+
+        Returns:
+            jax.Array: Clustering coefficient per node, in [0, 1].
+        """
+        out = met.onnela_clustering_coefficient(m) if weighted else met.clustering_coefficient(m)
+        return out if nodes is None else out[jnp.asarray(nodes)]
 
     @staticmethod
     def weighted_cc(m, nodes=None):
-        return met.onnela_clustering_coefficient(m)
+        """Weighted local clustering coefficient (Onnela et al. 2005) of each node.
+
+        Same as ``cc(m, nodes, weighted=True)``.
+
+        Args:
+            m (jax.Array): Weight matrix, shape (N, N).
+            nodes (array of int, optional): Return only these nodes (default: all).
+
+        Returns:
+            jax.Array: Weighted clustering coefficient per node, in [0, 1].
+        """
+        return met.cc(m, nodes=nodes, weighted=True)
 
     ## eigenvector----------------------------------------------------------------------------------
     @staticmethod
@@ -244,20 +274,34 @@ class met:
     @staticmethod 
     @jit    
     def outstrength_jit(x):
+        """JIT-compiled out-strength: row sums of the weight matrix ``x``."""
         return jnp.sum(x, axis=1)
 
     @staticmethod 
     @jit
     def instrength_jit(x):
+        """JIT-compiled in-strength: column sums of the weight matrix ``x``."""
         return jnp.sum(x, axis=0)
 
     @staticmethod 
     @jit
     def strength_jit(x):
+        """JIT-compiled total strength: out-strength + in-strength of ``x``."""
         return met.outstrength_jit(x) +  met.instrength_jit(x)
 
     @staticmethod 
     def strength(m, sym = False):
+        """Strength (sum of tie weights) of each node.
+
+        Args:
+            m (jax.Array): Weight matrix, shape (N, N); entry [i, j] is the tie from i to j.
+            sym (bool): The network is symmetric (undirected): count each tie
+                once, i.e. return the out-strength. Defaults to False
+                (out-strength + in-strength).
+
+        Returns:
+            jax.Array: Strength per node, shape (N,).
+        """
         if sym :
             return met.outstrength_jit(m)
         else:
@@ -266,33 +310,63 @@ class met:
     
     @staticmethod 
     def outstrength(m):
+        """Out-strength of each node: sum of the weights of its outgoing ties (row sums).
+
+        Args:
+            m (jax.Array): Weight matrix, shape (N, N); entry [i, j] is the tie from i to j.
+
+        Returns:
+            jax.Array: Out-strength per node, shape (N,).
+        """
         return met.outstrength_jit(m)
     
     @staticmethod 
     def instrength(m):
+        """In-strength of each node: sum of the weights of its incoming ties (column sums).
+
+        Args:
+            m (jax.Array): Weight matrix, shape (N, N); entry [i, j] is the tie from i to j.
+
+        Returns:
+            jax.Array: In-strength per node, shape (N,).
+        """
         return met.instrength_jit(m)
 
     ## Degree----------------------------------------------------------------------------------
     @staticmethod 
     @jit
     def outdegree_jit(x):
+        """JIT-compiled out-degree: number of non-zero entries in each row of ``x``."""
         mask = x != 0
         return jnp.sum(mask, axis=1)
 
     @staticmethod 
     @jit
     def indegree_jit(x):
+        """JIT-compiled in-degree: number of non-zero entries in each column of ``x``."""
         mask = x != 0
         return jnp.sum(mask, axis=0)
 
     @staticmethod 
     @jit
     def degree_jit(x):
+        """JIT-compiled total degree: in-degree + out-degree of ``x``."""
         return met.indegree_jit(x) + met.outdegree_jit(x)
 
     @staticmethod 
     def degree(m, sym = False, normalize=False):
-        # normalized by dividing by the maximum possible degree in a simple graph n-1 where n is the number of nodes in G.
+        """Degree (number of ties) of each node.
+
+        Args:
+            m (jax.Array): Adjacency (or weight) matrix, shape (N, N); entry [i, j] is the tie from i to j.
+            sym (bool): The network is symmetric (undirected): count each tie
+                once. Defaults to False (in-degree + out-degree).
+            normalize (bool): Divide by the maximum possible degree, N - 1.
+                Defaults to False.
+
+        Returns:
+            jax.Array: Degree per node, shape (N,).
+        """
         if sym :
             degree =  met.indegree_jit(m)
         else:
@@ -305,6 +379,15 @@ class met:
     
     @staticmethod 
     def indegree(m, normalize=False):
+        """In-degree of each node: number of incoming ties (non-zero column entries).
+
+        Args:
+            m (jax.Array): Adjacency (or weight) matrix, shape (N, N); entry [i, j] is the tie from i to j.
+            normalize (bool): Divide by N - 1. Defaults to False.
+
+        Returns:
+            jax.Array: In-degree per node, shape (N,).
+        """
         degree =  met.indegree_jit(m)
         if normalize:
             return met.normalize(degree,m)
@@ -313,6 +396,15 @@ class met:
     
     @staticmethod 
     def outdegree(m, normalize=False):
+        """Out-degree of each node: number of outgoing ties (non-zero row entries).
+
+        Args:
+            m (jax.Array): Adjacency (or weight) matrix, shape (N, N); entry [i, j] is the tie from i to j.
+            normalize (bool): Divide by N - 1. Defaults to False.
+
+        Returns:
+            jax.Array: Out-degree per node, shape (N,).
+        """
         degree = met.outdegree_jit(m)
         if normalize:
             return met.normalize(degree,m)
@@ -575,8 +667,29 @@ class met:
         endpoints: bool = False,
         directed: bool = False,
     ) -> jnp.ndarray:
+        """Betweenness centrality of each node (Brandes' algorithm, JAX).
+
+        The fraction of shortest paths between other pairs of nodes that pass
+        through each node. Matches ``networkx.betweenness_centrality``.
+
+        Args:
+            adjacency_matrix (jax.Array): Binary adjacency matrix, shape (N, N).
+            n_nodes (int): Number of nodes, N.
+            k (int, optional): Sample k source nodes. Not implemented; must be None.
+            weight_matrix (jax.Array, optional): Edge lengths (distances) for
+                weighted shortest paths. Defaults to unweighted paths.
+            normalized (bool): Normalise by the number of node pairs. Defaults to True.
+            endpoints (bool): Count path endpoints. Defaults to False.
+            directed (bool): Treat the network as directed. Defaults to False.
+
+        Returns:
+            jax.Array: Betweenness per node, shape (N,).
+
+        Raises:
+            NotImplementedError: If ``k`` is given.
+        """
         if k is not None:
-            raise NotImplementedError("Sampling (k < n_nodes) is not implemented in this example.")
+            raise NotImplementedError("Sampling (k < n_nodes) is not implemented.")
 
         source_nodes = jnp.arange(n_nodes)
         n_sampled = n_nodes

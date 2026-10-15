@@ -1,4 +1,5 @@
 import arviz as az
+import inspect
 
 import jax.numpy as jnp
 from jax.scipy.special import logsumexp
@@ -60,6 +61,20 @@ def _az_hdi(data, prob):
     return az.hdi(data, **{name: prob})
 
 
+def _az_from_dict(groups):
+    """Build an InferenceData from a ``{group: {var: array}}`` mapping.
+
+    ``az.from_dict`` changed signature between ArviZ majors: 0.x takes one
+    keyword per group (``from_dict(posterior=..., sample_stats=...)``) while
+    1.x takes the whole mapping as its first argument (``from_dict(data)``)
+    and rejects the group keywords with
+    "from_dict() got an unexpected keyword argument 'posterior'".
+    """
+    if "posterior" in inspect.signature(az.from_dict).parameters:
+        return az.from_dict(**groups)
+    return az.from_dict(groups)
+
+
 def _numpy_backed_idata(idata, groups=("posterior", "log_likelihood", "sample_stats")):
     """Rebuild an InferenceData with NumPy-backed arrays.
 
@@ -81,12 +96,7 @@ def _numpy_backed_idata(idata, groups=("posterior", "log_likelihood", "sample_st
         if group in available or f"/{group}" in available:
             ds = getattr(idata, group)
             data[group] = {k: np.asarray(v.values) for k, v in ds.data_vars.items()}
-    # NOTE: az.from_dict's first positional parameter IS `posterior`, so passing
-    # the whole {group: vars} mapping positionally collapsed every group into
-    # the posterior under tuple names and produced an InferenceData with no
-    # log_likelihood group at all -- az.loo then raised
-    # "log likelihood not found in inference data object". Splat by keyword.
-    return az.from_dict(**data)
+    return _az_from_dict(data)
 
 
 def _numpyro_idata_with_loglik(sampler):
@@ -354,7 +364,7 @@ class diagWIP:
             if hasattr(self.sampler, "svi"):
                 # Handle SVI wrapper
                 posterior_samples = self.sampler.get_samples(group_by_chain=True)
-                self.trace = az.from_dict(posterior=posterior_samples)
+                self.trace = _az_from_dict({"posterior": posterior_samples})
             else:
                 self.trace = az.from_numpyro(self.sampler)
             self.priors_name = list(self.trace["posterior"].data_vars.keys())
@@ -373,7 +383,7 @@ class diagWIP:
             for name, samp in zip(var_names, self.sampler.posterior):
                 trace[name] = samp
 
-            self.trace = az.from_dict(posterior=trace, sample_stats=sample_stats)
+            self.trace = _az_from_dict({"posterior": trace, "sample_stats": sample_stats})
             self.priors_name = var_names
             return self.trace
 
@@ -624,6 +634,12 @@ class diagWIP:
                 f"az.compare in arviz {az.__version__} does not accept "
                 f"{sorted(dropped)}; drop them or pin an arviz that supports them."
             )
+        # Accept fitted BF objects ({"name": m}) as well as InferenceData/ELPDData:
+        # convert them the same way loo()/waic() do (posterior + log_likelihood).
+        compare_dict = {
+            name: _numpyro_idata_with_loglik(val.sampler) if hasattr(val, "sampler") else val
+            for name, val in compare_dict.items()
+        }
         return az.compare(compare_dict, **kwargs)
 
     @staticmethod

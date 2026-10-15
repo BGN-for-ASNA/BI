@@ -12,8 +12,8 @@ import sys
 newPath = os.path.dirname(os.path.abspath(""))
 if newPath not in sys.path:
     sys.path.append(newPath)
-from BayesForge import BayesForge
-m = BF('cpu')
+from BayesForge import bf
+m = bf(platform='cpu')
 dist_classes = {}
 for name in dir(m.dist):
     obj = getattr(m.dist, name)
@@ -28,8 +28,8 @@ def generate_code_example(docstring):
     prompt = f"""
     Given the following python docstring extract the code example from it.
     remove the following lines:
-        - from BayesForge import BayesForge
-        - m = BF('cpu')
+        - from BayesForge import bf
+        - m = bf(platform='cpu')
     Note that sample = True must all the time present (e.g. m.dist.normal(loc = 0, scale = 1, sample = True))
     Return only the code example, do not wrap it in a code block.
     {docstring}
@@ -66,9 +66,9 @@ import sys
 newPath = os.path.dirname(os.path.dirname(os.path.abspath("")))
 if newPath not in sys.path:
     sys.path.append(newPath)
-from BayesForge import BayesForge
+from BayesForge import bf
 import jax.numpy as jnp
-m = BF('cpu')
+m = bf(platform='cpu')
 erros = []
 """
 )

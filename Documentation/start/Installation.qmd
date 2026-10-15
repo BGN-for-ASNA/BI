@@ -7,27 +7,76 @@ format:
     code-tools: false
 ---
 
-
-You can run BF on python or R. For R users you need to have installed python and the R [**reticulate**](https://rstudio.github.io/reticulate/).
-
+BayesForge (BF) is a Python library with R and Julia front-ends. All three need **Python ≥ 3.12**; the R and Julia packages create and manage their own Python environment, so R and Julia users do not need to install Python packages by hand.
 
 ::: {.panel-tabset group="language"}
 ## Python
-``` python
-#| code-fold: false
-pip install BayesForge # For CPU support
-pip install BayesForge[gpu] # For GPU support 
+```bash
+pip install "BayesForge[cpu]"   # CPU (Linux, macOS, Windows)
+pip install "BayesForge[gpu]"   # NVIDIA GPU (Linux and WSL2 only)
+```
+
+Check the installation:
+
+```python
+from BayesForge import bf
+m = bf(platform="cpu")
 ```
 
 ## R
-``` R
-#| code-fold: false
-package.install(BayesForge)
+```r
+install.packages("BayesForge")   # from CRAN
+
+library(BayesForge)
+setup_env(backend = "cpu")        # once: creates the 'BFR' Python environment
+                                  # (use backend = "gpu" on Linux/WSL2 with an NVIDIA GPU)
+```
+
+Then, in this or any later session:
+
+```r
+library(BayesForge)
+m <- importBF(platform = "cpu")
+```
+
+`setup_env()` installs the `BayesForge` Python package and its dependencies (JAX, NumPyro, ArviZ) into a dedicated virtual environment, so it does not interfere with other Python installations. Run `setup_env()` again at any time to upgrade it.
+
+## Julia
+Requires [Julia 1.12 or later](https://julialang.org/downloads/).
+
+```julia
+using Pkg
+Pkg.add("PyBayesForge")          # from the Julia General registry
+# or the development version:
+# Pkg.add(url = "https://github.com/BGN-for-ASNA/PyBayesForge.jl")
+```
+
+Then, in this or any later session:
+
+```julia
+using PyBayesForge
+m = importBF(platform = "cpu")
+```
+
+The first `using PyBayesForge` in a project installs the Python side (Python, `BayesForge`, JAX, NumPyro, ArviZ) with [CondaPkg](https://github.com/JuliaPy/CondaPkg.jl) into a `.CondaPkg` folder of the active Julia project, so it does not interfere with other Python installations. This takes a few minutes, once.
+
+Check the installation:
+
+```julia
+x = m.dist.normal(0, 1, shape = (3,), sample = true)  # three draws from N(0, 1)
+```
+
+For an NVIDIA GPU (Linux/WSL2), add the GPU build of JAX to the project once, then use `platform = "gpu"`:
+
+```julia
+using CondaPkg
+CondaPkg.add_pip("bayesforge"; extras = ["gpu"])
 ```
 :::
 
 ::: callout-note
-* GPU support is only available for linux and WSL2 systems.
+* GPU support is only available on Linux and WSL2 systems with an NVIDIA GPU.
+* If the R or Julia environment ends up in a broken state, delete it (R: `reticulate::virtualenv_remove("BFR")`; Julia: `PyBayesForge.delete_env()`) and run the setup step again.
 :::
 
 <script>

@@ -125,6 +125,18 @@ class UnifiedDist:
         self._rng = rng
 
     def track(self,name, x):
+        """Record a derived quantity so it is saved with the posterior draws.
+
+        Args:
+            name (str): Name of the quantity in ``m.posteriors``.
+            x (jax.Array): The value, computed from the parameters inside the model.
+
+        Returns:
+            jax.Array: ``x`` unchanged.
+
+        Example Usage:
+            sigma2 = m.dist.track("sigma2", s ** 2)  # inside a model
+        """
         return numpyro.deterministic(name,x)
 
     def _draw_key(self, seed):
@@ -157,10 +169,35 @@ class UnifiedDist:
 
     @staticmethod
     def mask( mask):
+        """Context manager that excludes observations from the likelihood.
+
+        Inside ``with m.dist.mask(keep):``, the log-probability of every sample
+        site is multiplied by the boolean array ``keep``, so entries where it is
+        False (e.g. missing data) do not contribute.
+
+        Args:
+            mask (jax.Array of bool): True for the observations to keep.
+
+        Returns:
+            A NumPyro ``mask`` handler, used in a ``with`` statement.
+        """
         return numpyro.handlers.mask(mask=mask)
 
     @staticmethod
     def plate(name, shape, **kwargs):
+        """Context manager declaring conditionally independent replicates.
+
+        Sample sites inside ``with m.dist.plate("obs", N):`` are vectorised over
+        a batch dimension of size ``N`` (e.g. one likelihood term per observation).
+
+        Args:
+            name (str): Name of the plate.
+            shape (int): Size of the batch dimension.
+            **kwargs: Passed to ``numpyro.plate`` (e.g. ``subsample_size``, ``dim``).
+
+        Returns:
+            A NumPyro ``plate``, used in a ``with`` statement.
+        """
         return numpyro.plate(name, shape, **kwargs)
 
     @staticmethod
@@ -183,12 +220,20 @@ class UnifiedDist:
             None
 
         #### Example Usage:
-            # Custom likelihood within a plate:
-            with m.dist.plate("obs", ntotal):
-                m.dist.factor("custom_log_lik", log_lik_per_obs)
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            y = jnp.array([0.3, -1.2, 0.8])
 
-            # Scalar total marginal log-likelihood (no plate):
-            m.dist.factor("total_log_lik", jnp.sum(log_lik_per_obs))
+            def model(y):
+                mu = m.dist.normal(0, 1, name='mu')
+                # custom (here: Laplace) log-likelihood, one term per observation
+                log_lik_per_obs = -jnp.abs(y - mu)
+                with m.dist.plate("obs", y.shape[0]):
+                    m.dist.factor("custom_log_lik", log_lik_per_obs)
+
+            m.fit(model, obs=dict(y=y), num_samples=100, num_warmup=100, num_chains=1, progress_bar=False)
+
 
         #### Wrapper of:
             https://num.pyro.ai/en/stable/primitives.html#numpyro.primitives.factor
@@ -250,8 +295,8 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF AsymmetricLaplace distribution object (for advanced use cases).
 
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.asymmetric_laplace(loc=0.0, scale=1.0, asymmetry=1.0, sample=True)
 
         #### Wrapper of:
@@ -348,8 +393,8 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF AsymmetricLaplaceQuantile distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.asymmetric_laplace_quantile(loc=0.0, scale=1.0, quantile=0.5, sample=True)
         
         #### Wrapper of:
@@ -435,8 +480,9 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.bernoulli_logits(logits=jnp.array([0.2, 1, 2]), sample=True)
         
         #### Wrapper of:
@@ -530,8 +576,9 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF BernoulliProbs object (for advanced use cases).
 
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.bernoulli_probs(probs=jnp.array([0.2, 0.7, 0.5]), sample=True)
         
         #### Wrapper of:
@@ -626,8 +673,8 @@ class UnifiedDist:
 
         
         #### #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.beta(concentration1=1.0, concentration0=1.0, sample=True)
         
         #### Wrapper of:
@@ -720,8 +767,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF BetaBinomial distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.beta_binomial(concentration1=1.0, concentration0=1.0, total_count=10, sample=True)
         
         #### Wrapper of:
@@ -820,8 +867,8 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF BetaProportion distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             samples = m.dist.beta_proportion(mean=0.5, concentration=2.0, sample=True, shape=(1000,))
         
         #### Wrapper of:
@@ -906,8 +953,9 @@ class UnifiedDist:
 
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.binomial_logits(logits=jnp.zeros(10), total_count=5, sample=True)
         
         #### Wrapper of:
@@ -992,8 +1040,8 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF BinomialLogits object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.binomial_probs(probs=0.5, total_count=10, sample=True)
         
         #### Wrapper of:
@@ -1164,8 +1212,9 @@ class UnifiedDist:
         
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.categorical_logits(logits=jnp.zeros(5), sample=True)
         
         #### Wrapper of:
@@ -1248,8 +1297,9 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF CategoricalProbs object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.categorical_probs(probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of:
@@ -1340,8 +1390,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.cauchy(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -1430,8 +1480,8 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF Chi2 object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu)
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.chi2(df=3.0, sample = True)
         
         #### Wrapper of:
@@ -1621,8 +1671,8 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF Circulant Delta Distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.delta(v=0.0, sample=True)
         
         #### Wrapper of:
@@ -1711,8 +1761,9 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF Dirichlet Distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.dirichlet(concentration=jnp.array([1.0, 1.0, 1.0]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#dirichlet
@@ -1793,7 +1844,7 @@ class UnifiedDist:
 
         - *mask* (jnp.ndarray, bool, optional): Optional boolean array to mask observations. If provided, events with a `True` mask will be conditioned on `obs`, while the remaining events will be treated as latent variables. Defaults to `None`.
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *shape* (tuple, optional): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
@@ -1811,9 +1862,9 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF dirichlet_multinomial Distribution object (for advanced use cases).
 
         #### Example Usage:
-            from BayesForge import BayesForge
+            from BayesForge import bf
             import jax.numpy as jnp
-            m = BF('cpu')
+            m = bf(platform='cpu')
         
             # Direct sampling
             # Sample a single vector of counts for 10 trials from 3 categories
@@ -1919,8 +1970,8 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF DiscreteUniform Distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.discrete_uniform(low=0, high=5, sample=True)
         
         #### Wrapper of:
@@ -2027,8 +2078,8 @@ class UnifiedDist:
         - When `create_obj=True`: The raw BF doubly_truncated_power_law Distribution object (for advanced use cases).
 
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')        
+            from BayesForge import bf
+            m = bf(platform='cpu')        
             m.dist.doubly_truncated_power_law(low=0.1, high=10.0, alpha=2.0, sample=True)
 
         #### References:
@@ -2067,7 +2118,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def euler_maruyama(self,t, sde_fn, init_dist, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=0,   shape=(), event=0,create_obj=False, to_jax = True):
+    def euler_maruyama(self,t, sde_fn, init_dist, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None,   shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""###  Euler–Maruyama
@@ -2111,8 +2162,9 @@ class UnifiedDist:
             jnp.ndarray: Samples drawn from the Euler–Maruyama distribution.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.euler_maruyama(t=jnp.array([0.0, 0.1, 0.2]), sde_fn=lambda x, t: (x, 1.0), init_dist=m.dist.normal(0.0, 1.0, create_obj=True), sample = True)
         """
 
@@ -2186,8 +2238,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.exponential(rate=1.0, sample=True)
         
         #### Wrapper of:
@@ -2268,8 +2320,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
     
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.folded_distribution(m.dist.normal(loc=0.0, scale=1.0, create_obj = True), sample=True)
     
         #### Wrapper of:
@@ -2358,8 +2410,8 @@ class UnifiedDist:
         
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.gamma(concentration=2.0, rate=0.5, sample=True)
         
         #### Wrapper of:
@@ -2448,8 +2500,8 @@ class UnifiedDist:
                 use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.gamma_poisson(concentration=1.0, rate=2.0, sample=True)
         
         #### Wrapper of:
@@ -2531,8 +2583,9 @@ class UnifiedDist:
             BF distribution object: When `create_obj=True` (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.gaussian_copula(
                 marginal_dist = m.dist.beta(2.0, 5.0, create_obj = True), 
                 correlation_matrix = jnp.array([[1.0, 0.7],[0.7, 1.0]]), 
@@ -2616,8 +2669,9 @@ class UnifiedDist:
             Distribution: The raw BF distribution object (for advanced use cases).
     
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.gaussian_copula_beta(
                 concentration1 = jnp.array([2.0, 3.0]), 
                 concentration0 = jnp.array([5.0, 3.0]),
@@ -2686,7 +2740,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
 
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *shape* (tuple, optional): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
@@ -2700,9 +2754,9 @@ class UnifiedDist:
             numpyro.distributions.Distribution: The raw BF distribution object (if `create_obj=True`).
     
         #### Example Usage:
-            from BayesForge import BayesForge
+            from BayesForge import bf
             import jax.numpy as jnp
-            m = BF('cpu')
+            m = bf(platform='cpu')
             
             # Direct sampling of a random walk with 100 steps
             path = m.dist.gaussian_random_walk(scale=0.5, num_steps=100, sample=True)
@@ -2799,9 +2853,10 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
-            m.dist.gaussian_state_space(num_steps=5, transition_matrix=jnp.array([[0.5]]), covariance_matrix =  jnp.array([[1.0, 0.6],[0.6, 1.0]]), sample=True)
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            m.dist.gaussian_state_space(num_steps=5, transition_matrix=jnp.array([[0.5, 0.1], [0.0, 0.8]]), covariance_matrix=jnp.array([[1.0, 0.6], [0.6, 1.0]]), sample=True)
 
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#gaussianstate
@@ -2881,8 +2936,9 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.geometric_logits(logits=jnp.zeros(10), sample=True)
         
         #### Wrapper of:
@@ -2961,8 +3017,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.geometric_probs(probs=0.5, sample=True)
         
         #### Wrapper of:
@@ -3045,8 +3101,8 @@ class UnifiedDist:
             BF distribution object: When `create_obj=True` (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.gompertz(concentration=1.0, rate=1.0, sample=True)
         
         #### Wrapper of:
@@ -3129,8 +3185,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.gumbel(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -3207,8 +3263,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.half_cauchy(scale=1.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#halfcauchy
@@ -3284,8 +3340,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.half_normal(scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -3363,11 +3419,14 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import sample
-            from numpyro.distributions import ImproperUniform, Normal, constraints
-        
+            from BayesForge import bf
+            from numpyro.distributions import constraints
+            m = bf(platform='cpu')
+
             def model():
-                x = sample('x', ImproperUniform(constraints.ordered_vector, (), event_shape=(10,)))
+                # flat prior over ordered vectors of length 10
+                x = m.dist.improper_uniform(constraints.ordered_vector, (), (10,), name='x')
+
         
             #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#improperuniform
@@ -3445,8 +3504,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.inverse_gamma(concentration=2.0, rate=1.0, sample=True)
         
         #### Wrapper of:
@@ -3528,8 +3587,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.kumaraswamy(concentration1=2.0, concentration0=3.0, sample=True)
         
         #### Wrapper of: 
@@ -3616,8 +3675,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.lkj(dimension=2, concentration=1.0, sample=True)
         
         #### Wrapper of:
@@ -3696,7 +3755,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -3772,7 +3831,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -3784,8 +3843,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.laplace(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -3865,7 +3924,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -3963,7 +4022,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -3975,8 +4034,8 @@ class UnifiedDist:
             BF distribution object: When `create_obj=True` (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.levy(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -4067,7 +4126,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4079,8 +4138,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.log_normal(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#lognormal
@@ -4165,7 +4224,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4179,8 +4238,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.log_uniform(low=0.1, high=10.0, sample=True)
         
         #### Wrapper of:
@@ -4264,7 +4323,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4276,8 +4335,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.logistic(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -4351,22 +4410,24 @@ class UnifiedDist:
 
         - *shape* (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
-            event_size = 100  # Our distribution has 100 dimensions
-            rank = 5   
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            event_size, rank = 100, 5
             m.dist.low_rank_multivariate_normal(
-            - *loc*=m.dist.normal(0,1, shape = (event_size,), sample=True)*2, 
-                cov_factor=m.dist.normal(0,1, shape = (event_size, rank), sample=True),
-                cov_diag=jnp.exp(m.dist.normal(0,1, shape = (event_size,), sample=True)) * 0.1, sample=True
+                loc=m.dist.normal(0, 1, shape=(event_size,), sample=True) * 2,
+                cov_factor=m.dist.normal(0, 1, shape=(event_size, rank), sample=True),
+                cov_diag=jnp.exp(m.dist.normal(0, 1, shape=(event_size,), sample=True)) * 0.1,
+                sample=True,
             )
+
         
         #### Wrapper of:
         https://num.pyro.ai/en/stable/distributions.html#lowrankmultivariatenormal
@@ -4441,7 +4502,7 @@ class UnifiedDist:
                 
         - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - `seed` (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4453,8 +4514,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.lower_truncated_power_law(alpha=-2.0, low=1.0, sample=True)
         
         #### Wrapper of:
@@ -4542,7 +4603,7 @@ class UnifiedDist:
                 
         - `sample` (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - `seed` (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - `seed` (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - `obs` (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4556,31 +4617,26 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
+            from BayesForge import bf
             import jax.numpy as jnp
-            m = BF('cpu')            
+            m = bf(platform='cpu')
             n_rows, n_cols = 3, 4
-
-        - *loc* = jnp.zeros((n_rows, n_cols))
+            loc = jnp.zeros((n_rows, n_cols))
             U_row_cov = jnp.array([[1.0, 0.5, 0.2],
                                    [0.5, 1.0, 0.3],
                                    [0.2, 0.3, 1.0]])
-            scale_tril_row = jnp.linalg.cholesky(U_row_cov)
-
             V_col_cov = jnp.array([[2.0, -0.8, 0.1, 0.4],
                                    [-0.8, 2.0, 0.2, -0.2],
                                    [0.1, 0.2, 2.0, 0.0],
                                    [0.4, -0.2, 0.0, 2.0]])
-
-            # The argument passed to the distribution is its Cholesky factor
-            scale_tril_column = jnp.linalg.cholesky(V_col_cov)
-
+            # The distribution takes the Cholesky factors of both covariances
             m.dist.matrix_normal(
-                oc=loc, 
-                scale_tril_row=scale_tril_row, 
-                scale_tril_column=scale_tril_column, 
-                sample=True
+                loc=loc,
+                scale_tril_row=jnp.linalg.cholesky(U_row_cov),
+                scale_tril_column=jnp.linalg.cholesky(V_col_cov),
+                sample=True,
             )
+
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#matrixnormal_lowercase
 
@@ -4644,7 +4700,7 @@ class UnifiedDist:
 
         * `shape` (tuple): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `shape` to set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
-        *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        *   **seed (int, optional)**:  An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4658,8 +4714,8 @@ class UnifiedDist:
         
         **#### Example Usage:**      
 
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.mixture_general(
                 mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7]), create_obj = True),     
                 component_distributions=[m.dist.normal(loc=0.0, scale=1.0, create_obj=True),m.dist.normal  (loc=0.0, scale=1.0,  create_obj=True)],
@@ -4738,7 +4794,7 @@ class UnifiedDist:
 
                 *   **sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-                *   **seed (int, optional)**:  An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+                *   **seed (int, optional)**:  An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
                 *   **obs (jnp.ndarray, optional)**:  The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4751,8 +4807,9 @@ class UnifiedDist:
             *   **When `create_obj=True`**: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.mixture_same_family(
                 mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7]), create_obj = True), 
                 component_distribution=m.dist.normal(loc=0.0, scale=1.0, shape = (2,), create_obj=True),
@@ -4837,7 +4894,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4851,8 +4908,9 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.multinomial_logits(logits=jnp.array([1.0, 0.5], dtype=jnp.float32), total_count=jnp.array(5, dtype=jnp.int32), sample=True)
         
         #### Wrapper of:
@@ -4919,7 +4977,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -4931,8 +4989,9 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.multinomial_probs(probs=jnp.array([0.2, 0.3, 0.5]), total_count=10, sample=True)
         
         #### Wrapper of:
@@ -5012,7 +5071,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5026,16 +5085,17 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            m.dist.multivariate_normal(
+                loc=jnp.array([1.0, 0.0, -2.0]),
+                covariance_matrix=jnp.array([[ 2.0,  0.7, -0.3],
+                                             [ 0.7,  1.0,  0.5],
+                                             [-0.3,  0.5,  1.5]]),
+                sample=True,
+            )
 
-        from BayesForge import BayesForge
-        m = BF('cpu')
-        m.dist.multivariate_normal(
-        - *loc*=jnp.array([1.0, 0.0, -2.0]), 
-            covariance_matrix=jnp.array([[ 2.0,  0.7, -0.3],
-                                        [ 0.7,  1.0,  0.5],
-                                        [-0.3,  0.5,  1.5]]), 
-            sample=True
-        )
 
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multivariate-normal
@@ -5117,7 +5177,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5129,18 +5189,18 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
+            from BayesForge import bf
             import jax.numpy as jnp
-            m = BF('cpu')
+            m = bf(platform='cpu')
             m.dist.multivariate_student_t(
-                df = 2,
-            - *loc*=jnp.array([1.0, 0.0, -2.0]), 
-                scale_tril=jnp.linalg.cholesky(
-                    jnp.array([[ 2.0,  0.7, -0.3],
-                                [ 0.7,  1.0,  0.5],
-                                [-0.3,  0.5,  1.5]])), 
-                sample=True
-            )   
+                df=2,
+                loc=jnp.array([1.0, 0.0, -2.0]),
+                scale_tril=jnp.linalg.cholesky(jnp.array([[ 2.0,  0.7, -0.3],
+                                                          [ 0.7,  1.0,  0.5],
+                                                          [-0.3,  0.5,  1.5]])),
+                sample=True,
+            )
+
 
         
         #### Wrapper of:
@@ -5230,7 +5290,7 @@ class UnifiedDist:
                 
             - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+            - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
             - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5242,8 +5302,8 @@ class UnifiedDist:
                 BF NegativeBinomial distribution object: When `create_obj=True` (for advanced use cases).
         
             #### Example Usage:
-                from BayesForge import BayesForge
-                m = BF('cpu')
+                from BayesForge import bf
+                m = bf(platform='cpu')
                 m.dist.negative_binomial2(mean=2.0, concentration=3.0, sample=True)
         
             #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomial
@@ -5311,7 +5371,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5325,8 +5385,8 @@ class UnifiedDist:
             Negative Binomial Logits: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.negative_binomial_logits(total_count=5.0, logits=0.0, sample=True)
         
         #### Wrapper of:
@@ -5390,7 +5450,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5402,8 +5462,9 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.negative_binomial_probs(total_count=10.0, probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomialprobs
@@ -5471,7 +5532,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5485,8 +5546,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.normal(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -5576,7 +5637,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5588,8 +5649,9 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.ordered_logistic(predictor=jnp.array([0.2, 0.5, 0.8]), cutpoints=jnp.array([-1.0, 0.0, 1.0]), sample=True)
         
         #### Wrapper of:
@@ -5672,7 +5734,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5689,8 +5751,8 @@ class UnifiedDist:
                 use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.pareto(scale=2.0, alpha=3.0, sample=True)
         
         #### Wrapper of:
@@ -5771,7 +5833,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5783,8 +5845,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.poisson(rate=2.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#poisson
@@ -5848,7 +5910,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5865,8 +5927,9 @@ class UnifiedDist:
                 advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.projected_normal(concentration=jnp.array([1.0, 3.0, 2.0]), sample=True)
         
         #### Wrapper of:
@@ -5946,7 +6009,7 @@ class UnifiedDist:
                 
             - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+            - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
             - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -5958,8 +6021,8 @@ class UnifiedDist:
                 RelaxedBernoulliLogits: The raw BF distribution object (for advanced use cases).
         
             #### Example Usage:
-                from BayesForge import BayesForge
-                m = BF('cpu')
+                from BayesForge import bf
+                m = bf(platform='cpu')
                 m.dist.relaxed_bernoulli_logits(temperature=1.0, logits=0.0, sample=True)
         
             #### Wrapper of:
@@ -6043,7 +6106,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6057,8 +6120,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.right_truncated_distribution(base_dist = m.dist.normal(0,1, create_obj = True), high=0, sample=True)
         
         #### Wrapper of:
@@ -6131,7 +6194,7 @@ class UnifiedDist:
 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution,   bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
 
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *shape* (tuple, optional): A multi-purpose argument for shaping. When `sample=False` (model building), this is used with `.expand(shape)` to  set the distribution's batch shape. When `sample=True` (direct sampling), this is used as `sample_shape` to draw a raw JAX array of the given shape.
 
@@ -6145,9 +6208,9 @@ class UnifiedDist:
             numpyro.distributions.Distribution: The raw BF distribution object (if `create_obj=True`).
 
         #### Example Usage:
-            from BayesForge import BayesForge
+            from BayesForge import bf
             import jax.numpy as jnp
-            m = BF('cpu')
+            m = bf(platform='cpu')
 
             # Direct sampling
             samples = m.dist.sine_bivariate_vonmises(
@@ -6157,7 +6220,7 @@ class UnifiedDist:
                 psi_concentration=1.0,
                 correlation=0.5,
                 sample=True,
-            - *shape*=(10,)
+                shape=(10,)
             )
 
             # Usage within a model
@@ -6222,7 +6285,7 @@ class UnifiedDist:
                 
         *   **sample (bool, optional):** A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        *   **seed (int, optional):** An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        *   **seed (int, optional):** An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         *   **obs (jnp.ndarray, optional):** The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6233,14 +6296,15 @@ class UnifiedDist:
         The probability density function (PDF) of the Sine Skewed X distribution is not explicitly defined here, but it is derived from the base distribution and the skewness parameter.
         
         #### Example Usage:        
-            from num.pyro import distributions as dist
-            import num.pyro as pyro
-            import num.numpy as np
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            # base distribution on the torus (two angles)
+            base = m.dist.sine_bivariate_vonmises(phi_loc=0.0, psi_loc=1.0, phi_concentration=2.0,
+                                                  psi_concentration=2.0, correlation=0.5, create_obj=True)
+            m.dist.sine_skewed(base_dist=base, skewness=jnp.array([0.3, -0.2]),
+                               sample=True, shape=(1000,))
 
-            m = pyro.distributions.Normal(loc=0.0, scale=1.0)
-            skewness = np.array([0.5, 0.5])
-            sine_skewed = dist.SineSkewed(base_dist=m, skewness=skewness)
-            samples = sine_skewed.sample((1000,))
         """
            
         d = numpyro.distributions.directional.SineSkewed(base_dist=base_dist, skewness=skewness, validate_args=validate_args)
@@ -6311,7 +6375,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6323,8 +6387,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.soft_laplace(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -6408,7 +6472,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6420,8 +6484,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.student_t(df = 2, loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of:
@@ -6487,7 +6551,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6499,8 +6563,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.truncated_polya_gamma(batch_shape=(), sample=True)
         
         #### Wrapper of:
@@ -6565,7 +6629,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6640,7 +6704,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6656,8 +6720,8 @@ class UnifiedDist:
             `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.uniform(low=0.0, high=1.0, sample=True)
         
         #### Wrapper of:
@@ -6728,7 +6792,7 @@ class UnifiedDist:
                 
             - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+            - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
             - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6740,8 +6804,9 @@ class UnifiedDist:
                 BF Unit distribution object: When `create_obj=True` (for advanced use cases).
         
             #### Example Usage:
-                from BayesForge import BayesForge
-                m = BF('cpu')
+                from BayesForge import bf
+                import jax.numpy as jnp
+                m = bf(platform='cpu')
                 m.dist.unit(log_factor=jnp.ones(5), sample=True)
         
             #### Wrapper of:
@@ -6818,7 +6883,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6830,8 +6895,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.weibull(scale=1.0, concentration=2.0, sample=True)
         
         #### Wrapper of:
@@ -6928,7 +6993,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -6940,8 +7005,9 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.wishart(concentration=5.0, scale_matrix=jnp.eye(2), sample=True)
         
         #### Wrapper of:
@@ -7035,7 +7101,7 @@ class UnifiedDist:
                 
         - sample (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - seed (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - seed (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7125,7 +7191,7 @@ class UnifiedDist:
                 
             - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-            - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+            - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
             - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7137,8 +7203,8 @@ class UnifiedDist:
                 The raw BF distribution object (when `create_obj=True`).
         
             #### Example Usage:
-                from BayesForge import BayesForge
-                m = BF('cpu')
+                from BayesForge import bf
+                m = bf(platform='cpu')
                 m.dist.zero_inflated_poisson(gate = 0.3, rate=2.0, sample=True)
         
             #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatedpoisson
@@ -7210,7 +7276,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7224,8 +7290,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.zero_sum_normal(scale=1.0, event_shape = (2,), sample = True)
         
         #### Wrapper of:
@@ -7320,7 +7386,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7332,8 +7398,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.bernoulli(probs=0.7, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#bernoulli
@@ -7423,7 +7489,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7435,8 +7501,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.binomial(total_count=10, probs=0.5, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#binomial
@@ -7523,7 +7589,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7538,8 +7604,9 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.categorical(probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#categorical
@@ -7611,7 +7678,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7623,8 +7690,8 @@ class UnifiedDist:
             - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.geometric(probs=0.5, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#geometric
@@ -7668,7 +7735,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def mixture(self,mixing_distribution, component_distributions, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=0,  shape=(), event=0,create_obj=False, to_jax = True):
+    def mixture(self,mixing_distribution, component_distributions, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None,  shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### A marginalized finite mixture of component distributions.
@@ -7712,7 +7779,7 @@ class UnifiedDist:
                 
          - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-         - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+         - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
          - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7730,13 +7797,16 @@ class UnifiedDist:
                 use cases).
         
         #### Example Usage:
-            from jax import random
-            import BayesForge as pyro
-            m = pyro.distributions.Mixture(
-                pyro.distributions.Categorical(torch.ones(2)),
-                [pyro.distributions.Normal(0, 1), pyro.distributions.Normal(2, 1)]
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            m.dist.mixture(
+                mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7]), create_obj=True),
+                component_distributions=[m.dist.normal(0, 1, create_obj=True),
+                                         m.dist.normal(2, 1, create_obj=True)],
+                sample=True, shape=(10,),
             )
-            samples = m.sample(sample_shape=(10,))
+
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#mixture
 
@@ -7821,7 +7891,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7833,8 +7903,9 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.multinomial(total_count=10, probs=jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#multinomial
@@ -7917,7 +7988,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -7929,8 +8000,9 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.relaxed_bernoulli(temperature=1.0, probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#relaxedbernoulli
@@ -8003,7 +8075,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -8017,8 +8089,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases) when `create_obj=True`.
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.truncated_cauchy(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncatedcauchy
@@ -8098,7 +8170,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -8110,8 +8182,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.truncated_distribution(base_dist = m.dist.normal(0,1, create_obj = True), high=1, low = 0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncateddistribution
@@ -8193,7 +8265,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -8206,8 +8278,8 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.truncated_normal(loc=0.0, scale=1.0, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#truncatednormal_lowercase
@@ -8291,7 +8363,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -8303,8 +8375,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.zero_inflated_distribution(base_dist=m.dist.poisson(rate=5, create_obj = True), gate = 0.3, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflateddistribution
@@ -8391,7 +8463,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -8403,8 +8475,8 @@ class UnifiedDist:
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            m = bf(platform='cpu')
             m.dist.zero_inflated_negative_binomial2(mean=2.0, concentration=3.0, gate = 0.3, sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#zeroinflatednegativebinomial2
@@ -8477,7 +8549,7 @@ class UnifiedDist:
                 
         - *sample* (bool, optional): A control-flow argument. If `True`, the function will directly sample a raw JAX array from the distribution, bypassing the BF model context. If `False`, it will create a `BF.sample` site within a model. Defaults to `False`.
             
-        - *seed* (int, optional): An integer used to generate a JAX PRNGKey for reproducible sampling when `sample=True`. This argument has no effect when `sample=False`, as randomness is handled by BF's inference engine. Defaults to 0.
+        - *seed* (int, optional): An integer seed for this draw when `sample=True`. By default (`None`) the draw comes from the session's random stream, set by `bf(rand_seed=...)`, so consecutive draws differ but the whole sequence is reproducible. No effect when `sample=False`.
 
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
@@ -8489,8 +8561,9 @@ class UnifiedDist:
             The raw BF distribution object (for advanced use cases).
         
         #### Example Usage:
-            from BayesForge import BayesForge
-            m = BF('cpu')
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
             m.dist.negative_binomial(total_count=5.0,probs = jnp.array([0.2, 0.3, 0.5]), sample=True)
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#negativebinomial

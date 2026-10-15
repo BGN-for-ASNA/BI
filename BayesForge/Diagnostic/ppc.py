@@ -40,28 +40,24 @@ _OBS_COLOR = "black"
 def get_yrep(m, seed=0):
     """Return posterior predictive matrix yrep of shape (S, n_obs).
 
-    Calls m.sample() with the training predictors (obs removed), collects
-    the observed-variable site from all posterior draws.
+    The observed site is simulated from every posterior draw (its data entry
+    is set to None), so yrep holds genuine replicated data -- never the
+    observed values themselves.
     """
-    import jax
-    pred_data = {k: v for k, v in m.data_on_model.items()
-                 if k not in (m.obs_args or [])}
-    pred = m.sample(data=pred_data, remove_obs=False, posterior=True, seed=seed)
-    param_keys = set(m.posteriors.keys()) if hasattr(m, 'posteriors') and m.posteriors else set()
-    if m.obs_args and m.obs_args[0] in pred:
-        obs_key = m.obs_args[0]
-    else:
-        # Picking "the first non-parameter key" depends on dict ordering and
-        # silently returns the wrong site for models with deterministic sites.
-        candidates = [k for k in pred if k not in param_keys]
-        if len(candidates) != 1:
-            raise ValueError(
-                f"Cannot identify the observed site: m.obs_args={m.obs_args!r} "
-                f"and the predictive returned {candidates!r}. Pass yrep= "
-                "explicitly, or set m.obs_args."
-            )
-        obs_key = candidates[0]
-    yrep = np.asarray(pred[obs_key])
+    sites = m._observed_sites(m.data_on_model)
+    if len(sites) != 1:
+        raise ValueError(
+            f"Cannot pick the outcome for the posterior predictive: the model has "
+            f"{len(sites)} observed sites ({sorted(sites)}). Pass yrep= explicitly."
+        )
+    site, key = next(iter(sites.items()))
+    if key is None:
+        raise ValueError(
+            f"The observed site {site!r} is not one of the model's data entries "
+            "(e.g. obs=y - 1), so it cannot be simulated. Pass yrep= explicitly."
+        )
+    pred = m.sample(remove_obs=True, posterior=True, seed=seed)
+    yrep = np.asarray(pred[site])
     if yrep.ndim > 2:
         yrep = yrep.reshape(yrep.shape[0], -1)
     return yrep

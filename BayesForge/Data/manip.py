@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import jax.numpy as jnp
 import numpy as np
@@ -30,18 +31,32 @@ class manip():
 
     # Import data----------------------------
     def data(self, path, **kwargs):
-        """## Load data from CSV file.
-        
+        """## Load tabular data.
+
         ### Args:
-            - *path* (str): Path to the CSV file
-            - * **kwargs*: Additional arguments for pd.read_csv
-            
+            - *path* (str, path-like or data frame): Path to a CSV file, or an
+              in-memory table: a pandas DataFrame, or anything pandas.DataFrame()
+              accepts (e.g. a dict of columns). R data.frames passed through
+              reticulate arrive as pandas DataFrames, so R users can pass their
+              data directly without writing a file.
+            - * **kwargs*: Additional arguments for pd.read_csv (CSV paths only)
+
         ### Returns:
             pd.DataFrame: Loaded dataframe
         """
-        self.data_original_path = path
-        self.data_args = kwargs
-        self.df = pd.read_csv(path, **kwargs)
+        if isinstance(path, (str, os.PathLike)):
+            self.data_original_path = path
+            self.data_args = kwargs
+            self.df = pd.read_csv(path, **kwargs)
+        else:
+            if kwargs:
+                raise TypeError(
+                    f"read_csv arguments {sorted(kwargs)} only apply when a file path is given."
+                )
+            self.data_original_path = None
+            self.data_args = {}
+            # Copy so later manipulations (scale, OHE, ...) never modify the caller's table.
+            self.df = pd.DataFrame(path).copy()
         self.data_modification = {}
         return self.df
 

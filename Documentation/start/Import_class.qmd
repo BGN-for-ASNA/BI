@@ -3,7 +3,7 @@ title: "Session initialization"
 sidebar: start
 ---
 
-Every BI session **must** start by importing `bf` and initializing the BI object. This single object is the gateway to everything: data handling, model definition, fitting, diagnostics, and saving.
+Every BF session **must** start by importing `bf` and initializing the BF object. This single object is the gateway to everything: data handling, model definition, fitting, diagnostics, and saving.
 
 > **Rule:** Always import `bf` **before** importing `jax` or any other JAX-dependent module, so that the XLA configuration is applied first.
 
@@ -42,9 +42,6 @@ m = bf(
 # Reproducible CPU session (default for development)
 m = bf(platform="cpu", rand_seed=42, float_precision=64)
 
-# GPU with specific device
-m = bf(platform="gpu", gpu_index=0, rand_seed=42)
-
 # Multi-core CPU for parallel chains
 m = bf(platform="cpu", cores=8, rand_seed=42)
 
@@ -52,42 +49,47 @@ m = bf(platform="cpu", cores=8, rand_seed=42)
 m = bf(platform="cpu", rand_seed=42, float_precision=32)
 ```
 
+```{.python .no-test}
+# GPU with specific device (Linux/WSL2 with an NVIDIA GPU)
+m = bf(platform="gpu", gpu_index=0, rand_seed=42)
+```
+
 ## R
 
 ```r
-library(BayesianInference)
-m = importBI(platform = "cpu", rand_seed = 42)
+library(BayesForge)
+m <- importBF(platform = "cpu", rand_seed = 42)
 ```
 
 ## Julia
 
 ```julia
-using BayesianInference
-m = importBI(platform = "cpu", rand_seed = 42)
+using PyBayesForge
+m = importBF(platform = "cpu", rand_seed = 42)
 ```
 
 ---
 
-## Saving and reusing a BI object
+## Saving and reusing a BF object
 
-After fitting a model, save the complete BI object to disk. This persists the model, data, posteriors, and full sampler state — allowing you to reload and analyze later without re-fitting.
+After fitting a model, save the complete BF object to disk. This persists the model, data, posteriors, and full sampler state — allowing you to reload and analyze later without re-fitting.
 
 ### Save
 
-```python
+```{.python .no-test}
 m.save("/path/to/my_model.pkl")
 # Default filename: "{model_name}_bf.pkl" in current directory
 ```
 
 ### Load
 
-```python
+```{.python .no-test}
 m = bf.load("/path/to/my_model.pkl")
 ```
 
 Once loaded, you can access:
 
-```python
+```{.python .no-test}
 m.posteriors        # Posterior samples
 m.posteriors_full   # Full posterior (before any filtering)
 m.summary()         # Posterior summary table
@@ -100,8 +102,12 @@ m.diag              # Diagnostic tools
 
 ```python
 # --- Session 1: Fit and save ---
+import jax.numpy as jnp
 from BayesForge import bf
 m = bf(platform="cpu", rand_seed=42)
+
+x = jnp.linspace(-1, 1, 40)
+y = 0.5 + 2.0 * x + 0.1 * jnp.cos(7 * x)
 
 def model(x, y):
     alpha = m.dist.normal(0, 10, name="alpha")
@@ -110,11 +116,11 @@ def model(x, y):
     m.dist.normal(alpha + beta * x, sigma, obs=y)
 
 m.fit(model, obs=dict(x=x, y=y))
-m.save("/tmp/linear_regression.pkl")
+m.save("linear_regression.pkl")
 
 # --- Session 2: Load and analyze (no re-fit) ---
 from BayesForge import bf
-m = bf.load("/tmp/linear_regression.pkl")
+m = bf.load("linear_regression.pkl")
 print(m.summary())
 print(m.posteriors["beta"].mean())
 ```

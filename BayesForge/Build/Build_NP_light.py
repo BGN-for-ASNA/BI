@@ -83,8 +83,8 @@ def generate_doc_string(name, dist_class, name_snake):
            *   **When `create_obj=True`**: The raw NumPyro distribution object (for advanced use cases).
 
         *   **Example Usage**: Provide a code block showing a simple, direct sampling call to the function. The structure must be:
-                from BayesForge import BayesForge
-                m = BF('cpu')
+                from BayesForge import bf
+                m = bf(platform='cpu')
                 m.dist.{name_snake}(required_args_with_defaults, sample=True)
  
                 - Replace only `required_args_with_defaults` with the distribution's essential parameters set to reasonable  default values (e.g., `loc=0.0, scale=1.0`).

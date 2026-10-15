@@ -1,7 +1,7 @@
 #%%
-from BayesForge import BayesForge
+from BayesForge import bf
 
-m = BF()
+m = bf()
 dist_doc = {}
 no=["__class__",
      "__delattr__",

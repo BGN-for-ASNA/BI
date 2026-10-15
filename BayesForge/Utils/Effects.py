@@ -55,16 +55,39 @@ class effects:
     def random_centered(sigma, cor_mat, offset_mat):
         """Generate the centered matrix of random factors
 
-        Args:☺
+        Args:
             sigma (vector): Prior, vector of length N
             cor_mat (2D array): correlation matrix, cholesky_factor_corr of dim N, N
             offset_mat (2D array): matrix of offsets, matrix of dim N*k
 
         Returns:
-            _type_: 2D array
+            2D array: Random factors, shape (k, N).
         """
         # return jnp.dot(factors.diag_pre_multiply(sigma, cor_mat), offset_mat).T
         return (effects.diag_pre_multiply(sigma, cor_mat) @ offset_mat).T
+
+    @staticmethod
+    def phylo_effect(L, sd, name="z_phylo", sample=False):
+        """Phylogenetic random effect, non-centred: ``u = sd * L z`` with ``z ~ Normal(0, 1)``.
+
+        ``L`` is the Cholesky factor of the phylogenetic covariance matrix, so
+        ``u ~ MultivariateNormal(0, sd**2 * L L^T)``. Passing a stack of trees
+        (shape (T, N, N)) gives one independent effect per tree, which fits the
+        model across a posterior sample of phylogenies in a single vectorised run.
+
+        Args:
+            L (jax.Array): Cholesky factor(s), shape (N, N) or (T, N, N).
+            sd (float or jax.Array): Phylogenetic standard deviation; shape (T,)
+                for one value per tree.
+            name (str): Name of the standard-normal site ``z``. Defaults to "z_phylo".
+            sample (bool): Draw values directly instead of defining a model site.
+
+        Returns:
+            jax.Array: Phylogenetic effects, shape (N,) or (T, N).
+        """
+        z = dist.normal(0, 1, name=name, shape=L.shape[:-1], sample=sample)
+        u = jnp.einsum("...ij,...j->...i", L, z)
+        return u * jnp.expand_dims(jnp.asarray(sd), -1)
 
     @staticmethod
     def varying_effects(

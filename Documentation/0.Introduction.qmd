@@ -144,7 +144,7 @@ m$fit(mode)
 
 ### Julia 
 ```julia
-using BayesForge
+using PyBayesForge
 
 m = importBF(platform="cpu")
 beta = 2.5
@@ -224,7 +224,7 @@ Once a Bayesian model has been fit, it is crucial to evaluate how well it captur
 | [<span style="color:#0D6EFD">*density plots* 🛈</span>]{#DesPlot} | Visualize the posterior distribution of a parameter      | Smoothness and shape of the curve | Unimodal and smooth suggests convergence; multimodal or irregular may suggest poor mixing |
 
 ## Model comparison
-Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BF, we can compare models using *Watanabe-Akaike Information Criterion (WAIC)* with the function ```m.diag.waic(model1, model2)```.
+Model comparison is performed by evaluating how well different models explain the observed data while accounting for model complexity. Multiple criteria can be used to compare models, and are summarized in the table below. In BF, each fitted model reports its *Watanabe-Akaike Information Criterion (WAIC)* with ```m.diag.waic()``` and its PSIS leave-one-out cross-validation estimate with ```m.diag.loo()```; fitted models are ranked with ```m1.diag.compare({"model 1": m1, "model 2": m2})```.
 
 | **Criterion**  | **Purpose** | **Interpretation** | **Strengths** | **Weaknesses** |
 |--------------|------------|--------------------|--------------|---------------|
