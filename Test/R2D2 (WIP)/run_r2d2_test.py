@@ -2,7 +2,7 @@
 # ======================================================================
 # R2D2 prior — implementation-correctness test  (BayesForge / BI)
 # ----------------------------------------------------------------------
-# Ref doc : BF/Documentation/37.Feature extraction: R2D2.qmd
+# Ref doc : BF/Documentation/37. Feature extraction - R2D2.qmd
 # Prior   : R^2 ~ Beta(a, b)            (Zhang et al. 2022, "R2D2")
 #           tau^2 = sigma^2 * R^2 / (1 - R^2)      (global explained var)
 #           phi   ~ Dirichlet(1, ..., 1)          (V-simplex weights)
@@ -142,7 +142,7 @@ def simulate(N, V, n_strong, sigma_true, beta_scale, seed):
 # 2. R2D2 model factory   (mirrors the qmd example, vectorized over V)
 # ----------------------------------------------------------------------
 def make_r2d2_model(m, a, b, centered=False, dir_conc=1.0):
-    """R2D2 prior exactly as in 37.Feature extraction: R2D2.qmd.
+    """R2D2 prior exactly as in 37. Feature extraction - R2D2.qmd.
 
     centered=True  reproduces the qmd snippet verbatim: beta_j ~ Normal(0, lam_j).
     centered=False (default) uses the mathematically identical non-centered form
