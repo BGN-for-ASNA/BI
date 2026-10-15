@@ -12,10 +12,6 @@ X = jnp.linspace(-1, 1, 25)
 Y = 1.0 + 2.0 * X + 0.1 * jnp.cos(9 * X)
 
 
-def _session():
-    return bf(platform="cpu", rand_seed=1, print_devices_found=False)
-
-
 def _sites(model, **data):
     with handlers.seed(rng_seed=0):
         tr = handlers.trace(model).get_trace(**data)
@@ -23,7 +19,7 @@ def _sites(model, **data):
 
 
 def test_obs_variable_names_the_site():
-    m = _session()
+    m = bf(platform="cpu", rand_seed=1, print_devices_found=False)
 
     def model(x, y):
         a = m.dist.normal(0, 5)
@@ -35,7 +31,7 @@ def test_obs_variable_names_the_site():
 
 
 def test_latent_called_x_no_longer_collides():
-    m = _session()
+    m = bf(platform="cpu", rand_seed=1, print_devices_found=False)
 
     def model(t, y):
         x = m.dist.normal(0, 5)            # a latent called x
@@ -49,7 +45,7 @@ def test_latent_called_x_no_longer_collides():
 
 
 def test_expression_explicit_name_and_assignment():
-    m = _session()
+    m = bf(platform="cpu", rand_seed=1, print_devices_found=False)
 
     def model(x, y):
         s = m.dist.exponential(1)
@@ -62,7 +58,7 @@ def test_expression_explicit_name_and_assignment():
 
 
 def test_posterior_predictive_uses_the_data_name():
-    m = _session()
+    m = bf(platform="cpu", rand_seed=1, print_devices_found=False)
 
     def model(x, y):
         a = m.dist.normal(0, 5)
@@ -76,7 +72,7 @@ def test_posterior_predictive_uses_the_data_name():
 
 
 def test_two_observed_sites_keep_their_names_in_predictions():
-    m = _session()
+    m = bf(platform="cpu", rand_seed=1, print_devices_found=False)
 
     def model(x, y, z):
         a = m.dist.normal(0, 5)
@@ -91,7 +87,7 @@ def test_two_observed_sites_keep_their_names_in_predictions():
 
 
 def test_prior_predictive_before_any_fit():
-    m = _session()
+    m = bf(platform="cpu", rand_seed=1, print_devices_found=False)
 
     def model(x, y):
         a = m.dist.normal(0, 5)
