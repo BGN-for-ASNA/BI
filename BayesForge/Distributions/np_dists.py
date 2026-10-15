@@ -63,6 +63,46 @@ def _infer_caller_name():
     return None
 
 
+# Name found for each observed call site (code object, instruction offset).
+# Posterior/prior predictive calls pass obs=None (the data entry is removed so
+# that it is simulated); the site must keep the name it had during the fit.
+_OBS_NAMES = {}
+
+
+def _infer_obs_name(obs):
+    """Return the caller's variable name that holds ``obs``, or None.
+
+    ``m.dist.normal(mu, sigma, obs=y)`` names the observed site ``"y"``. The
+    caller's frame is two levels up (this fn -> wrapper -> user code).
+
+    * ``obs`` is an array (fit, or data passed explicitly): the caller's local
+      variable holding that very object (identity, so it also works on JAX
+      tracers). The name is remembered for this call site.
+    * ``obs`` is None (predictive simulation): the name remembered for this
+      call site; failing that, the caller's only argument that is None.
+    * an expression (``obs=y - 1``) has no variable: None.
+    """
+    try:
+        frame = sys._getframe(2)
+        site = (frame.f_code, frame.f_lasti)
+        if obs is None:
+            if site in _OBS_NAMES:
+                return _OBS_NAMES[site]
+            code = frame.f_code
+            args = code.co_varnames[:code.co_argcount + code.co_kwonlyargcount]
+            none_args = [a for a in args if frame.f_locals.get(a, 0) is None]
+            return none_args[0] if len(none_args) == 1 else None
+        if not hasattr(obs, "shape"):
+            return None
+        for name, value in frame.f_locals.items():
+            if value is obs and not name.startswith("_"):
+                _OBS_NAMES[site] = name
+                return name
+    except Exception:
+        pass
+    return None
+
+
 @functools.lru_cache(maxsize=None)
 def _has_name_kwarg(func):
     """True if *func* has a 'name' parameter that is keyword-passable with a default."""
@@ -85,8 +125,10 @@ class DistProxy:
 
     For every distribution method that accepts an optional *name* keyword
     argument (i.e. has a default), when the caller does NOT supply *name*
-    explicitly the proxy inspects the caller's bytecode to find the LHS
-    variable of the assignment and uses that as the name.
+    explicitly the proxy uses, in order: the LHS variable of the assignment
+    (bytecode inspection); for an observed site, the caller's variable passed
+    as ``obs`` (``obs=y`` -> ``"y"``); for an observed expression
+    (``obs=y - 1``), ``"obs"``.
 
     Methods like ``plate(name, shape)`` and ``track(name, x)`` where *name* is
     a required positional argument (no default) are passed through unchanged.
@@ -107,7 +149,12 @@ class DistProxy:
         @functools.wraps(target)
         def wrapper(*args, **kwargs):
             if 'name' not in kwargs:
+                # 1. the assigned variable (a = m.dist.normal(...))
                 inferred = _infer_caller_name()
+                # 2. an observed site: the variable passed as obs (obs=y -> "y")
+                if inferred is None and 'obs' in kwargs:
+                    obs = kwargs['obs']
+                    inferred = _infer_obs_name(obs) or (None if obs is None else 'obs')
                 if inferred is not None:
                     kwargs['name'] = inferred
             return target(*args, **kwargs)
