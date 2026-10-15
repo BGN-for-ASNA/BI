@@ -37,7 +37,7 @@ _OBS_COLOR = "black"
 # Utility
 # =============================================================================
 
-def get_yrep(m, seed=0):
+def get_yrep(m, seed=None):
     """Return posterior predictive matrix yrep of shape (S, n_obs).
 
     The observed site is simulated from every posterior draw (its data entry
