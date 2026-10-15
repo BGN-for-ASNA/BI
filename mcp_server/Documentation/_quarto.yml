@@ -1,0 +1,185 @@
+project:
+  type: website
+  render:
+    - "**/*.qmd"
+    - "**/*.md"
+    # R2D2: its PDF build fails in LaTeX ("missing \item") and hangs the
+    # render waiting on an xelatex prompt. Excluded until that is fixed.
+    - "!37.Feature extraction: R2D2.qmd"
+
+
+execute:
+  startup: _setup.py
+  freeze: auto
+#execute: false
+
+website:
+  title: "BayesForge (BF)"
+  repo-url: https://github.com/BGN-for-ASNA/BF
+  site-url: "https://s-sosa.com/"
+  navbar:
+    left:
+      - href: start/Installation.qmd
+        text: Get started
+      - href: 0.Introduction.qmd
+        text: Models
+      - href: reference/index.qmd
+        text: API Reference
+      - text: Help
+        menu:
+            - text: Report a Bug
+              icon: bug 
+              href:  https://github.com/BGN-for-ASNA/BF/issues
+            - text: Ask a Question
+              icon: chat-dots 
+              href:  https://github.com/BGN-for-ASNA/BF/discussions
+    background: primary
+
+    tools:
+      - icon: twitter
+        href: https://twitter.com
+      - icon: github
+        href:  https://github.com/BGN-for-ASNA/BF
+
+  sidebar:
+    - title: "BayesForge (BF)"
+      style: "floating" # Keeps sidebar pinned
+      collapse-level: 1 # Starts with everything collapsed by default
+      contents:
+        - section: "Foundations"
+          contents:
+            - 0.Introduction.qmd
+
+        - section: "Linear Models"
+          contents:
+            - 1. Linear Regression for continuous variable.qmd
+            - 2. Multiple continuous variables.qmd
+            - 3. Interaction between continuous variables.qmd
+            - 4. Categorical variable.qmd
+
+        - section: "Generalized Linear Models"
+          contents:
+            - 5. Binomial model.qmd
+            - 6. Beta binomial model.qmd
+            - 7. Poisson model.qmd
+            - 8. Poisson mode with offset.qmd
+            - 9. Gamma-Poisson.qmd
+            - 10. Categorical model.qmd
+            - 11. Multinomial model.qmd
+            - 12. Dirichlet model.qmd
+            - 13. Zero inflated.qmd
+            - 14. Survival analysis.qmd
+
+        - section: "Multilevel & Varying Effects"
+          contents:
+            - 15. Varying intercepts.qmd
+            - 16. Varying slopes.qmd
+            - 17. Nested varying effects.qmd
+            - 19. Gaussian processes.qmd
+            - 18. Phylogenetic analysis.qmd
+
+        - section: "Measurement"
+          contents:
+            - 20. Measuring error.qmd
+            - 21. Missing data.qmd
+
+        - section: "Latent Variables & Clusters"
+          contents:
+            - 22. Latent variable.qmd
+            - 23. PCA.qmd
+            - 24. GMM.qmd
+            - 25. DPMM.qmd
+
+        - section: "Networks models"
+          contents:
+            - 26. Network model.qmd
+            - 27. Network with block model.qmd
+            - 28. Network control for data collection biases.qmd
+            - 29. Network Edges Inference.qmd
+            - 30. Network Metrics.qmd
+            
+        - section: "Social transmission"
+          contents:
+          - 31. Network-Based Diffusion Analysis.qmd
+          - 32. EWA.qmd 
+
+        - section: "Bayesian Neural Networks (BNN)"
+          contents:            
+            - 33. BNN.qmd
+            - 34. BNN for classification.qmd
+            - 35. BNN for multiclass classification.qmd
+
+    - id: api
+      title: "API Reference"
+      contents:
+        - reference/index.qmd
+        - reference/session.qmd
+        - reference/data.qmd
+        - reference/dist.qmd
+        - reference/diag.qmd
+        - reference/effects.qmd
+        - reference/link.qmd
+        - reference/net.qmd
+        - reference/load.qmd
+
+    - id: start
+      collapse-level: 1
+      title: "Get started"
+      contents:
+        - section: "Installation"
+          contents:
+            - start/Installation.qmd     
+        - section: "Pipeline"
+          contents:        
+            - start/Import_class.qmd
+            - start/Random and fixed seeds.qmd
+            - start/Import_data.qmd
+            - start/Define model.qmd
+            - start/Fit model.qmd
+            - start/Diagnostics.qmd
+            - start/Interoperability.qmd
+            - start/Parallel simulations.qmd
+        - section: "Advance"
+          contents:
+            - Advance/build in functions.qmd
+            - Advance/Build in models.qmd
+            - Advance/BNN layers.qmd
+            - Advance/Sampling & plots.qmd
+            - Advance/Data sharding.qmd
+
+  page-navigation: true
+  
+
+format:
+  html:
+    theme:       
+      dark: solar
+      light: Morph
+    css: MyStyles_v1.css
+    code-copy: true
+    highlight-style: monokai
+    toc: true
+    toc-location: right
+    html-math-method: katex
+    grid:
+      body-width: 1000px
+    code-fold: show
+    code-overflow: wrap
+    code-tools: false
+    include-in-header:
+      - header-scripts.html
+    include-after-body: 
+      - tooltip-scripts.html
+      - disable-codefold.html
+
+  pdf:
+    pdf-engine: xelatex
+    #keep-tex: true
+    header-includes:
+      - \usepackage{amsmath} # amsmath is better than unicode-math for cases
+      - \usepackage{amssymb}
+
+
+bibliography: references.bib
+
+

@@ -1,0 +1,128 @@
+---
+title: "Session initialization"
+sidebar: start
+---
+
+Every BF session **must** start by importing `bf` and initializing the BF object. This single object is the gateway to everything: data handling, model definition, fitting, diagnostics, and saving.
+
+> **Rule:** Always import `bf` **before** importing `jax` or any other JAX-dependent module, so that the XLA configuration is applied first.
+
+## Python
+
+```python
+from BayesForge import bf
+
+m = bf(
+    platform="cpu",          # "cpu", "gpu", or "tpu"
+    cores=None,              # CPU cores (None = all available)
+    float_precision=64,      # 64 for float64, 32 for float32
+    rand_seed=42,            # int for reproducibility, True for random
+    gpu_index=None,          # GPU index when platform="gpu"
+    deallocate=False,        # deallocate existing device first
+    print_devices_found=True,# print device info on init
+)
+```
+
+### Arguments
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `platform` | str | `"cpu"` | Hardware backend: `"cpu"`, `"gpu"`, or `"tpu"` |
+| `cores` | int | `None` | CPU cores to allocate (`None` = all). Only for `platform="cpu"` |
+| `float_precision` | int or str | `64` | JAX floating-point precision. Pass `64` (`"float64"`) or `32` (`"float32"`) |
+| `rand_seed` | int or bool | `True` | Reproducibility seed. Pass an `int` (e.g. `42`) for reproducible results, or `True` for entropy-based randomness |
+| `gpu_index` | int | `None` | Which GPU to use by index. Only for `platform="gpu"` |
+| `deallocate` | bool | `False` | Deallocate existing device before setting up new configuration |
+| `print_devices_found` | bool | `True` | Print detected devices on initialization |
+| `backend` | str | `"numpyro"` | Inference backend: `"numpyro"` or `"tfp"` |
+
+### Common initialization patterns
+
+```python
+# Reproducible CPU session (default for development)
+m = bf(platform="cpu", rand_seed=42, float_precision=64)
+
+# Multi-core CPU for parallel chains
+m = bf(platform="cpu", cores=8, rand_seed=42)
+
+# 32-bit precision for memory efficiency
+m = bf(platform="cpu", rand_seed=42, float_precision=32)
+```
+
+```{.python .no-test}
+# GPU with specific device (Linux/WSL2 with an NVIDIA GPU)
+m = bf(platform="gpu", gpu_index=0, rand_seed=42)
+```
+
+## R
+
+```r
+library(BayesForge)
+m <- importBF(platform = "cpu", rand_seed = 42)
+```
+
+## Julia
+
+```julia
+using PyBayesForge
+m = importBF(platform = "cpu", rand_seed = 42)
+```
+
+---
+
+## Saving and reusing a BF object
+
+After fitting a model, save the complete BF object to disk. This persists the model, data, posteriors, and full sampler state — allowing you to reload and analyze later without re-fitting.
+
+### Save
+
+```{.python .no-test}
+m.save("/path/to/my_model.pkl")
+# Default filename: "{model_name}_bf.pkl" in current directory
+```
+
+### Load
+
+```{.python .no-test}
+m = bf.load("/path/to/my_model.pkl")
+```
+
+Once loaded, you can access:
+
+```{.python .no-test}
+m.posteriors        # Posterior samples
+m.posteriors_full   # Full posterior (before any filtering)
+m.summary()         # Posterior summary table
+m.data_on_model     # Data used in the fit
+m.model             # Model function
+m.diag              # Diagnostic tools
+```
+
+### Workflow with save/load
+
+```python
+# --- Session 1: Fit and save ---
+import jax.numpy as jnp
+from BayesForge import bf
+m = bf(platform="cpu", rand_seed=42)
+
+x = jnp.linspace(-1, 1, 40)
+y = 0.5 + 2.0 * x + 0.1 * jnp.cos(7 * x)
+
+def model(x, y):
+    alpha = m.dist.normal(0, 10, name="alpha")
+    beta  = m.dist.normal(0, 1, name="beta")
+    sigma = m.dist.exponential(1, name="sigma")
+    m.dist.normal(alpha + beta * x, sigma, obs=y)
+
+m.fit(model, obs=dict(x=x, y=y))
+m.save("linear_regression.pkl")
+
+# --- Session 2: Load and analyze (no re-fit) ---
+from BayesForge import bf
+m = bf.load("linear_regression.pkl")
+print(m.summary())
+print(m.posteriors["beta"].mean())
+```
+
+> **Note:** The object is serialized with `cloudpickle`, so the full model closure and sampler state are preserved. The saved `.pkl` file is self-contained and portable.

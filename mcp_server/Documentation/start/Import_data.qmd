@@ -1,0 +1,133 @@
+---
+title: "Import Data and handle it"
+sidebar: start
+---
+
+`m.data()` loads tabular data into the BF object, either **a data frame that already exists in your working session** or a CSV file. The table is stored in `m.df`, where it can be manipulated before the columns used by the model are sent to it. Data that cannot be stored in a table (matrices, networks, arrays of different lengths) are passed as a dictionary.
+
+## Pass a data frame from your session
+
+Load, clean, filter or merge your data with the tools of your own language, then hand the data frame to BF; nothing needs to be written to disk. BF works on a copy, so later steps (`m.scale()`, `m.OHE()`, ...) never modify your original table.
+
+::: {.panel-tabset group="language"}
+## Python
+``` python
+import pandas as pd
+from BayesForge import bf
+
+m = bf(platform="cpu")
+
+# Any pandas data frame from your session
+df = pd.read_csv(m.load.howell1(only_path=True), sep=";")
+df = df[df.age > 18]          # e.g. keep adults only
+
+m.data(df)                    # a pandas DataFrame
+m.df.head()
+```
+
+## R
+``` R
+library(BayesForge)
+m <- importBF(platform = "cpu")
+
+# Any R data.frame from your session (base R, dplyr, data.table, ...)
+df <- read.csv(m$load$howell1(only_path = TRUE), sep = ";")
+df <- subset(df, age > 18)    # e.g. keep adults only
+
+m$data(df)                    # an R data.frame
+head(m$df)
+```
+
+## Julia
+``` julia
+using PyBayesForge, PythonCall, DataFrames, CSV
+m = importBF(platform = "cpu")
+
+# Any Julia DataFrame (or other Tables.jl table) from your session
+path = pyconvert(String, m.load.howell1(only_path = true))
+df = CSV.read(path, DataFrame; delim = ';')
+df = filter(:age => >(18), df)  # e.g. keep adults only
+
+m.data(df)                       # a Julia DataFrame
+m.df.head()
+```
+:::
+
+::: callout-tip
+Once the data are in BF, select the columns the model uses with `m.data_to_model(["weight", "height"])` (`list("weight", "height")` in R): they become the arrays in `m.data_on_model`, passed to the model by argument name. See [Working with R and Julia tools](Interoperability.qmd) for getting the posterior draws back as native R or Julia objects.
+:::
+
+## Import tabular data from a CSV file
+
+::: {.panel-tabset group="language"}
+## Python
+``` python
+from BayesForge import bf
+
+m = bf(platform="cpu")
+data_path = m.load.howell1(only_path=True)  # path to a bundled example csv
+m.data(data_path, sep=';')                  # extra arguments go to pandas.read_csv
+m.df.head()
+```
+
+## R
+``` R
+library(BayesForge)
+
+m <- importBF(platform = "cpu")
+data_path <- m$load$howell1(only_path = TRUE)  # path to a bundled example csv
+m$data(data_path, sep = ';')
+head(m$df)
+```
+
+## Julia
+``` julia
+using PyBayesForge
+
+m = importBF(platform = "cpu")
+data_path = m.load.howell1(only_path = true)  # path to a bundled example csv
+m.data(data_path, sep = ';')
+m.df.head()
+```
+:::
+
+## Import non tabular data
+
+Data that do not fit in a table are passed directly as a dictionary of arrays, whose names match the arguments of the model function.
+
+::: {.panel-tabset group="language"}
+## Python
+``` python
+import jax.numpy as jnp
+
+m.data_on_model = dict(
+    y = jnp.array([1.2, 0.7, 2.3]),    # a vector
+    A = jnp.eye(3),                     # a matrix (e.g. a network)
+)
+```
+
+## R
+``` R
+m$data_on_model <- list(
+    y = jnp$array(c(1.2, 0.7, 2.3)),   # a vector
+    A = jnp$eye(3L)                     # a matrix (e.g. a network)
+)
+```
+
+## Julia
+``` julia
+m.data_on_model = pydict(
+    y = jnp.array([1.2, 0.7, 2.3]),    # a vector
+    A = jnp.eye(3),                     # a matrix (e.g. a network)
+)
+```
+:::
+
+## Handle data
+For tabular data, you can use some functions to manipulate the data:
+
+-   **Perform one-hot encoding** ```OHE```: One-hot encoding is a technique that converts categorical variables into binary variables. This is useful when you have a large number of categories and want to use them as features in a model.
+
+-   **Create index encoding for categorical columns** ```index```: Index encoding is a technique that assigns a unique integer value to each category in a categorical variable. This is useful when you have a large number of categories and want to use them as features in a model.
+
+-   **Scale** ```scale```: Standardize the data by subtracting the mean and dividing the result by the standard deviation $X_i = \frac{X_i - \mu}{\sigma}$.

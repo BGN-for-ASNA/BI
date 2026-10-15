@@ -1,0 +1,61 @@
+<!-- header-scripts.html -->
+<script>
+  (function() {
+    const isFileUrl = () => window.location.protocol === 'file:';
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : "alternate"; // Default to dark/alternate
+      } else {
+        return "alternate";
+      }
+    };
+    
+    const alternate = (getColorSchemeSentinel() === "alternate");
+    
+    if (alternate) {
+      // Instantly add dark classes to prevent FOUC (flash of unstyled content)
+      document.documentElement.classList.add("quarto-dark");
+      document.documentElement.classList.remove("quarto-light");
+      
+      // Function to instantly swap a stylesheet node to dark
+      const makeNodeDark = (node) => {
+        if (node.tagName === 'LINK' && node.classList.contains('quarto-color-alternate')) {
+          node.removeAttribute('disabled');
+          const id = node.id;
+          if (id) {
+            const lightSib = document.querySelector(`link.quarto-color-scheme[id="${id}"]:not(.quarto-color-alternate)`);
+            if (lightSib) {
+              lightSib.setAttribute('disabled', 'true');
+            }
+          }
+        }
+      };
+
+      // Check already parsed nodes in head
+      if (document.head) {
+        document.head.querySelectorAll('link.quarto-color-alternate').forEach(makeNodeDark);
+      }
+
+      // Set up MutationObserver to catch nodes appended later in head
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          mutation.addedNodes.forEach(makeNodeDark);
+        });
+      });
+      
+      // Wait for head to exist or observe documentElement if head is loading
+      const target = document.head || document.documentElement;
+      observer.observe(target, { childList: true, subtree: true });
+      
+      // Clean up observer and run final safety check on DOMContentLoaded
+      document.addEventListener("DOMContentLoaded", function() {
+        observer.disconnect();
+        document.querySelectorAll('link.quarto-color-alternate').forEach(makeNodeDark);
+      });
+    } else {
+      document.documentElement.classList.add("quarto-light");
+      document.documentElement.classList.remove("quarto-dark");
+    }
+  })();
+</script>
