@@ -1217,6 +1217,12 @@ class UnifiedDist:
         - When `sample=True`: A JAX array of samples drawn from the BernoulliLogits distribution (for direct sampling).
 
         - When `create_obj=True`: The raw BF CAR object (for advanced use cases).
+        #### Example Usage:
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            m.dist.car(loc=0.0, correlation=0.9, conditional_precision=1.0, adj_matrix=jnp.array([[0.0, 1.0, 0.0], [1.0, 0.0, 1.0], [0.0, 1.0, 0.0]]), sample=True)
+
 
         #### References:
         [1]: https://www.pymc.io/projects/examples/en/latest/spatial/conditional_autoregressive_priors.html "Conditional Autoregressive (CAR) Models for Spatial Data"
@@ -1923,8 +1929,8 @@ class UnifiedDist:
           \mathbf{x} = (x_1, \dots, x_K) \sim \mathrm{Multinomial}(n, \mathbf{p}).
         $$
         
-        Integrating out $\mathbf{p}$ gives you the marginal distribution of $\mathbf{x}). 
-        * It generalizes the **Beta-Binomial** model to multiple categories (i.e. (K > 2)). 
+        Integrating out $\mathbf{p}$ gives you the marginal distribution of $\mathbf{x}$.
+        * It generalizes the **Beta-Binomial** model to multiple categories (i.e. $K > 2$).
         * A key feature is that it introduces **overdispersion** relative to a standard multinomial: counts are more “clumped” because the underlying probabilities vary according to the Dirichlet prior.
 
 
@@ -3871,6 +3877,11 @@ class UnifiedDist:
             
             Attributes:
                 concentration (float): The concentration parameter.
+        #### Example Usage:
+            from BayesForge import bf
+            m = bf(platform='cpu')
+            m.dist.lkj_cholesky(dimension=3, concentration=2.0, sample=True)
+
             
         #### References:
             https://mc-stan.org/docs/2_21/functions-reference/cholesky-lkj-correlation-distribution.html
@@ -4044,6 +4055,11 @@ class UnifiedDist:
       - When `sample=True`: A JAX array of samples drawn from the LeftTruncatedDistribution distribution (for direct sampling).
         
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
+        #### Example Usage:
+            from BayesForge import bf
+            m = bf(platform='cpu')
+            m.dist.left_truncated_distribution(base_dist=m.dist.normal(0.0, 1.0, create_obj=True), low=0.0, sample=True)
+
         
 
         
@@ -4829,6 +4845,12 @@ class UnifiedDist:
                 component_distributions=[m.dist.normal(loc=0.0, scale=1.0, create_obj=True),m.dist.normal  (loc=0.0, scale=1.0,  create_obj=True)],
                 sample = True
             )           
+        #### Example Usage:
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            m.dist.mixture_general(mixing_distribution=m.dist.categorical(probs=jnp.array([0.3, 0.7]), create_obj=True), component_distributions=[m.dist.normal(-2.0, 1.0, create_obj=True), m.dist.normal(2.0, 1.0, create_obj=True)], sample=True)
+
 
         #### Wrapper of: [https://num.pyro.ai/en/stable/distributions.html#mixturegeneral](https://num.pyro.ai/en/stable/distributions.html#mixturegeneral)
 
@@ -5024,7 +5046,7 @@ class UnifiedDist:
             from BayesForge import bf
             import jax.numpy as jnp
             m = bf(platform='cpu')
-            m.dist.multinomial_logits(logits=jnp.array([1.0, 0.5], dtype=jnp.float32), total_count=jnp.array(5, dtype=jnp.int32), sample=True)
+            m.dist.multinomial_logits(logits=jnp.array([1.0, 0.5]), total_count=5, sample=True)
         
         #### Wrapper of:
             https://num.pyro.ai/en/stable/distributions.html#multinomiallogits
@@ -6762,6 +6784,11 @@ class UnifiedDist:
       - When `sample=False`: A BF TwoSidedTruncatedDistribution distribution object (for model building).
       - When `sample=True`: A JAX array of samples drawn from the TwoSidedTruncatedDistribution distribution (for direct sampling).
       - When `create_obj=True`: The raw BF distribution object (for advanced use cases).
+        #### Example Usage:
+            from BayesForge import bf
+            m = bf(platform='cpu')
+            m.dist.two_sided_truncated_distribution(base_dist=m.dist.normal(0.0, 1.0, create_obj=True), low=-1.0, high=1.0, sample=True)
+
         
         #### Wrapper of: https://num.pyro.ai/en/stable/distributions.html#twosidedtruncateddistribution
         """
@@ -7229,6 +7256,12 @@ class UnifiedDist:
         - obs (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - name (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
+        #### Example Usage:
+            from BayesForge import bf
+            import jax.numpy as jnp
+            m = bf(platform='cpu')
+            m.dist.wishart_cholesky(concentration=5.0, scale_matrix=jnp.eye(2), sample=True)
+
 
         #### References:
         [1]: https://en.wikipedia.org/wiki/Wishart_distribution "Wishart distribution"
