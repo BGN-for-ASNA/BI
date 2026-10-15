@@ -328,6 +328,11 @@ class bf(manip):
         jit_model_args=False,
         seed=None,
         extra_fields=None,
+        sampler="nuts",
+        gibbs_fn=None,
+        gibbs_sites=None,
+        num_discrete_updates=None,
+        init_params=None,
     ):
         """
         Fit the model using the specified backend and parameters.
@@ -358,7 +363,43 @@ class bf(manip):
             progress_bar: Whether to show progress bar.
             jit_model_args: Whether to JIT model arguments.
             seed: Random seed.
+            sampler: MCMC kernel, one of `"nuts"` (default; also for models
+                whose discrete latents are exactly enumerated), `"mixed_hmc"`
+                (HMC + Gibbs for mixed discrete/continuous models),
+                `"discrete_gibbs"` (NUTS + automatic Gibbs updates for the
+                discrete latents) or `"hmc_gibbs"` (NUTS + user-supplied
+                `gibbs_fn` over `gibbs_sites`).
+            gibbs_fn: Gibbs update callable for `sampler="hmc_gibbs"`
+                (`rng_key, gibbs_sites, hmc_sites` -> dict of new samples).
+            gibbs_sites: List of site names covered by `gibbs_fn`.
+            num_discrete_updates: Number of discrete updates per MixedHMC
+                step (default: number of discrete latent sites).
+            init_params: Optional dict of initial values keyed by site name,
+                forwarded to the sampler. Needed in particular by the Gibbs
+                samplers, which condition each block's initialisation on the
+                other blocks' starting values (e.g. discrete latents that
+                must satisfy downstream constraints such as N >= y). Give
+                every latent site: discrete ones as values, continuous ones in
+                unconstrained space (e.g. log for a positive parameter). With
+                ``num_chains > 1`` each value needs a leading chain dimension.
         """
+        from BayesForge.Samplers.mcmc_numpyro import SAMPLERS
+
+        if sampler not in SAMPLERS:
+            raise ValueError(
+                f"Unknown sampler {sampler!r}. Choose from {SAMPLERS}."
+            )
+        if sampler == "hmc_gibbs" and (gibbs_fn is None or gibbs_sites is None):
+            raise ValueError(
+                'sampler="hmc_gibbs" requires both `gibbs_fn` and '
+                "`gibbs_sites` (or use sampler='discrete_gibbs' for "
+                "automatic discrete Gibbs updates)."
+            )
+        if sampler != "nuts" and self.backend != "numpyro":
+            raise ValueError(
+                f"sampler={sampler!r} needs the numpyro backend; the "
+                f"{self.backend!r} backend only runs its own NUTS sampler."
+            )
         # Counts arrive as floats from R (where 1000 is a double): accept
         # whole numbers, reject anything else with a clear message.
         num_warmup, num_samples, num_chains, thinning, max_tree_depth = (
@@ -469,7 +510,12 @@ class bf(manip):
                 chain_method=chain_method,
                 progress_bar=progress_bar,
                 jit_model_args=jit_model_args,
+                sampler=sampler,
+                gibbs_fn=gibbs_fn,
+                gibbs_sites=gibbs_sites,
+                num_discrete_updates=num_discrete_updates,
             )
+            self.sampler_name = sampler
 
             # Improvement 2 — gate data sharding on the explicit *shard* intent
             # only, NEVER on chain_method. Choosing chain_method='vectorized' for
@@ -492,15 +538,22 @@ class bf(manip):
             # These were already being requested from NUTS but never read back,
             # so leapfrog counts and energy were collected and thrown away.
             # step_size is added so the adapted value can be reported too.
+            # Gibbs-composite kernels (mixed_hmc / discrete_gibbs / hmc_gibbs)
+            # carry a different state tree, so these NUTS/HMC-state fields are
+            # only requested for the plain NUTS sampler.
             if extra_fields is None:
-                extra_fields = ('num_steps', 'energy', 'diverging',
-                                'accept_prob', 'adapt_state.step_size')
+                if sampler == "nuts":
+                    extra_fields = ('num_steps', 'energy', 'diverging',
+                                    'accept_prob', 'adapt_state.step_size')
+                else:
+                    extra_fields = ()
             self._extra_fields_requested = tuple(extra_fields)
             self._max_tree_depth = max_tree_depth
             try:
                 self.sampler.run(
                     self._resolve_key(seed, "fit"),
                     extra_fields=self._extra_fields_requested,
+                    init_params=init_params,
                     **run_data,
                 )
             except AssertionError as e:

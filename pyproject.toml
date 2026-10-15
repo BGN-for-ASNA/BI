@@ -69,3 +69,8 @@ where = ["."]
 [tool.setuptools.package-data]
 "BayesForge.Network" = ["assets/netexplorer/*"]
 "BayesForge.Resources" = ["*.csv", "*.rda", "*.json"]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: statistical checks that take minutes (run in CI; skip locally with -m 'not slow')",
+]

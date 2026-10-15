@@ -215,6 +215,22 @@ class UnifiedDist:
         raise ValueError(f"Invalid seed type: {type(seed)}")
 
     @staticmethod
+    def _resolve_infer(infer, enum):
+        """Merge the ``enum=True`` shorthand into a ``numpyro.sample`` infer dict.
+
+        Finite-support discrete latents are summed out exactly by NumPyro when
+        the site carries ``infer={"enumerate": "parallel"}``. Passing
+        ``enum=True`` on a discrete ``dist.*`` sets exactly that; an explicit
+        ``infer`` dict takes precedence key by key.
+        """
+        if enum:
+            merged = {"enumerate": "parallel"}
+            if infer:
+                merged.update(dict(infer))
+            return merged
+        return dict(infer) if infer else None
+
+    @staticmethod
     def mask( mask):
         """Context manager that excludes observations from the likelihood.
 
@@ -481,7 +497,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli_logits(self,logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def bernoulli_logits(self,logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli Logits
@@ -517,6 +533,11 @@ class UnifiedDist:
         - *obs* (jnp.ndarray, optional): The observed value for this random variable. If provided, the sample site is conditioned on this value, and the function returns the observed value. If `None`, the site is treated as a latent (unobserved) random variable. Defaults to `None`.
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
+
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
 
         #### Returns:
 
@@ -565,7 +586,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -576,7 +597,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def bernoulli_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli Probs
@@ -614,6 +635,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
         
         - When `sample=False`: A BF BernoulliProbs distribution object (for  model building).
@@ -654,7 +680,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -767,7 +793,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def beta_binomial(self,concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def beta_binomial(self,concentration1, concentration0, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### BetaBinomial 
@@ -805,6 +831,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
 
       - When `sample=False`: A BF BetaBinomial distribution object (for model building).
@@ -849,7 +880,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -958,7 +989,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial_logits(self,logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def binomial_logits(self,logits, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial Logits 
@@ -990,6 +1021,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
 
         - When `sample=False`: A BF BinomialLogits distribution object (for  model building).
@@ -1031,7 +1067,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -1042,7 +1078,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial_probs(self,probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def binomial_probs(self,probs, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial Probs
@@ -1078,6 +1114,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
         
         - When `sample=False`: A BF BinomialProbs distribution object (for  model building).
@@ -1117,7 +1158,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -1218,7 +1259,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical_logits(self,logits, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def categorical_logits(self,logits, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical Logits 
@@ -1249,6 +1290,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
 
         - When `sample=False`: A BF CategoricalLogits distribution object (for  model building).
@@ -1290,7 +1336,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -1301,7 +1347,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def categorical_probs(self,probs, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical Probs distribution.
@@ -1336,6 +1382,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
         - When `sample=False`: A BF CategoricalProbs distribution object (for  model building).
 
@@ -1375,7 +1426,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -1855,7 +1906,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def dirichlet_multinomial(self,concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
+    def dirichlet_multinomial(self,concentration, total_count=1, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0, create_obj=False, to_jax = True):
         r"""### Dirichlet-Multinomial
     
         Creates a Dirichlet-Multinomial compound distribution, which is a Multinomial
@@ -1899,6 +1950,11 @@ class UnifiedDist:
 
         - *create_obj* (bool, optional): If True, returns the raw BF distribution object instead of creating a sample site. This is essential for building complex distributions like `MixtureSameFamily`. Defaults to `False`.
         
+
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
 
         #### Returns:
 
@@ -1961,7 +2017,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -1972,7 +2028,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def discrete_uniform(self,low=0, high=1, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def discrete_uniform(self,low=0, high=1, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Discrete Uniform 
@@ -2008,6 +2064,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
 
         - When `sample=False`: A BF DiscreteUniform Distribution distribution object (for  model building).
@@ -2050,7 +2111,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -4902,7 +4963,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial_logits(self,logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def multinomial_logits(self,logits, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial Logits 
@@ -4947,6 +5008,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
       - When `sample=False`: A BF MultinomialLogits distribution object (for model building).
         
@@ -4989,7 +5055,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -5000,7 +5066,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial_probs(self,probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def multinomial_probs(self,probs, total_count=1, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial Probs 
@@ -5030,6 +5096,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
             BF MultinomialProbs distribution object (for model building).
             JAX array of samples drawn from the MultinomialProbs distribution (for direct sampling).
@@ -5067,7 +5138,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -5638,7 +5709,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def ordered_logistic(self,predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def ordered_logistic(self,predictor, cutpoints, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Ordered Logistic
@@ -5690,6 +5761,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
       - When `sample=False`: A BF OrderedLogistic distribution object (for model building).
       - When `sample=True`: A JAX array of samples drawn from the OrderedLogistic distribution (for direct sampling).
@@ -5732,7 +5808,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -7381,7 +7457,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def bernoulli(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def bernoulli(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Bernoulli
@@ -7439,6 +7515,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
             BF Bernoulli distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Bernoulli distribution (for direct sampling) when `sample=True`.
@@ -7478,7 +7559,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -7489,7 +7570,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def binomial(self,total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def binomial(self,total_count=1, probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Binomial
@@ -7542,6 +7623,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
             Binomial distribution object (for model building) when `sample=False`.
             JAX array of samples drawn from the Binomial distribution (for direct sampling) when `sample=True`.
@@ -7581,7 +7667,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -7592,7 +7678,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def categorical(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def categorical(self,probs=None, logits=None, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Categorical distribution.
@@ -7642,6 +7728,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
 
       - When `sample=False`: A BF Categorical distribution object (for model building).
@@ -7686,7 +7777,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
@@ -7895,7 +7986,7 @@ class UnifiedDist:
                         return numpyro.sample(name, d, obs=obs, infer=infer_dict)
                 return numpyro.sample(name, d, obs=obs, infer=infer_dict)
 
-    def multinomial(self,total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
+    def multinomial(self,total_count=1, probs=None, logits=None, total_count_max=None, validate_args=None, name='x', obs=None, mask=None, infer=None, enum=False, sample=False, seed=None, shape=(), event=0,create_obj=False, to_jax = True):
         
 
         r"""### Multinomial
@@ -7944,6 +8035,11 @@ class UnifiedDist:
     
         - *name* (str, optional): The name of the sample site in a BF model. This is used to uniquely identify the random variable. Defaults to 'x'.
             
+        - *enum* (bool, optional): If True, mark this site for exact parallel
+          enumeration (`infer={"enumerate": "parallel"}`), so the discrete latent is
+          summed out instead of sampled. Only for finite-support discrete sites in
+          a model; no effect with `sample=True` or `create_obj=True`. Defaults to False.
+
         #### Returns:
       - When `sample=False`: A BF Multinomial distribution object (for model building).
       - When `sample=True`: A JAX array of samples drawn from the Multinomial distribution (for direct sampling).
@@ -7985,7 +8081,7 @@ class UnifiedDist:
             if create_obj:
                 return d
             else:
-                infer_dict = dict(infer) if infer else None
+                infer_dict = self._resolve_infer(infer, enum)
                 if mask is not None:
                     # numpyro.sample takes obs_mask as its own keyword; routing
                     # a mask through infer= makes it an inert annotation and the
