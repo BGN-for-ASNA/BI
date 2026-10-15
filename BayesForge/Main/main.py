@@ -378,7 +378,9 @@ class bf(manip):
                 forwarded to the sampler. Needed in particular by the Gibbs
                 samplers, which condition each block's initialisation on the
                 other blocks' starting values (e.g. discrete latents that
-                must satisfy downstream constraints such as N >= y). With
+                must satisfy downstream constraints such as N >= y). Give
+                every latent site: discrete ones as values, continuous ones in
+                unconstrained space (e.g. log for a positive parameter). With
                 ``num_chains > 1`` each value needs a leading chain dimension.
         """
         from BayesForge.Samplers.mcmc_numpyro import SAMPLERS
@@ -392,6 +394,11 @@ class bf(manip):
                 'sampler="hmc_gibbs" requires both `gibbs_fn` and '
                 "`gibbs_sites` (or use sampler='discrete_gibbs' for "
                 "automatic discrete Gibbs updates)."
+            )
+        if sampler != "nuts" and self.backend != "numpyro":
+            raise ValueError(
+                f"sampler={sampler!r} needs the numpyro backend; the "
+                f"{self.backend!r} backend only runs its own NUTS sampler."
             )
         # Counts arrive as floats from R (where 1000 is a double): accept
         # whole numbers, reject anything else with a clear message.

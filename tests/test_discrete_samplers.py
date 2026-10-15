@@ -12,19 +12,34 @@ Verification (per roadmap):
 Plus smoke coverage that every new sampler name runs end-to-end and that
 bad sampler arguments fail fast with a clear error.
 
+Agreement between two samplers is tested within Monte Carlo error: for
+each parameter, |difference of means| < 3 x the combined Monte Carlo
+standard error (MCSE = sd / sqrt(ESS)), as in Examples/compare_languages.py
+of the manuscript.
+
 Run:
-    python Test/17.Tier1/test_1_7_discrete_samplers.py
-    (also pytest-collectable)
+    pytest tests/test_discrete_samplers.py          (all, ~3 min)
+    pytest tests/test_discrete_samplers.py -m "not slow"
 """
 
 import functools
 
+import arviz as az
 import jax.numpy as jnp
 from jax.scipy.special import gammaln, logsumexp
 import numpy as np
 import numpyro
+import pytest
 
 from BayesForge import bf
+
+
+def _z_mcse(a, b):
+    """z-score of the difference of posterior means, from by-chain draws
+    (chains, draws): (mean_b - mean_a) / sqrt(MCSE_a^2 + MCSE_b^2)."""
+    a, b = np.asarray(a, dtype=np.float64), np.asarray(b, dtype=np.float64)
+    mcse = lambda x: x.std() / np.sqrt(float(az.ess(x)))
+    return (b.mean() - a.mean()) / np.hypot(mcse(a), mcse(b))
 
 # --------------------------------------------------------------------------
 # N-mixture data: S sites x J visits, abundance N in 0..NMAX.
@@ -84,9 +99,15 @@ def _new_session(seed=7):
     return bf(platform="cpu", rand_seed=seed, print_devices_found=False)
 
 
+@pytest.mark.slow
 def test_nmix_discrete_gibbs_matches_enumeration():
-    """`discrete_gibbs` posterior of λ and p = exact-enumeration posterior,
-    within MC error (|Δmean| < 0.5 pooled sd)."""
+    """`discrete_gibbs` posterior of λ and p = exact-enumeration posterior
+    (NUTS), within Monte Carlo error (|z| < 3, MCSE from the ESS).
+
+    Gibbs on the abundances mixes slowly (ESS ~2-3% of the draws), hence
+    4 chains x 2000 draws: the MCSE then makes the test sensitive to a bias
+    of ~0.3 posterior sd while keeping false alarms below 1%."""
+    chains, warmup, draws = 4, 1000, 2000
     m_ref = _new_session()
     m_ref.fit(
         make_nmix(m_ref, enumerate_N=True),
@@ -94,14 +115,14 @@ def test_nmix_discrete_gibbs_matches_enumeration():
         # A uniform draw can land below an observed count, where the Binomial
         # log-density is -inf: start the abundances at a feasible point.
         init_strategy=numpyro.infer.init_to_value(values={"N": _N_INIT}),
-        num_warmup=500,
-        num_samples=500,
-        num_chains=2,
+        num_warmup=warmup,
+        num_samples=draws,
+        num_chains=chains,
         progress_bar=False,
     )
     assert m_ref.sampler_name == "nuts"
 
-    m_gibbs = _new_session()
+    m_gibbs = _new_session(seed=8)
     m_gibbs.fit(
         make_nmix(m_gibbs, enumerate_N=False),
         obs={"y": _Y_NMIX},
@@ -110,10 +131,14 @@ def test_nmix_discrete_gibbs_matches_enumeration():
         # Gibbs conditions each block's init on the other blocks' starting
         # values: start the abundances at a feasible point (N >= y), with one
         # leading entry per chain.
-        init_params={"N": np.stack([_N_INIT] * 2)},
-        num_warmup=500,
-        num_samples=500,
-        num_chains=2,
+        # NumPyro needs every latent site in init_params (continuous ones in
+        # unconstrained space: log for lam > 0, logit for p in (0, 1)).
+        init_params={"N": np.stack([_N_INIT] * chains),
+                     "lam": jnp.full(chains, jnp.log(4.0)),
+                     "p": jnp.zeros(chains)},
+        num_warmup=warmup,
+        num_samples=draws,
+        num_chains=chains,
         progress_bar=False,
     )
     assert m_gibbs.sampler_name == "discrete_gibbs"
@@ -121,16 +146,14 @@ def test_nmix_discrete_gibbs_matches_enumeration():
     assert "N" in m_gibbs.posteriors and "N" not in m_ref.posteriors
 
     for key in ("lam", "p"):
-        a = np.asarray(m_ref.posteriors[key], dtype=np.float64).ravel()
-        b = np.asarray(m_gibbs.posteriors[key], dtype=np.float64).ravel()
-        pooled_sd = 0.5 * (a.std() + b.std())
-        delta = abs(a.mean() - b.mean())
-        assert delta < 0.5 * pooled_sd, (
-            f"{key}: |Δmean|={delta:.4f} exceeds 0.5*pooled_sd={0.5 * pooled_sd:.4f} "
-            f"(enum mean={a.mean():.3f}, gibbs mean={b.mean():.3f})"
+        a = m_ref.posteriors_by_chain[key]
+        b = m_gibbs.posteriors_by_chain[key]
+        assert float(az.rhat(np.asarray(b))) < 1.05, f"{key}: Gibbs chains did not mix"
+        z = _z_mcse(a, b)
+        assert abs(z) < 3, (
+            f"{key}: enum mean={np.mean(a):.3f}, gibbs mean={np.mean(b):.3f}, z={z:.2f}"
         )
-        print(f"  {key}: enum mean={a.mean():.3f} sd={a.std():.3f} | "
-              f"gibbs mean={b.mean():.3f} sd={b.std():.3f}")
+        print(f"  {key}: enum mean={np.mean(a):.3f} | gibbs mean={np.mean(b):.3f} | z={z:.2f}")
     print("test_nmix_discrete_gibbs_matches_enumeration: OK")
 
 
@@ -166,6 +189,7 @@ def _ari(true, pred):
     return (sum_comb - expected) / denom if denom else 0.0
 
 
+@pytest.mark.slow
 def test_dpmm_latent_recovers_clusters():
     """DPMM `latent` fit with `discrete_gibbs` recovers 3 clusters (ARI > 0.9)."""
     m = _new_session(seed=_DPMM["SEED"])
@@ -196,32 +220,53 @@ _Y_SMOKE = jnp.asarray(
 )
 
 
-def test_mixed_hmc_runs():
-    m = _new_session()
+def _mixture_stats(m):
+    """Label-invariant summaries of the 2-component mixture, by chain:
+    the lower and upper means and the weight of the upper component."""
+    mu = np.asarray(m.posteriors_by_chain["mu"])
+    p = np.asarray(m.posteriors_by_chain["p"])
+    upper_is_1 = mu[..., 1] > mu[..., 0]
+    return {"mu_low": mu.min(axis=-1), "mu_high": mu.max(axis=-1),
+            "w_high": np.where(upper_is_1, p, 1 - p)}
 
-    def model(y):
-        p = m.dist.beta(2.0, 2.0, name="p")
-        with m.dist.plate("components", 2):
-            mu = m.dist.normal(0.0, 5.0, name="mu")
-        with m.dist.plate("N", y.shape[0]):
-            c = m.dist.bernoulli_probs(p, name="c")
-            m.dist.normal(mu[c], 1.0, obs=y)
 
-    model.__name__ = "smoke_mixed"
-    m.fit(model, obs={"y": _Y_SMOKE}, sampler="mixed_hmc",
-          num_warmup=200, num_samples=200, num_chains=1, progress_bar=False)
-    assert m.sampler_name == "mixed_hmc"
-    assert "c" in m.posteriors  # discrete latent is sampled, not enumerated
-    mu = np.asarray(m.posteriors["mu"]).reshape(-1, 2).mean(axis=0)
-    lo, hi = sorted(float(x) for x in mu)
-    assert abs(lo + 2.0) < 0.75 and abs(hi - 2.0) < 0.75, f"mu={mu}"
-    print(f"test_mixed_hmc_runs: OK (mu≈({lo:.2f}, {hi:.2f}))")
+@pytest.mark.slow
+def test_mixed_hmc_matches_enumeration():
+    """MixedHMC (component labels sampled) = NUTS with the labels summed out,
+    within Monte Carlo error, on label-invariant summaries."""
+
+    def fit(sampler, enumerate_c, seed):
+        m = _new_session(seed)
+
+        def model(y):
+            p = m.dist.beta(2.0, 2.0, name="p")
+            with m.dist.plate("components", 2):
+                mu = m.dist.normal(0.0, 5.0, name="mu")
+            with m.dist.plate("N", y.shape[0]):
+                c = m.dist.bernoulli_probs(
+                    p, name="c", infer={"enumerate": "parallel"} if enumerate_c else None)
+                m.dist.normal(mu[c], 1.0, obs=y)
+
+        model.__name__ = f"mixture_{sampler}"
+        m.fit(model, obs={"y": _Y_SMOKE}, sampler=sampler, num_warmup=1000,
+              num_samples=2000, num_chains=4, progress_bar=False)
+        return m
+
+    ref, mixed = fit("nuts", True, 1), fit("mixed_hmc", False, 2)
+    assert mixed.sampler_name == "mixed_hmc"
+    assert "c" in mixed.posteriors and "c" not in ref.posteriors
+    a, b = _mixture_stats(ref), _mixture_stats(mixed)
+    for key in a:
+        assert float(az.rhat(b[key])) < 1.05, f"{key}: MixedHMC chains did not mix"
+        z = _z_mcse(a[key], b[key])
+        assert abs(z) < 3, f"{key}: enum {a[key].mean():.3f}, mixed {b[key].mean():.3f}, z={z:.2f}"
+        print(f"  {key}: enum {a[key].mean():.3f} | mixed {b[key].mean():.3f} | z={z:.2f}")
 
 
 _Y_GIBBS = jnp.asarray(_rng_smoke.normal(1.5, 1.0, size=30))
 
 
-def test_hmc_gibbs_runs():
+def test_hmc_gibbs_matches_nuts():
     m = _new_session()
 
     def model(y):
@@ -247,13 +292,18 @@ def test_hmc_gibbs_runs():
 
     m.fit(model, obs={"y": _Y_GIBBS}, sampler="hmc_gibbs",
           gibbs_fn=gibbs_fn, gibbs_sites=["x"],
-          num_warmup=200, num_samples=200, num_chains=1, progress_bar=False)
+          num_warmup=500, num_samples=1000, num_chains=2, progress_bar=False)
     assert m.sampler_name == "hmc_gibbs"
+    # Same model with plain NUTS: the exact Gibbs step for x must give the
+    # same posterior for x and s, within Monte Carlo error.
+    ref = _new_session(seed=9)
+    ref.fit(model, obs={"y": _Y_GIBBS}, num_warmup=500, num_samples=1000,
+            num_chains=2, progress_bar=False)
+    for key in ("x", "s"):
+        z = _z_mcse(ref.posteriors_by_chain[key], m.posteriors_by_chain[key])
+        assert abs(z) < 3, f"{key}: z={z:.2f}"
     x_mean = float(np.asarray(m.posteriors["x"]).mean())
-    # Posterior of x concentrates near the sample mean (~1.5); the exact
-    # location moves with s, so check a wide but meaningful window.
-    assert 0.5 < x_mean < 2.5, f"x_mean={x_mean}"
-    print(f"test_hmc_gibbs_runs: OK (x_mean={x_mean:.2f})")
+    print(f"test_hmc_gibbs_matches_nuts: OK (x_mean={x_mean:.2f})")
 
 
 def test_sampler_args_validated():
@@ -277,10 +327,24 @@ def test_sampler_args_validated():
             raise AssertionError(f"{msg}: expected ValueError")
 
 
+def test_non_numpyro_backend_rejects_other_samplers():
+    """The TFP backend runs only its own NUTS: asking for another sampler
+    must fail instead of being silently ignored."""
+    m = _new_session()
+    m.backend = "tfp"  # checked before any backend-specific work
+
+    def model(y):
+        s = m.dist.exponential(1.0, name="s")
+        m.dist.normal(0.0, s, obs=y)
+
+    with pytest.raises(ValueError, match="numpyro backend"):
+        m.fit(model, obs={"y": _Y_GIBBS}, sampler="discrete_gibbs", progress_bar=False)
+
+
 if __name__ == "__main__":
     test_nmix_discrete_gibbs_matches_enumeration()
     test_dpmm_latent_recovers_clusters()
-    test_mixed_hmc_runs()
-    test_hmc_gibbs_runs()
+    test_mixed_hmc_matches_enumeration()
+    test_hmc_gibbs_matches_nuts()
     test_sampler_args_validated()
     print("1.7 verification: all tests passed.")
