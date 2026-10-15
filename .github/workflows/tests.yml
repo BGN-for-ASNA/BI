@@ -53,4 +53,5 @@ jobs:
         with:
           python-version: "3.12"
       - name: Check the compatibility matrix
+        shell: bash          # with pipefail, so that | tee keeps the exit status
         run: python tools/check_compat.py | tee -a "$GITHUB_STEP_SUMMARY"
