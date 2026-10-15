@@ -1,5 +1,4 @@
 import inspect
-import ast
 
 # import jax.random as random
 # import jax.numpy as jnp
@@ -988,54 +987,27 @@ class bf(manip):
         return {var: mean for var, mean in zip(posterior_names, posterior_means)}
 
     # Sample model ----------------------------------------------------------------------------
-    def visit_call(self, node, obs_args):
+    def find_obs_in_model(self, model_func=None):
         """
-        Parse a function call node to find `lk` calls with `obs` arguments and add those argument names to the `obs_args` list.
+        Data arguments that feed an observed site (``obs=...``) of the model.
+
+        Found by tracing the model on its data (:meth:`_observed_sites`), not
+        by parsing its source: this also works for models whose source is not
+        available (defined in R or Julia, with ``exec``, ``functools.partial``,
+        a lambda...). Before any data is attached, returns the last known
+        list (empty at first).
 
         Args:
-            node: AST node to parse.
-            obs_args: List to store observed argument names.
-        """
-        # Check if the function called is `lk`
-        if isinstance(node.func, ast.Name) and node.func.id == "lk":
-            # Check for keyword arguments in the `lk` function
-            for kw in node.keywords:
-                if kw.arg == "obs":  # Look for `obs=`
-                    # Add the variable name (if available) to obs_args
-                    if isinstance(kw.value, ast.Name):
-                        obs_args.append(kw.value.id)
-
-    def find_obs_in_model(self, model_func):
-        """
-        Extract observed argument names from `obs` in `lk` calls in `model_func`.
-
-        Args:
-            model_func: Model function to analyze.
+            model_func: Unused; kept for backward compatibility.
 
         Returns:
-            List of observed argument values.
+            list[str]: Names of the data entries used as ``obs``.
         """
-        obs_values = []
-        try:
-            # Get the source code of the function
-            source_code = inspect.getsource(self.model)
-            # Parse the source code into an Abstract Syntax Tree
-            tree = ast.parse(source_code)
-
-            # Traverse the AST to find all function calls with 'obs' keyword argument
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Call):
-                    for keyword in node.keywords:
-                        if keyword.arg == "obs":
-                            # Extract the value passed to 'obs'
-                            value = ast.unparse(keyword.value)
-                            obs_values.append(value)
-        except (IndentationError, SyntaxError, OSError, TypeError) as e:
-            # Fallback for dynamic/reticulate functions where source cannot be inspected
-            pass
-
-        self.obs_args = obs_values
-        return obs_values
+        if getattr(self, "data_on_model", None):
+            self._observed_sites(self.data_on_model)   # sets self.obs_args
+        if self.obs_args is None:
+            self.obs_args = []
+        return list(self.obs_args)
 
     # Create a new model function with the modified signature
     def build_model_with_Y_None(self, model):
