@@ -1,0 +1,24 @@
+# BayesForge compatibility matrix: the versions of the three packages that are
+# developed, tested and released together.
+#
+# tools/check_compat.py checks that each repository's own manifest agrees with
+# this file; it runs in the CI of all three repositories. To release: update the
+# versions here, then the manifests, then publish PyPI -> CRAN/GitHub -> Julia
+# registry in that order (each package's minimum bayesforge must exist on PyPI).
+
+[python]                  # bayesforge on PyPI -- BGN-for-ASNA/BF (this repository)
+version = "0.0.60"        # pyproject.toml [project] version
+python = ">=3.12"         # pyproject.toml requires-python
+numpyro = ">=0.21.0"      # pyproject.toml dependencies
+arviz = ">=1.2.0"
+jax = ">=0.10.0"          # pyproject.toml [cpu] extra
+
+[r]                       # BayesForge (R) -- BGN-for-ASNA/BFR
+version = "0.0.2"         # DESCRIPTION Version
+python = ">=3.12"         # R/BF_management.R .bf_python_version
+bayesforge = ">=0.0.59"   # R/BF_management.R .bf_bayesforge_version
+
+[julia]                   # PyBayesForge.jl -- BGN-for-ASNA/PyBayesForge.jl
+version = "0.1.2"         # Project.toml version
+python = ">=3.12,<3.15"   # CondaPkg.toml [deps] python
+bayesforge = ">=0.0.59"   # CondaPkg.toml [pip.deps] bayesforge

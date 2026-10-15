@@ -41,3 +41,16 @@ jobs:
           name: verification-report-py${{ matrix.python-version }}
           path: tests/_report/
           if-no-files-found: ignore
+
+  # One compatibility matrix (compat.toml) for the Python, R and Julia packages:
+  # this repository's pyproject.toml and the dev branches of BFR and
+  # PyBayesForge.jl must agree with it.
+  compat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check the compatibility matrix
+        run: python tools/check_compat.py | tee -a "$GITHUB_STEP_SUMMARY"
