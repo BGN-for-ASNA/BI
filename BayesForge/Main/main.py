@@ -34,9 +34,20 @@ except Exception:
 import functools
 import cloudpickle
 import os
+import pickle
+import warnings
 import numpy as np
 
 from BayesForge.SetDevice.set import setup_device, setup_multi_device
+
+
+def _bf_version():
+    """Installed BayesForge version, stamped on saved objects."""
+    import importlib.metadata
+    try:
+        return importlib.metadata.version("BayesForge")
+    except importlib.metadata.PackageNotFoundError:
+        return "unknown"
 
 from BayesForge.Data.manip import manip
 from BayesForge.Resources.datasets import load
@@ -1017,7 +1028,7 @@ class bf(manip):
         self.model2 = model_with_None
         return model_with_None
 
-    def sample(self, data=None, remove_obs=True, posterior=True, samples=1, seed=0, infer_discrete=False):
+    def sample(self, data=None, remove_obs=True, posterior=True, samples=1, seed=None, infer_discrete=False):
         """
         Sample from the model.
 
@@ -1030,7 +1041,10 @@ class bf(manip):
             posterior: Whether to use posterior. Defaults to True.
             samples: Number of samples. Defaults to 1. Ignored when
                 infer_discrete=True (sample count follows the posterior).
-            seed: Random seed. Defaults to 0.
+            seed: Random seed. Defaults to None: each call draws a fresh key
+                from the model's random stream (reproducible as a sequence when
+                the model was built with ``rand_seed=False`` or an integer).
+                An explicit seed gives identical draws on every call.
             infer_discrete: If True, draw exact posterior samples of
                 discrete latent sites (e.g. auto-enumerated Bernoulli /
                 Categorical sites) conditioned on the observed data,
@@ -1041,7 +1055,7 @@ class bf(manip):
         Returns:
             Samples from the model.
         """
-        rng_key = jax.random.PRNGKey(int(seed))
+        rng_key = self._rng.stream() if seed is None else jax.random.PRNGKey(int(seed))
         self.build_model_with_Y_None(self.model)
 
         if data is None:
@@ -1212,6 +1226,7 @@ class bf(manip):
         if path is None:
             path = f"{self.model_name}_bf.pkl" if self.model_name else "bf_model.pkl"
 
+        self._saved_with_version = _bf_version()
         try:
             with open(path, "wb") as f:
                 cloudpickle.dump(self, f)
@@ -1233,12 +1248,31 @@ class bf(manip):
 
         Returns:
             BF: The loaded BF instance.
+
+        Raises:
+            FileNotFoundError: the file does not exist.
+            ValueError: the file is empty, truncated or not a pickle.
+            TypeError: the file holds something other than a bf object.
+
+        A file saved with another BayesForge version loads with a warning:
+        check the results, or refit with the current version.
         """
         if path is None:
             path = "bf_model.pkl"
 
         with open(path, "rb") as f:
-            obj = cloudpickle.load(f)
+            try:
+                obj = cloudpickle.load(f)
+            except (EOFError, pickle.UnpicklingError) as e:
+                raise ValueError(f"{path} is not a saved bf object (empty, truncated "
+                                 f"or not a pickle file): {e}") from e
+        if not isinstance(obj, bf):
+            raise TypeError(f"{path} holds a {type(obj).__name__}, not a bf object.")
+        saved = getattr(obj, "_saved_with_version", None)
+        if saved != _bf_version():
+            warnings.warn(f"{path} was saved with BayesForge {saved or '< 0.0.61'} and is "
+                          f"loaded with {_bf_version()}; check the results or refit.",
+                          stacklevel=2)
         print(f"BF object successfully loaded from {path}")
         return obj
 

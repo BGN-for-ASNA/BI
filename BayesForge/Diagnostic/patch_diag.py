@@ -876,11 +876,12 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
         return jd.waic(log_likelihood, pointwise=pointwise, scale=scale)
 
     # ---- PPC helpers that auto-generate yrep from m ---------------------
-    def _get_yrep(seed=0):
+    def _get_yrep(seed=None):
         """Posterior predictive draws of the observed outcome.
 
         Args:
-            seed (int): Seed of the predictive simulation. Defaults to 0.
+            seed (int, optional): Seed of the predictive simulation. Defaults
+                to None (a fresh draw from the model's random stream).
 
         Returns:
             Array of shape (draws, observations).

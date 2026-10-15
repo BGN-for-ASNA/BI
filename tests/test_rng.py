@@ -31,3 +31,28 @@ def test_consecutive_draws_differ_and_session_seed_reproduces():
     np.testing.assert_allclose(_mixture_draw(again), first)
     other = bf(platform="cpu", rand_seed=4, print_devices_found=False)
     assert not np.allclose(_mixture_draw(other), first)
+
+
+def _fitted(rand_seed):
+    m = bf(platform="cpu", rand_seed=rand_seed, print_devices_found=False)
+    x = jnp.linspace(-1, 1, 30)
+    y = 1.0 + 2.0 * x + 0.2 * jnp.sin(9 * x)
+
+    def model(x, y):
+        a = m.dist.normal(0, 5, name="a")
+        b = m.dist.normal(0, 5, name="b")
+        s = m.dist.exponential(1, name="s")
+        m.dist.normal(a + b * x, s, obs=y)
+
+    m.fit(model, obs=dict(x=x, y=y), progress_bar=False, num_samples=100, num_warmup=100, num_chains=1)
+    return m
+
+
+def test_sample_and_yrep_have_no_hidden_fixed_seed():
+    m = _fitted(5)
+    # no seed: consecutive calls give new draws
+    assert not np.allclose(m.diag.get_yrep(), m.diag.get_yrep())
+    # explicit seed: identical draws
+    np.testing.assert_array_equal(m.diag.get_yrep(seed=1), m.diag.get_yrep(seed=1))
+    # same session seed: the whole sequence reproduces
+    np.testing.assert_array_equal(_fitted(5).diag.get_yrep(), _fitted(5).diag.get_yrep())
