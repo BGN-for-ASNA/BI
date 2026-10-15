@@ -102,6 +102,9 @@ def main(argv=None):
     ap.add_argument("--julia", default="BGN-for-ASNA/PyBayesForge.jl@dev")
     ap.add_argument("--only", default="python,r,julia")
     args = ap.parse_args(argv)
+    # Windows consoles default to cp1252, which cannot print the ✅/❌ marks.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     compat = tomllib.loads(reader(args.python)("compat.toml"))
     rows = check(compat, {"python": args.python, "r": args.r, "julia": args.julia},
                  only=[s.strip() for s in args.only.split(",") if s.strip()])
