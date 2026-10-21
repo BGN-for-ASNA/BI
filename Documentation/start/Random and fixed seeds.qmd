@@ -67,6 +67,8 @@ m = importBF(rand_seed = true)
 ### Auditing and Replaying Random Runs
 When `rand_seed=True` is used, BayesForge automatically records the exact base seed derived from `time.time_ns()`. You can retrieve it at any time with `m.get_seed()`:
 
+::: {.panel-tabset group="language"}
+## Python
 ```python
 # Retrieve the generated seed to reproduce the run later
 recorded_seed = m.get_seed()
@@ -75,6 +77,29 @@ print(f"Session Seed: {recorded_seed}")
 # Replay the exact same session later:
 m_replayed = bf(rand_seed=recorded_seed)
 ```
+
+## R
+```r
+# Retrieve the generated seed to reproduce the run later
+recorded_seed <- m$get_seed()
+cat("Session Seed:", format(recorded_seed, scientific = FALSE), "\n")
+
+# Replay the exact same session later:
+m_replayed <- importBF(rand_seed = recorded_seed)
+```
+
+## Julia
+```julia
+using PythonCall
+
+# Retrieve the generated seed to reproduce the run later
+recorded_seed = pyconvert(Int, m.get_seed())
+println("Session Seed: ", recorded_seed)
+
+# Replay the exact same session later:
+m_replayed = importBF(rand_seed = recorded_seed)
+```
+:::
 :::
 
 ---
@@ -268,6 +293,8 @@ println(draw_2)
 
 Because inference methods use deterministic key folding via `.key(label)`, intermediate sampling does not alter the posterior results:
 
+::: {.panel-tabset group="language"}
+## Python
 ```python
 import jax.numpy as jnp
 import numpy as np
@@ -300,6 +327,78 @@ mB.fit(linear_model_for(mB), num_samples=300, num_warmup=100)
 np.testing.assert_allclose(mA.posteriors["b"], mB.posteriors["b"])
 print("Posterior samples match perfectly regardless of prior ad-hoc sampling.")
 ```
+
+## R
+```r
+library(BayesForge)
+
+X <- seq(-2, 2, length.out = 50)
+Y <- 1.5 + 2.0 * X + 0.3 * sin(5 * X)
+
+linear_model <- function(Y, X) {
+    a <- bf.dist.normal(0, 1, name = "a")
+    b <- bf.dist.normal(0, 1, name = "b")
+    sigma <- bf.dist.exponential(1, name = "sigma")
+    bf.dist.normal(a + b * X, sigma, obs = Y)
+}
+
+# Model A: direct fit
+mA <- importBF(rand_seed = 999)
+mA$data_on_model <- list(X = jnp$array(X), Y = jnp$array(Y))
+mA$fit(linear_model, num_samples = 300, num_warmup = 100)
+b_A <- bf_draws(mA)$b
+
+# Model B: several ad-hoc draws before the fit
+mB <- importBF(rand_seed = 999)
+invisible(mB$dist$normal(0, 1, sample = TRUE))
+invisible(mB$dist$gamma(2, 2, sample = TRUE))
+mB$data_on_model <- list(X = jnp$array(X), Y = jnp$array(Y))
+mB$fit(linear_model, num_samples = 300, num_warmup = 100)
+b_B <- bf_draws(mB)$b
+
+# Fitting produces the exact same posterior as Model A
+stopifnot(isTRUE(all.equal(b_A, b_B)))
+cat("Posterior samples match perfectly regardless of prior ad-hoc sampling.\n")
+```
+
+## Julia
+```julia
+using PyBayesForge, PythonCall
+
+X = collect(range(-2, 2; length = 50))
+Y = 1.5 .+ 2.0 .* X .+ 0.3 .* sin.(5 .* X)
+
+# Model A: direct fit
+mA = importBF(rand_seed = 999)
+mA.data_on_model = pydict(X = jnp.array(X), Y = jnp.array(Y))
+@BF function model_A(Y, X)
+    a = mA.dist.normal(0, 1, name = "a")
+    b = mA.dist.normal(0, 1, name = "b")
+    sigma = mA.dist.exponential(1, name = "sigma")
+    mA.dist.normal(a + b * X, sigma, obs = Y)
+end
+mA.fit(model_A, num_samples = 300, num_warmup = 100)
+
+# Model B: several ad-hoc draws before the fit
+mB = importBF(rand_seed = 999)
+mB.dist.normal(0, 1, sample = true)
+mB.dist.gamma(2, 2, sample = true)
+mB.data_on_model = pydict(X = jnp.array(X), Y = jnp.array(Y))
+@BF function model_B(Y, X)
+    a = mB.dist.normal(0, 1, name = "a")
+    b = mB.dist.normal(0, 1, name = "b")
+    sigma = mB.dist.exponential(1, name = "sigma")
+    mB.dist.normal(a + b * X, sigma, obs = Y)
+end
+mB.fit(model_B, num_samples = 300, num_warmup = 100)
+
+# Fitting produces the exact same posterior as Model A
+b_A = pyconvert(Array, mA.posteriors["b"])
+b_B = pyconvert(Array, mB.posteriors["b"])
+@assert b_A == b_B
+println("Posterior samples match perfectly regardless of prior ad-hoc sampling.")
+```
+:::
 
 ---
 

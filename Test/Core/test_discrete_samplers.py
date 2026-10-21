@@ -18,8 +18,8 @@ standard error (MCSE = sd / sqrt(ESS)), as in Examples/compare_languages.py
 of the manuscript.
 
 Run:
-    pytest tests/test_discrete_samplers.py          (all, ~3 min)
-    pytest tests/test_discrete_samplers.py -m "not slow"
+    pytest Test/Core/test_discrete_samplers.py          (all, ~3 min)
+    pytest Test/Core/test_discrete_samplers.py -m "not slow"
 """
 
 import functools

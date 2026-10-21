@@ -3,7 +3,7 @@ checked against compat.toml (one compatibility matrix)."""
 import importlib.util
 import os
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 spec = importlib.util.spec_from_file_location("check_compat", os.path.join(ROOT, "tools", "check_compat.py"))
 cc = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cc)

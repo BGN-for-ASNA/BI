@@ -1,7 +1,7 @@
 name: doc-pages
 
 # Execute the Python examples of every model page of the documentation
-# (tests/test_model_pages.py). Too slow for every pull request: weekly, on
+# (Test/Documentation/Python/test_model_pages.py). Too slow for every pull request: weekly, on
 # pushes to dev that change a page or this test, and on demand.
 on:
   schedule:
@@ -10,7 +10,8 @@ on:
     branches: [dev]
     paths:
       - "Documentation/*.qmd"
-      - "tests/test_model_pages.py"
+      - "Test/Documentation/Python/test_model_pages.py"
+      - "Test/Documentation/doc_blocks.py"
   workflow_dispatch:
 
 jobs:
@@ -31,7 +32,7 @@ jobs:
       - name: Run every model page
         shell: bash          # with pipefail: a failing page must fail the step despite | tee
         run: |
-          python -m pytest tests/test_model_pages.py -m pages -q -rA \
+          python -m pytest Test/Documentation/Python/test_model_pages.py -m pages -q -rA \
             | tee pages.log
           echo '## Model pages' >> "$GITHUB_STEP_SUMMARY"
           grep -E "^(PASSED|FAILED|SKIPPED|ERROR)" pages.log | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY" || true

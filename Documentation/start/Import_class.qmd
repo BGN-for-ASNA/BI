@@ -7,8 +7,8 @@ Every BF session **must** start by importing `bf` and initializing the BF object
 
 > **Rule:** Always import `bf` **before** importing `jax` or any other JAX-dependent module, so that the XLA configuration is applied first.
 
+::: {.panel-tabset group="language"}
 ## Python
-
 ```python
 from BayesForge import bf
 
@@ -23,6 +23,33 @@ m = bf(
 )
 ```
 
+## R
+```r
+library(BayesForge)
+
+m <- importBF(
+    platform = "cpu",            # "cpu", "gpu", or "tpu"
+    cores = NULL,                # CPU cores (NULL = all available)
+    rand_seed = 42,              # integer for reproducibility, TRUE for random
+    deallocate = FALSE,          # deallocate existing device first
+    print_devices_found = TRUE   # print device info on init
+)
+```
+
+## Julia
+```julia
+using PyBayesForge
+
+m = importBF(
+    platform = "cpu",            # "cpu", "gpu", or "tpu"
+    cores = nothing,             # CPU cores (nothing = all available)
+    rand_seed = 42,              # integer for reproducibility, true for random
+    deallocate = false,          # deallocate existing device first
+    print_devices_found = true,  # print device info on init
+)
+```
+:::
+
 ### Arguments
 
 | Argument | Type | Default | Description |
@@ -36,8 +63,12 @@ m = bf(
 | `print_devices_found` | bool | `True` | Print detected devices on initialization |
 | `backend` | str | `"numpyro"` | Inference backend: `"numpyro"` or `"tfp"` |
 
+In R and Julia, `importBF()` takes the same arguments except `float_precision` and `gpu_index` (Python only); `NULL` (R) and `nothing` (Julia) stand for Python's `None`.
+
 ### Common initialization patterns
 
+::: {.panel-tabset group="language"}
+## Python
 ```python
 # Reproducible CPU session (default for development)
 m = bf(platform="cpu", rand_seed=42, float_precision=64)
@@ -55,18 +86,33 @@ m = bf(platform="gpu", gpu_index=0, rand_seed=42)
 ```
 
 ## R
-
 ```r
-library(BayesForge)
+# Reproducible CPU session (default for development)
 m <- importBF(platform = "cpu", rand_seed = 42)
+
+# Multi-core CPU for parallel chains
+m <- importBF(platform = "cpu", cores = 8, rand_seed = 42)
+```
+
+```{.r .no-test}
+# GPU (Linux/WSL2 with an NVIDIA GPU; environment created with setup_env(backend = "gpu"))
+m <- importBF(platform = "gpu", rand_seed = 42)
 ```
 
 ## Julia
-
 ```julia
-using PyBayesForge
+# Reproducible CPU session (default for development)
 m = importBF(platform = "cpu", rand_seed = 42)
+
+# Multi-core CPU for parallel chains
+m = importBF(platform = "cpu", cores = 8, rand_seed = 42)
 ```
+
+```{.julia .no-test}
+# GPU (Linux/WSL2 with an NVIDIA GPU; GPU build of JAX added with CondaPkg)
+m = importBF(platform = "gpu", rand_seed = 42)
+```
+:::
 
 ---
 
@@ -76,19 +122,53 @@ After fitting a model, save the complete BF object to disk. This persists the mo
 
 ### Save
 
+::: {.panel-tabset group="language"}
+## Python
 ```{.python .no-test}
 m.save("/path/to/my_model.pkl")
 # Default filename: "{model_name}_bf.pkl" in current directory
 ```
 
+## R
+```{.r .no-test}
+# A model written in R cannot be pickled: m$save() raises
+# "TypeError: cannot pickle 'PyCapsule' object". Save the draws instead:
+saveRDS(bf_draws(m), "/path/to/my_model_draws.rds")
+```
+
+## Julia
+```{.julia .no-test}
+m.save("/path/to/my_model.pkl")
+# Default filename: "{model_name}_bf.pkl" in current directory
+```
+:::
+
 ### Load
 
+::: {.panel-tabset group="language"}
+## Python
 ```{.python .no-test}
 m = bf.load("/path/to/my_model.pkl")
 ```
 
+## R
+```{.r .no-test}
+draws <- readRDS("/path/to/my_model_draws.rds")   # draws saved from R
+# A bf object saved from Python or Julia loads with:
+m <- reticulate::import("BayesForge")$bf$load("/path/to/my_model.pkl")
+```
+
+## Julia
+```{.julia .no-test}
+using PythonCall
+m = PyBayesForge.BFObject(pyimport("BayesForge").bf.load("/path/to/my_model.pkl"))
+```
+:::
+
 Once loaded, you can access:
 
+::: {.panel-tabset group="language"}
+## Python
 ```{.python .no-test}
 m.posteriors        # Posterior samples
 m.posteriors_full   # Full posterior (before any filtering)
@@ -98,8 +178,31 @@ m.model             # Model function
 m.diag              # Diagnostic tools
 ```
 
+## R
+```{.r .no-test}
+m$posteriors        # Posterior samples
+m$posteriors_full   # Full posterior (before any filtering)
+m$summary()         # Posterior summary table
+m$data_on_model     # Data used in the fit
+m$model             # Model function
+m$diag              # Diagnostic tools
+```
+
+## Julia
+```{.julia .no-test}
+m.posteriors        # Posterior samples
+m.posteriors_full   # Full posterior (before any filtering)
+m.summary()         # Posterior summary table
+m.data_on_model     # Data used in the fit
+m.model             # Model function
+m.diag              # Diagnostic tools
+```
+:::
+
 ### Workflow with save/load
 
+::: {.panel-tabset group="language"}
+## Python
 ```python
 # --- Session 1: Fit and save ---
 import jax.numpy as jnp
@@ -125,4 +228,56 @@ print(m.summary())
 print(m.posteriors["beta"].mean())
 ```
 
-> **Note:** The object is serialized with `cloudpickle`, so the full model closure and sampler state are preserved. The saved `.pkl` file is self-contained and portable.
+## R
+```r
+# --- Session 1: Fit and save the draws ---
+library(BayesForge)
+m <- importBF(platform = "cpu", rand_seed = 42)
+
+x <- seq(-1, 1, length.out = 40)
+y <- 0.5 + 2.0 * x + 0.1 * cos(7 * x)
+
+model <- function(x, y) {
+    alpha <- bf.dist.normal(0, 10, name = "alpha")
+    beta  <- bf.dist.normal(0, 1, name = "beta")
+    sigma <- bf.dist.exponential(1, name = "sigma")
+    bf.dist.normal(alpha + beta * x, sigma, obs = y)
+}
+
+m$fit(model, obs = list(x = jnp$array(x), y = jnp$array(y)))
+saveRDS(bf_draws(m), "linear_regression_draws.rds")
+
+# --- Session 2: Load and analyze (no re-fit) ---
+draws <- readRDS("linear_regression_draws.rds")
+print(posterior::summarise_draws(posterior::as_draws_df(draws)))
+print(mean(draws$beta))
+```
+
+## Julia
+```julia
+# --- Session 1: Fit and save ---
+using PyBayesForge, PythonCall
+m = importBF(platform = "cpu", rand_seed = 42)
+
+x = collect(range(-1, 1; length = 40))
+y = 0.5 .+ 2.0 .* x .+ 0.1 .* cos.(7 .* x)
+
+@BF function model(x, y)
+    alpha = m.dist.normal(0, 10, name = "alpha")
+    beta  = m.dist.normal(0, 1, name = "beta")
+    sigma = m.dist.exponential(1, name = "sigma")
+    m.dist.normal(alpha + beta * x, sigma, obs = y)
+end
+
+m.fit(model, obs = pydict(x = jnp.array(x), y = jnp.array(y)))
+m.save("linear_regression.pkl")
+
+# --- Session 2: Load and analyze (no re-fit) ---
+using PyBayesForge, PythonCall
+m = PyBayesForge.BFObject(pyimport("BayesForge").bf.load("linear_regression.pkl"))
+println(m.summary())
+println(m.posteriors["beta"].mean())
+```
+:::
+
+> **Note:** The object is serialized with `cloudpickle` (from Python and Julia; a model written in R cannot be serialized, so save its draws with `saveRDS(bf_draws(m), ...)`), so the full model closure and sampler state are preserved. The saved `.pkl` file is self-contained and portable.
