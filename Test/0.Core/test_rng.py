@@ -56,3 +56,21 @@ def test_sample_and_yrep_have_no_hidden_fixed_seed():
     np.testing.assert_array_equal(m.diag.get_yrep(seed=1), m.diag.get_yrep(seed=1))
     # same session seed: the whole sequence reproduces
     np.testing.assert_array_equal(_fitted(5).diag.get_yrep(), _fitted(5).diag.get_yrep())
+
+
+def test_direct_draw_inside_fitted_model_raises_clear_error():
+    # sample=True inside a model under JAX tracing must not leak a traced key
+    # into the RNG stream (cryptic UnexpectedTracerError); it raises instead.
+    import pytest
+
+    m = bf(platform="cpu", rand_seed=1, print_devices_found=False)
+    y = jnp.zeros(10)
+
+    def model(y):
+        a = m.dist.normal(0, 1, sample=True)
+        m.dist.normal(a, 1, obs=y)
+
+    with pytest.raises(RuntimeError, match="sample=True"):
+        m.fit(model, obs=dict(y=y), progress_bar=False, num_samples=10, num_warmup=10, num_chains=1)
+    # the stream is left untouched and still usable for direct draws
+    assert np.isfinite(np.asarray(m.dist.normal(0, 1, sample=True)))

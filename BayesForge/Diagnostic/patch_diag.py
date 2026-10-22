@@ -574,7 +574,16 @@ def _as_var_names(include):
     return [include] if isinstance(include, str) else list(include)
 
 
-def _resolve_obs_y(m):
+class _SiteFigures(dict):
+    """dict mapping observed site -> figure; Jupyter shows the figures, not the repr."""
+
+    def _ipython_display_(self):
+        from IPython.display import display
+        for fig in self.values():
+            display(fig)
+
+
+def _resolve_obs_y(m, site=None):
     """Observed outcome array for the PPC plots.
 
     ``m.obs_args`` is None for some models, and the old
@@ -585,11 +594,21 @@ def _resolve_obs_y(m):
     """
     data = getattr(m, "data_on_model", None) or {}
 
+    if site is not None:
+        if hasattr(m, "_observed_sites"):
+            sites = m._observed_sites(data)
+            if site in sites and sites[site] is not None and sites[site] in data:
+                return data[sites[site]]
+        if site in data:
+            return data[site]
+        raise ValueError(
+            f"Observed site {site!r} not found in model data. Available data keys: {sorted(data)}"
+        )
+
     # 1. Declared explicitly.
     obs_args = getattr(m, "obs_args", None) or []
-    for name in obs_args:
-        if name in data:
-            return data[name]
+    if len(obs_args) == 1 and obs_args[0] in data:
+        return data[obs_args[0]]
 
     # 2. Ask the MODEL. Observed sample sites carry their observed value, so
     #    this works even when the site was never given a name= and obs_args is
@@ -600,17 +619,17 @@ def _resolve_obs_y(m):
             from numpyro import handlers
             with handlers.seed(rng_seed=0):
                 trace = handlers.trace(model).get_trace(**data)
-            observed = [site for site in trace.values()
-                        if site.get("type") == "sample"
-                        and site.get("is_observed", False)
-                        and site.get("value") is not None]
+            observed = [s for s in trace.values()
+                        if s.get("type") == "sample"
+                        and s.get("is_observed", False)
+                        and s.get("value") is not None]
             if len(observed) == 1:
                 return observed[0]["value"]
             if len(observed) > 1:
+                names = [s['name'] for s in observed]
                 raise ValueError(
-                    "This model has several observed sites "
-                    f"({[s['name'] for s in observed]}); pass y= to say which "
-                    "one the PPC should use."
+                    f"This model has several observed sites ({names}); specify "
+                    f"which one to plot via site='{names[0]}' or pass y= directly."
                 )
         except ValueError:
             raise
@@ -876,17 +895,20 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
         return jd.waic(log_likelihood, pointwise=pointwise, scale=scale)
 
     # ---- PPC helpers that auto-generate yrep from m ---------------------
-    def _get_yrep(seed=None):
-        """Posterior predictive draws of the observed outcome.
+    def _get_yrep(site=None, seed=None):
+        """Posterior predictive draws of the observed outcome(s).
 
         Args:
+            site (str, optional): Name of the observed site when multiple
+                observed sites exist. If None and there are multiple sites,
+                a dict mapping site names to their draws is returned.
             seed (int, optional): Seed of the predictive simulation. Defaults
                 to None (a fresh draw from the model's random stream).
 
         Returns:
-            Array of shape (draws, observations).
+            Array of shape (draws, observations) or dict[str, Array].
         """
-        return _ppc.get_yrep(m, seed=seed)
+        return _ppc.get_yrep(m, site=site, seed=seed)
 
     # ---- regression overlay ---------------------------------------------
     def _plot_regression_bound(x_var, y_obs=None, n=20, link_inv=None,
@@ -898,12 +920,28 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
     # ---- PPC bindings (y + yrep) ----------------------------------------
     def _bind_ppc(plot_fn):
         """m.diag version of a ppc_* plot: y and yrep default to the model's
-        observed outcome and its posterior predictive draws."""
-        def method(y=None, yrep=None, **kw):
+        observed outcome and its posterior predictive draws. With several
+        observed sites and no site=, returns a dict mapping each site to its
+        figure."""
+        def method(y=None, yrep=None, site=None, **kw):
             if yrep is None:
-                yrep = _get_yrep()
+                res = _get_yrep(site=site)
+                if isinstance(res, dict):
+                    if y is not None:
+                        raise ValueError(
+                            "This model has several observed sites and y= was given, "
+                            "so the site is ambiguous; pass site= or yrep= explicitly."
+                        )
+                    figs = _SiteFigures()
+                    for s in sorted(res):
+                        fig = plot_fn(_resolve_obs_y(m, site=s), res[s], **kw)
+                        title = fig.layout.title.text or ""
+                        fig.update_layout(title_text=f"{title} ({s})" if title else s)
+                        figs[s] = fig
+                    return figs
+                yrep = res
             if y is None:
-                y = _resolve_obs_y(m)
+                y = _resolve_obs_y(m, site=site)
             return plot_fn(y, yrep, **kw)
         return _documented(method, plot_fn, _PPC_NOTE, defaults_none=("y", "yrep"))
 

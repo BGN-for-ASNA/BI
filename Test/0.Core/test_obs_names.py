@@ -6,6 +6,7 @@ import jax.numpy as jnp
 import numpy as np
 from numpyro import handlers
 
+import pytest
 from BayesForge import bf
 
 X = jnp.linspace(-1, 1, 25)
@@ -96,3 +97,60 @@ def test_prior_predictive_before_any_fit():
     with handlers.seed(rng_seed=0):
         tr = handlers.trace(model).get_trace(x=X, y=None)   # y simulated
     assert "y" in tr and not tr["y"]["is_observed"]
+
+
+def test_obs_names_cache_is_per_instance():
+    m1 = bf(platform="cpu", rand_seed=1, print_devices_found=False)
+    m2 = bf(platform="cpu", rand_seed=2, print_devices_found=False)
+
+    assert hasattr(m1.dist, "_obs_names")
+    assert hasattr(m2.dist, "_obs_names")
+    assert m1.dist._obs_names is not m2.dist._obs_names
+
+    def model1(x, y, z):
+        a = m1.dist.normal(0, 5)
+        m1.dist.normal(a, 1.0, obs=y)
+        m1.dist.normal(a - 8, 2, obs=z)
+
+    _sites(model1, x=X, y=Y, z = X)
+    assert len(m1.dist._obs_names) > 0
+    assert len(m2.dist._obs_names) == 0
+
+
+def test_multiple_obs_sites_get_yrep_and_ppc():
+    m = bf(platform="cpu", rand_seed=1, print_devices_found=False)
+
+    def model(x, y, z):
+        a = m.dist.normal(0, 5)
+        s = m.dist.exponential(1)
+        m.dist.normal(a + x, s, obs=y)
+        m.dist.normal(a - x, s, obs=z)
+
+    m.fit(model, obs=dict(x=X, y=Y, z=-Y), num_warmup=50, num_samples=50,
+          num_chains=1, progress_bar=False)
+
+    # get_yrep without site returns dict with all observed sites
+    all_yreps = m.diag.get_yrep()
+    assert isinstance(all_yreps, dict)
+    assert set(all_yreps.keys()) == {"y", "z"}
+    assert all_yreps["y"].shape == (50, Y.shape[0])
+    assert all_yreps["z"].shape == (50, Y.shape[0])
+
+    # get_yrep with specific site
+    y_rep = m.diag.get_yrep("y")
+    assert isinstance(y_rep, np.ndarray)
+    assert y_rep.shape == (50, Y.shape[0])
+
+    # PPC with site specified succeeds
+    fig_y = m.diag.ppc_density(site="y")
+    fig_z = m.diag.ppc_density(site="z")
+    assert fig_y is not None and fig_z is not None
+
+    # PPC without site returns one figure per observed site
+    figs = m.diag.ppc_density()
+    assert isinstance(figs, dict)
+    assert set(figs.keys()) == {"y", "z"}
+    assert all(f is not None for f in figs.values())
+    assert figs["z"].layout.title.text.endswith("(z)")
+    assert hasattr(figs, "_ipython_display_")
+

@@ -132,8 +132,8 @@ class met:
 
     ## eigenvector----------------------------------------------------------------------------------
     @staticmethod
-    @partial(jit, static_argnames=['max_iter', 'tol'])
-    def eigenvector(A, max_iter=100, tol=1.0e-6):
+    @partial(jit, static_argnames=['max_iter', 'tol', 'component_aware'])
+    def eigenvector(A, max_iter=100, tol=1.0e-6, component_aware=False):
         """
         JAX implementation of eigenvector centrality matching NetworkX behavior.
         
@@ -144,9 +144,36 @@ class met:
             A: Adjacency matrix (n x n), can be weighted
             max_iter: Maximum number of iterations
             tol: Convergence tolerance (not used in this JIT version)
+            component_aware: If True, use component-aware computation for 
+                           undirected graphs (restores previous behavior that
+                           isolated the largest connected component via BFS).
+                           Default False matches NetworkX standard behavior.
             
         Returns:
             Eigenvector centrality values (L2 normalized)
+            
+        History:
+            A previous implementation (removed) used `_jax_bfs_component_mask`
+            to isolate the largest connected component for undirected graphs,
+            with separate logic for directed graphs using a `use_transpose`
+            parameter and `lax.cond` branching on `jnp.all(A == A.T)`.
+            This was simplified to match NetworkX's standard (A + I) power
+            iteration on the full graph. The old code is preserved below for reference.
+            
+            Previous approach (for reference):
+            ```python
+            def for_undirected(A):
+                start_node = jnp.argmax(A.sum(axis=1))
+                mask = met._jax_bfs_component_mask(A, start_node)
+                sub_matrix = A * mask[:, None] * mask[None, :]
+                centrality = met.power_iteration(sub_matrix)
+                return centrality
+            def for_directed(A):
+                M = A.T if use_transpose else A
+                return met.power_iteration(M)
+            is_undirected = jnp.all(A == A.T)
+            return lax.cond(is_undirected, for_undirected, for_directed, A)
+            ```
         """
         A = jnp.asarray(A, dtype=jnp.float64)
         n = A.shape[0]
@@ -179,30 +206,6 @@ class met:
         x_final = jnp.where(norm > 0, x_final / norm, x_final)
         
         return x_final
-        """
-        Fully JIT-compiled eigenvector centrality using an efficient JAX-native BFS.
-        """
-        def for_undirected(A):
-            # For undirected graphs, any non-zero node is a good starting point.
-            # We use degree as a heuristic to likely start in a large component.
-            start_node = jnp.argmax(A.sum(axis=1))
-            
-            # 1. Get mask for the largest component using the efficient JAX BFS
-            mask = met._jax_bfs_component_mask(A, start_node)
-            
-            # 2. Apply mask to isolate the sub-matrix (no change from before)
-            sub_matrix = A * mask[:, None] * mask[None, :]
-            
-            # 3. Run power iteration
-            centrality = met.power_iteration(sub_matrix)
-            return centrality
-
-        def for_directed(A):
-            M = A.T if use_transpose else A
-            return met.power_iteration(M)
-
-        is_undirected = jnp.all(A == A.T)
-        return lax.cond(is_undirected, for_undirected, for_directed, A)
 
     ## Dijkstra----------------------------------------------------------------------------------
     @staticmethod 

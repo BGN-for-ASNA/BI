@@ -7,7 +7,7 @@ compares a feature against a reference that does not depend on it (exact
 posterior, NUTS, the implementation it replaces).
 
 ```bash
-python -m pytest Test/Core -q                 # everything (~2 min)
+python -m pytest Test/Core -q                 # everything (~2 min, Pathfinder needs blackjax)
 python -m pytest Test/Core -q -m "not slow"   # skip the minute-long statistical checks
 python -m pytest Test/Core/test_enumeration.py -s
 ```
@@ -34,6 +34,7 @@ prints them as a table and writes `Test/Core/_report/` (`summary.md`,
 | 2.5 | Doc examples are tests | — | `Test/Documentation/` |
 | 2.6 | Docstrings as single source of the R help | `test_docstring_examples.py` | BFR CI (`tools/build_r_docs.py --check`) |
 | 2.7 | Observed data found by tracing | `test_obs_args_tracing.py` | |
+| 2.8 | Multi-path Pathfinder | `test_pathfinder.py` | |
 | — | Observed sites named after the `obs` variable | `test_obs_names.py` | BFR `test-obs-names.R` |
 
 Other regression tests: `test_diag_api.py` (every `m.diag` method is

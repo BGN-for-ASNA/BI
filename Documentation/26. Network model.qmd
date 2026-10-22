@@ -63,7 +63,7 @@ def model(network, dyadic_predictors, focal_individual_predictors, target_indivi
     N_id = network.shape[0]
 
     # Block ---------------------------------------
-    alpha = m.dist.normal(0,1, sample = True)
+    alpha = m.dist.normal(0,1)
 
     ## SR shape =  N individuals---------------------------------------
     sr =  m.net.sender_receiver(

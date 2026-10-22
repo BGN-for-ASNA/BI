@@ -373,6 +373,9 @@ class bf(manip):
             progress_bar: Whether to show progress bar.
             jit_model_args: Whether to JIT model arguments.
             seed: Random seed.
+            init_strategy: NumPyro initialisation strategy, or ``"pathfinder"``
+                to start each chain from a distinct multi-path Pathfinder draw
+                (see :meth:`pathfinder`; needs the optional ``blackjax``).
             sampler: MCMC kernel, one of `"nuts"` (default; also for models
                 whose discrete latents are exactly enumerated), `"mixed_hmc"`
                 (HMC + Gibbs for mixed discrete/continuous models),
@@ -492,6 +495,22 @@ class bf(manip):
                 latent_dim=self.data_on_model["latent_dim"],
                 type=model.type,
             )
+
+        if isinstance(init_strategy, str):
+            if init_strategy != "pathfinder":
+                raise ValueError(f"Unknown init_strategy {init_strategy!r}: pass a "
+                                 "numpyro.infer init_to_* function or 'pathfinder'.")
+            if self.backend != "numpyro":
+                raise ValueError("init_strategy='pathfinder' needs the numpyro backend.")
+            # Start each chain from a distinct multi-path Pathfinder draw: chains
+            # begin near the posterior, so a much shorter warmup is enough.
+            from BayesForge.Samplers.pathfinder import Pathfinder_BF
+            self.pathfinder_init = Pathfinder_BF(
+                self.model, num_samples=max(num_chains, 100)
+            ).run(self._resolve_key(seed, "pathfinder_init"), **self.data_on_model)
+            if init_params is None:
+                init_params = self.pathfinder_init.init_params(num_chains)
+            init_strategy = numpyro.infer.init_to_uniform
 
         if self.backend == "numpyro":
             from BayesForge.Samplers.mcmc_numpyro import mcmc_numpyro
@@ -718,6 +737,58 @@ class bf(manip):
 
         self.run_model_name = self.model_name
         self.model_name = None
+
+    def pathfinder(self, model=None, obs=None, num_paths=4, num_samples=1000,
+                   num_draws_per_path=1000, maxiter=100, seed=None, **lbfgs_kwargs):
+        """Approximate the posterior with multi-path Pathfinder (seconds, not minutes).
+
+        Each of ``num_paths`` L-BFGS runs fits a Gaussian approximation along
+        its optimisation path; the pooled draws are resampled with
+        Pareto-smoothed importance weights (Zhang et al. 2022). Results go to
+        ``m.posteriors`` as after :meth:`fit`. ``m.pathfinder_info["pareto_k"]``
+        > 0.7 means the approximation is unreliable: then use it only to
+        initialise NUTS with ``m.fit(..., init_strategy="pathfinder")``.
+
+        Needs the optional dependency ``blackjax``.
+
+        Args:
+            model: Model function (defaults to the last one).
+            obs: Data dict (defaults to ``m.data_on_model``).
+            num_paths: Number of independent Pathfinder runs.
+            num_samples: Draws returned after importance resampling.
+            num_draws_per_path: Draws taken from each path's approximation.
+            maxiter: Maximum L-BFGS iterations per path.
+            seed: Random seed (defaults to the model's random stream).
+            **lbfgs_kwargs: Passed to ``blackjax.vi.pathfinder.approximate``.
+        """
+        if self.backend != "numpyro":
+            raise ValueError("pathfinder() needs the numpyro backend.")
+        if model is not None:
+            self.model = model
+            self.model_name = (model.func.__name__ if isinstance(model, functools.partial)
+                               else (self.model_name or model.__name__))
+        if obs is not None:
+            self.data_on_model = obs
+        if self.data_on_model is None:
+            self.data_on_model = self.pd_to_jax(self.model)
+
+        from BayesForge.Samplers.pathfinder import Pathfinder_BF
+        self.sampler = Pathfinder_BF(
+            self.model, num_paths=num_paths, num_samples=num_samples,
+            num_draws_per_path=num_draws_per_path, maxiter=maxiter, **lbfgs_kwargs,
+        ).run(self._resolve_key(seed, "pathfinder"), **self.data_on_model)
+        self.sampler_name = "pathfinder"
+        self.posteriors = self.sampler.get_samples()
+        self.posteriors_by_chain = self.sampler.get_samples(group_by_chain=True)
+        self.posteriors_full = dict(self.posteriors)
+        self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
+        self.pathfinder_info = {"pareto_k": self.sampler.pareto_k,
+                                "num_paths": num_paths,
+                                "path_elbo": self.sampler.path_elbo}
+        self.diag = diag(sampler=self.sampler)
+        self.run_model_name = self.model_name
+        self.model_name = None
+        return self
 
     # Random number generator ----------------------------------------------------------------
 
@@ -1053,18 +1124,38 @@ class bf(manip):
         self.model2 = model_with_None
         return model_with_None
 
-    def sample(self, data=None, remove_obs=True, posterior=True, samples=1, seed=None, infer_discrete=False):
+    def sample(self, data=None, remove_obs=True, posterior=True, samples=None, seed=None, infer_discrete=False):
         """
-        Sample from the model.
+        Sample from the model: posterior predictive, prior predictive, or
+        predictive draws at fixed parameter values.
 
         Args:
-            data: Data to use for sampling. Defaults to None.
-            remove_obs: Whether to remove observed data. Defaults to True.
+            data: Data to use for sampling. Defaults to None (the data the
+                model was fitted on). Pass new inputs (e.g. a new design
+                matrix) to get predictions for unseen points.
+            remove_obs: Whether to remove observed data. Defaults to True,
+                which un-conditions the observed sites so that simulated
+                values are returned. With remove_obs=False the observed sites
+                are not returned: the result contains the latent (unobserved)
+                sample sites and the deterministic sites.
                 Forced to False when infer_discrete=True, since exact
                 posterior sampling of discrete sites requires conditioning
                 on the observed data.
-            posterior: Whether to use posterior. Defaults to True.
-            samples: Number of samples. Defaults to 1. Ignored when
+            posterior: Source of the parameter values. Defaults to True.
+
+                - True: use the fitted posterior samples
+                  (``self.sampler.get_samples()``). Raises ``RuntimeError``
+                  if the model was not fitted.
+                - False: draw from the prior (prior predictive).
+                - dict: fixed parameter values; each value is treated as a
+                  single draw (a leading batch axis of size 1 is added).
+            samples: Number of draws. Defaults to None: with posterior=True
+                all posterior draws are used, with posterior=False 1000 prior
+                draws are made, and with a posterior dict a single draw is
+                returned. An integer n with posterior=True takes a random
+                subsample of n posterior draws (without replacement); with a
+                posterior dict it repeats the fixed draw n times; with
+                posterior=False it makes n prior draws. Ignored when
                 infer_discrete=True (sample count follows the posterior).
             seed: Random seed. Defaults to None: each call draws a fresh key
                 from the model's random stream (reproducible as a sequence when
@@ -1076,31 +1167,54 @@ class bf(manip):
                 instead of forward-sampling them from their prior. Use
                 this to recover discrete latents (e.g. mixture indicators)
                 rather than the plain prior-predictive draw.
+                Requires posterior=True (a fitted model).
 
         Returns:
-            Samples from the model.
+            dict: samples from the model.
         """
+        import jax.numpy as jnp
         rng_key = self._rng.stream() if seed is None else jax.random.PRNGKey(int(seed))
         self.build_model_with_Y_None(self.model)
 
+        if infer_discrete and posterior is not True:
+            raise ValueError("infer_discrete=True requires posterior=True (a fitted model).")
+
         if data is None:
             data = self.data_on_model.copy()
+
+        # Observed sites are found by tracing the model (this also works
+        # for models defined in R or Julia, whose source cannot be parsed);
+        # their data entries are set to None so that they are simulated
+        # rather than conditioned on.
+        observed_sites = self._observed_sites(data)
+        if "x" in observed_sites and "x" not in data:
+            warnings.warn(
+                "Observed site has the default name 'x'; pass name='y' "
+                "(or similar) to the likelihood to get a meaningful key.",
+                UserWarning,
+            )
 
         if infer_discrete:
             remove_obs = False
 
         if remove_obs:
-            # Observed sites are found by tracing the model (this also works
-            # for models defined in R or Julia, whose source cannot be parsed);
-            # their data entries are set to None so that they are simulated
-            # rather than conditioned on.
-            observed = [k for k in self._observed_sites(data).values() if k is not None]
+            observed = [k for k in observed_sites.values() if k is not None]
             data = {k: (None if k in observed else v) for k, v in data.items()}
 
-        if posterior == False:
-            posterior = None
+        if posterior is False:
+            posterior_samples = None
+        elif isinstance(posterior, dict):
+            posterior_samples = {k: jnp.asarray(v)[None, ...] for k, v in posterior.items()}
         else:
-            posterior = self.sampler.get_samples()
+            try:
+                posterior_samples = self.sampler.get_samples()
+            except Exception:
+                posterior_samples = None
+            if posterior_samples is None:
+                raise RuntimeError(
+                    "No posterior samples: call m.fit() first, or use "
+                    "posterior=False (prior) or a dict of parameter values."
+                )
 
         if infer_discrete:
             # numpyro.infer.Predictive(..., infer_discrete=True) unconditionally
@@ -1109,11 +1223,65 @@ class bf(manip):
             # observed-data likelihood and collapses discrete sites to a
             # uniform draw. sample_discrete_posterior conditions correctly.
             return sample_discrete_posterior(
-                self.model, posterior, rng_key, model_kwargs=data
+                self.model, posterior_samples, rng_key, model_kwargs=data
             )
 
+        if posterior is False:
+            num_samples = 1000 if samples is None else int(samples)
+        elif isinstance(posterior, dict):
+            if samples is not None:
+                n = int(samples)
+                posterior_samples = {k: jnp.repeat(v, n, axis=0)
+                                     for k, v in posterior_samples.items()}
+            num_samples = None
+        elif samples is not None:
+            # random subsample of the posterior draws, without replacement
+            n = int(samples)
+            N = int(jnp.asarray(next(iter(posterior_samples.values()))).shape[0])
+            if n > N:
+                raise ValueError(
+                    f"Cannot subsample {n} posterior draws: the posterior "
+                    f"has only N = {N} draws."
+                )
+            key, rng_key = jax.random.split(rng_key)
+            idx = jax.random.choice(key, N, (n,), replace=False)
+            posterior_samples = {k: v[idx] for k, v in posterior_samples.items()}
+            num_samples = None
+        else:
+            num_samples = None
+
+        return_sites = None
+        if not remove_obs:
+            # Predictive returns every traced site by default, including the
+            # conditioned observed ones; list the sites to keep explicitly:
+            # latent sample sites (not observed, not fixed by posterior) plus
+            # all deterministic sites.
+            observed_names = set(observed_sites)
+            fixed_names = set(posterior_samples or {})
+            try:
+                with handlers.seed(rng_seed=0):
+                    trace = handlers.trace(self.model).get_trace(**data)
+            except Exception:
+                # e.g. new data without the outcome: model2 defaults it to None
+                try:
+                    with handlers.seed(rng_seed=0):
+                        trace = handlers.trace(self.model2).get_trace(**data)
+                except Exception:
+                    trace = {}
+            return_sites = [
+                name for name, site in trace.items()
+                if (site["type"] == "sample" and not site.get("is_observed")
+                    and name not in observed_names and name not in fixed_names)
+                or site["type"] == "deterministic"
+            ]
+            if not return_sites:
+                return {}
+
         predictive = Predictive(
-            self.model2, posterior_samples=posterior, num_samples=samples
+            self.model2,
+            posterior_samples=posterior_samples,
+            num_samples=num_samples,
+            return_sites=return_sites,
         )
         return predictive(rng_key, **data)
     def _observed_sites(self, data=None):
