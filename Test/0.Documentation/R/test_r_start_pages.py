@@ -10,7 +10,7 @@ Needs R with the BayesForge R package (BFR) and its 'BFR' Python environment
 repository root is put first on PYTHONPATH. Skipped when ``Rscript`` is not
 found; set $BF_RSCRIPT to use another R.
 
-Run a single page with:  pytest Test/Documentation/R -k "seeds"
+Run a single page with:  pytest Test/0.Documentation/R -k "seeds"
 """
 import os
 import shutil

@@ -9,7 +9,7 @@ These pages fit real models (minutes per page), so the test has its own
 marker, ``pages``: the pull-request CI skips it (-m "not pages") and the
 weekly workflow .github/workflows/doc-pages.yml runs all pages. Locally,
 pick pages with -k, e.g.
-    pytest Test/Documentation/Python/test_model_pages.py -m pages -k "Poisson"
+    pytest Test/0.Documentation/Python/test_model_pages.py -m pages -k "Poisson"
 """
 import os
 import subprocess

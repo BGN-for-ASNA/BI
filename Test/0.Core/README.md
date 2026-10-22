@@ -1,4 +1,4 @@
-# Test/Core: tests of the core BayesForge functions
+# Test/0.Core: tests of the core BayesForge functions
 
 Unit, regression and verification tests of the Python package, including the
 features of Tiers 1 and 2 of the roadmap after MEE-26-09-855
@@ -7,13 +7,13 @@ compares a feature against a reference that does not depend on it (exact
 posterior, NUTS, the implementation it replaces).
 
 ```bash
-python -m pytest Test/Core -q                 # everything (~2 min, Pathfinder needs blackjax)
-python -m pytest Test/Core -q -m "not slow"   # skip the minute-long statistical checks
-python -m pytest Test/Core/test_enumeration.py -s
+python -m pytest Test/0.Core -q                 # everything (~2 min, Pathfinder needs blackjax)
+python -m pytest Test/0.Core -q -m "not slow"   # skip the minute-long statistical checks
+python -m pytest Test/0.Core/test_enumeration.py -s
 ```
 
 `conftest.py` collects the checks recorded through the `verify` fixture,
-prints them as a table and writes `Test/Core/_report/` (`summary.md`,
+prints them as a table and writes `Test/0.Core/_report/` (`summary.md`,
 `checks.csv`, `comparisons.png`, `z_scores.png`).
 
 ## Roadmap features and their tests
@@ -31,7 +31,7 @@ prints them as a table and writes `Test/Core/_report/` (`summary.md`,
 | 2.2 | R math functions on JAX arrays | — | BFR `test-jax-methods.R` |
 | 2.3 | Tidy data in and out (`m.index()` on categorical columns) | `test_index_categorical.py`, `test_data_input.py` | BFR `test-tidy.R`, PyBayesForge.jl `test/runtests.jl` |
 | 2.4 | One compatibility matrix | `test_compat.py` (+ `tools/check_compat.py` in CI) | CI of BFR and PyBayesForge.jl |
-| 2.5 | Doc examples are tests | — | `Test/Documentation/` |
+| 2.5 | Doc examples are tests | — | `Test/0.Documentation/` |
 | 2.6 | Docstrings as single source of the R help | `test_docstring_examples.py` | BFR CI (`tools/build_r_docs.py --check`) |
 | 2.7 | Observed data found by tracing | `test_obs_args_tracing.py` | |
 | 2.8 | Multi-path Pathfinder | `test_pathfinder.py` | |

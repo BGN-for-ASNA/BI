@@ -1,4 +1,4 @@
-# Test/Documentation: the documentation examples are tests
+# Test/0.Documentation: the documentation examples are tests
 
 | Test | Checks |
 |---|---|
@@ -47,15 +47,15 @@ The Python side is always this checkout of BayesForge (the repository root
 is put first on `PYTHONPATH`).
 
 ```bash
-python -m pytest Test/Documentation/test_language_coverage.py Test/Documentation/Python -q
+python -m pytest Test/0.Documentation/test_language_coverage.py Test/0.Documentation/Python -q
 
 # R: the BayesForge R package (BFR) and its Python environment.
 # R_LIBS=<lib> to test another build of BFR, e.g. its dev branch.
-R_LIBS=/path/to/rlib python -m pytest Test/Documentation/R -q
+R_LIBS=/path/to/rlib python -m pytest Test/0.Documentation/R -q
 
 # Julia: a project with PyBayesForge, PythonCall, DataFrames, CSV and MCMCChains.
 # PythonCall uses the Python running pytest; CondaPkg is switched off.
-BF_JULIA_PROJECT=/path/to/project python -m pytest Test/Documentation/Julia -q
+BF_JULIA_PROJECT=/path/to/project python -m pytest Test/0.Documentation/Julia -q
 ```
 
 R and Julia tests are skipped when `Rscript` / `julia` are not found

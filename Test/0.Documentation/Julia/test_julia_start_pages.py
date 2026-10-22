@@ -13,7 +13,7 @@ repository's BayesForge first on PYTHONPATH: PythonCall is pointed at it and
 CondaPkg is switched off, unless $JULIA_PYTHONCALL_EXE is already set.
 Skipped when no ``julia`` is found; set $BF_JULIA to use another one.
 
-Run a single page with:  pytest Test/Documentation/Julia -k "seeds"
+Run a single page with:  pytest Test/0.Documentation/Julia -k "seeds"
 """
 import os
 import pathlib

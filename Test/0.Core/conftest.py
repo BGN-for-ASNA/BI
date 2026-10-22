@@ -8,7 +8,7 @@ A test records each check through the ``verify`` fixture:
 
 At the end of the run the checks are
   * printed as a table in the terminal summary,
-  * written to Test/Core/_report/ (or $BF_TEST_REPORT):
+  * written to Test/0.Core/_report/ (or $BF_TEST_REPORT):
       - summary.md       table of every check (also appended to the GitHub
                          Actions job summary when $GITHUB_STEP_SUMMARY is set)
       - comparisons.png  posterior densities, reference vs tested, per check

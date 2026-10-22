@@ -18,8 +18,8 @@ Notes on model choice:
       the mixture is the representative finite-support case.
 
 Run:
-    python Test/Core/test_enumeration.py
-    (also pytest-collectable: `pytest Test/Core/test_enumeration.py`)
+    python Test/0.Core/test_enumeration.py
+    (also pytest-collectable: `pytest Test/0.Core/test_enumeration.py`)
 """
 
 import warnings
