@@ -28,7 +28,7 @@ jobs:
           cache: pip
       - name: Install BayesForge
         # scikit-learn: used by some pages to simulate data (GMM, DPMM, BNN)
-        run: python -m pip install -e ".[cpu,pathfinder]" pytest scikit-learn
+        run: python -m pip install -e ".[cpu]" pytest scikit-learn
       - name: Run every model page
         shell: bash          # with pipefail: a failing page must fail the step despite | tee
         run: |
