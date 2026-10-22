@@ -55,8 +55,16 @@ After `fit()`, the posterior draws can be extracted as a table with one row per 
 
 ::: {.panel-tabset group="language"}
 ## Python
-```{.python .no-test}
+```python
 import arviz as az
+
+def model(weight, height):
+    a = m.dist.normal(178, 20, name="a")
+    b = m.dist.log_normal(0, 1, name="b")
+    s = m.dist.uniform(0, 50, name="s")
+    m.dist.normal(a + b * weight, s, obs=height)
+
+m.fit(model)
 
 m.posteriors                    # dict of arrays (draws, ...)
 idata = az.from_numpyro(m.sampler)   # ArviZ InferenceData
@@ -64,6 +72,14 @@ idata = az.from_numpyro(m.sampler)   # ArviZ InferenceData
 
 ## R
 ```r
+model <- function(weight, height) {
+    a <- bf.dist.normal(178, 20, name = "a")
+    b <- bf.dist.log_normal(0, 1, name = "b")
+    s <- bf.dist.uniform(0, 50, name = "s")
+    bf.dist.normal(a + b * weight, s, obs = height)
+}
+m$fit(model)
+
 draws <- bf_draws(m)            # a plain data.frame
 head(draws)
 
@@ -79,6 +95,14 @@ bayesplot::mcmc_areas(draws_df, pars = c("b"))
 ## Julia
 ```julia
 using DataFrames, MCMCChains
+
+@BF function model(weight, height)
+    a = m.dist.normal(178, 20, name = "a")
+    b = m.dist.log_normal(0, 1, name = "b")
+    s = m.dist.uniform(0, 50, name = "s")
+    m.dist.normal(a + b * weight, s, obs = height)
+end
+m.fit(model)
 
 draws = DataFrame(bf_draws(m))  # a Julia DataFrame
 chains = Chains(m)              # an MCMCChains.Chains object

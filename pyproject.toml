@@ -58,6 +58,10 @@ cpu = [
 gpu = [
     "jax[cuda12_pip]",
 ]
+# m.pathfinder() and fit(init_strategy="pathfinder")
+pathfinder = [
+    "blackjax >= 1.2",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/BGN-for-ASNA/BF"
@@ -69,3 +73,9 @@ where = ["."]
 [tool.setuptools.package-data]
 "BayesForge.Network" = ["assets/netexplorer/*"]
 "BayesForge.Resources" = ["*.csv", "*.rda", "*.json"]
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: statistical checks that take minutes (run in CI; skip locally with -m 'not slow')",
+    "pages: execute every model page of the documentation (weekly CI workflow)",
+]

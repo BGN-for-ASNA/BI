@@ -1,5 +1,4 @@
 import inspect
-import ast
 
 # import jax.random as random
 # import jax.numpy as jnp
@@ -34,9 +33,20 @@ except Exception:
 import functools
 import cloudpickle
 import os
+import pickle
+import warnings
 import numpy as np
 
 from BayesForge.SetDevice.set import setup_device, setup_multi_device
+
+
+def _bf_version():
+    """Installed BayesForge version, stamped on saved objects."""
+    import importlib.metadata
+    try:
+        return importlib.metadata.version("BayesForge")
+    except importlib.metadata.PackageNotFoundError:
+        return "unknown"
 
 from BayesForge.Data.manip import manip
 from BayesForge.Resources.datasets import load
@@ -328,6 +338,11 @@ class bf(manip):
         jit_model_args=False,
         seed=None,
         extra_fields=None,
+        sampler="nuts",
+        gibbs_fn=None,
+        gibbs_sites=None,
+        num_discrete_updates=None,
+        init_params=None,
     ):
         """
         Fit the model using the specified backend and parameters.
@@ -358,7 +373,46 @@ class bf(manip):
             progress_bar: Whether to show progress bar.
             jit_model_args: Whether to JIT model arguments.
             seed: Random seed.
+            init_strategy: NumPyro initialisation strategy, or ``"pathfinder"``
+                to start each chain from a distinct multi-path Pathfinder draw
+                (see :meth:`pathfinder`; needs the optional ``blackjax``).
+            sampler: MCMC kernel, one of `"nuts"` (default; also for models
+                whose discrete latents are exactly enumerated), `"mixed_hmc"`
+                (HMC + Gibbs for mixed discrete/continuous models),
+                `"discrete_gibbs"` (NUTS + automatic Gibbs updates for the
+                discrete latents) or `"hmc_gibbs"` (NUTS + user-supplied
+                `gibbs_fn` over `gibbs_sites`).
+            gibbs_fn: Gibbs update callable for `sampler="hmc_gibbs"`
+                (`rng_key, gibbs_sites, hmc_sites` -> dict of new samples).
+            gibbs_sites: List of site names covered by `gibbs_fn`.
+            num_discrete_updates: Number of discrete updates per MixedHMC
+                step (default: number of discrete latent sites).
+            init_params: Optional dict of initial values keyed by site name,
+                forwarded to the sampler. Needed in particular by the Gibbs
+                samplers, which condition each block's initialisation on the
+                other blocks' starting values (e.g. discrete latents that
+                must satisfy downstream constraints such as N >= y). Give
+                every latent site: discrete ones as values, continuous ones in
+                unconstrained space (e.g. log for a positive parameter). With
+                ``num_chains > 1`` each value needs a leading chain dimension.
         """
+        from BayesForge.Samplers.mcmc_numpyro import SAMPLERS
+
+        if sampler not in SAMPLERS:
+            raise ValueError(
+                f"Unknown sampler {sampler!r}. Choose from {SAMPLERS}."
+            )
+        if sampler == "hmc_gibbs" and (gibbs_fn is None or gibbs_sites is None):
+            raise ValueError(
+                'sampler="hmc_gibbs" requires both `gibbs_fn` and '
+                "`gibbs_sites` (or use sampler='discrete_gibbs' for "
+                "automatic discrete Gibbs updates)."
+            )
+        if sampler != "nuts" and self.backend != "numpyro":
+            raise ValueError(
+                f"sampler={sampler!r} needs the numpyro backend; the "
+                f"{self.backend!r} backend only runs its own NUTS sampler."
+            )
         # Counts arrive as floats from R (where 1000 is a double): accept
         # whole numbers, reject anything else with a clear message.
         num_warmup, num_samples, num_chains, thinning, max_tree_depth = (
@@ -442,6 +496,22 @@ class bf(manip):
                 type=model.type,
             )
 
+        if isinstance(init_strategy, str):
+            if init_strategy != "pathfinder":
+                raise ValueError(f"Unknown init_strategy {init_strategy!r}: pass a "
+                                 "numpyro.infer init_to_* function or 'pathfinder'.")
+            if self.backend != "numpyro":
+                raise ValueError("init_strategy='pathfinder' needs the numpyro backend.")
+            # Start each chain from a distinct multi-path Pathfinder draw: chains
+            # begin near the posterior, so a much shorter warmup is enough.
+            from BayesForge.Samplers.pathfinder import Pathfinder_BF
+            self.pathfinder_init = Pathfinder_BF(
+                self.model, num_samples=max(num_chains, 100)
+            ).run(self._resolve_key(seed, "pathfinder_init"), **self.data_on_model)
+            if init_params is None:
+                init_params = self.pathfinder_init.init_params(num_chains)
+            init_strategy = numpyro.infer.init_to_uniform
+
         if self.backend == "numpyro":
             from BayesForge.Samplers.mcmc_numpyro import mcmc_numpyro
 
@@ -469,7 +539,12 @@ class bf(manip):
                 chain_method=chain_method,
                 progress_bar=progress_bar,
                 jit_model_args=jit_model_args,
+                sampler=sampler,
+                gibbs_fn=gibbs_fn,
+                gibbs_sites=gibbs_sites,
+                num_discrete_updates=num_discrete_updates,
             )
+            self.sampler_name = sampler
 
             # Improvement 2 — gate data sharding on the explicit *shard* intent
             # only, NEVER on chain_method. Choosing chain_method='vectorized' for
@@ -492,15 +567,22 @@ class bf(manip):
             # These were already being requested from NUTS but never read back,
             # so leapfrog counts and energy were collected and thrown away.
             # step_size is added so the adapted value can be reported too.
+            # Gibbs-composite kernels (mixed_hmc / discrete_gibbs / hmc_gibbs)
+            # carry a different state tree, so these NUTS/HMC-state fields are
+            # only requested for the plain NUTS sampler.
             if extra_fields is None:
-                extra_fields = ('num_steps', 'energy', 'diverging',
-                                'accept_prob', 'adapt_state.step_size')
+                if sampler == "nuts":
+                    extra_fields = ('num_steps', 'energy', 'diverging',
+                                    'accept_prob', 'adapt_state.step_size')
+                else:
+                    extra_fields = ()
             self._extra_fields_requested = tuple(extra_fields)
             self._max_tree_depth = max_tree_depth
             try:
                 self.sampler.run(
                     self._resolve_key(seed, "fit"),
                     extra_fields=self._extra_fields_requested,
+                    init_params=init_params,
                     **run_data,
                 )
             except AssertionError as e:
@@ -655,6 +737,58 @@ class bf(manip):
 
         self.run_model_name = self.model_name
         self.model_name = None
+
+    def pathfinder(self, model=None, obs=None, num_paths=4, num_samples=1000,
+                   num_draws_per_path=1000, maxiter=100, seed=None, **lbfgs_kwargs):
+        """Approximate the posterior with multi-path Pathfinder (seconds, not minutes).
+
+        Each of ``num_paths`` L-BFGS runs fits a Gaussian approximation along
+        its optimisation path; the pooled draws are resampled with
+        Pareto-smoothed importance weights (Zhang et al. 2022). Results go to
+        ``m.posteriors`` as after :meth:`fit`. ``m.pathfinder_info["pareto_k"]``
+        > 0.7 means the approximation is unreliable: then use it only to
+        initialise NUTS with ``m.fit(..., init_strategy="pathfinder")``.
+
+        Needs the optional dependency ``blackjax``.
+
+        Args:
+            model: Model function (defaults to the last one).
+            obs: Data dict (defaults to ``m.data_on_model``).
+            num_paths: Number of independent Pathfinder runs.
+            num_samples: Draws returned after importance resampling.
+            num_draws_per_path: Draws taken from each path's approximation.
+            maxiter: Maximum L-BFGS iterations per path.
+            seed: Random seed (defaults to the model's random stream).
+            **lbfgs_kwargs: Passed to ``blackjax.vi.pathfinder.approximate``.
+        """
+        if self.backend != "numpyro":
+            raise ValueError("pathfinder() needs the numpyro backend.")
+        if model is not None:
+            self.model = model
+            self.model_name = (model.func.__name__ if isinstance(model, functools.partial)
+                               else (self.model_name or model.__name__))
+        if obs is not None:
+            self.data_on_model = obs
+        if self.data_on_model is None:
+            self.data_on_model = self.pd_to_jax(self.model)
+
+        from BayesForge.Samplers.pathfinder import Pathfinder_BF
+        self.sampler = Pathfinder_BF(
+            self.model, num_paths=num_paths, num_samples=num_samples,
+            num_draws_per_path=num_draws_per_path, maxiter=maxiter, **lbfgs_kwargs,
+        ).run(self._resolve_key(seed, "pathfinder"), **self.data_on_model)
+        self.sampler_name = "pathfinder"
+        self.posteriors = self.sampler.get_samples()
+        self.posteriors_by_chain = self.sampler.get_samples(group_by_chain=True)
+        self.posteriors_full = dict(self.posteriors)
+        self.posteriors_by_chain_full = dict(self.posteriors_by_chain)
+        self.pathfinder_info = {"pareto_k": self.sampler.pareto_k,
+                                "num_paths": num_paths,
+                                "path_elbo": self.sampler.path_elbo}
+        self.diag = diag(sampler=self.sampler)
+        self.run_model_name = self.model_name
+        self.model_name = None
+        return self
 
     # Random number generator ----------------------------------------------------------------
 
@@ -924,54 +1058,27 @@ class bf(manip):
         return {var: mean for var, mean in zip(posterior_names, posterior_means)}
 
     # Sample model ----------------------------------------------------------------------------
-    def visit_call(self, node, obs_args):
+    def find_obs_in_model(self, model_func=None):
         """
-        Parse a function call node to find `lk` calls with `obs` arguments and add those argument names to the `obs_args` list.
+        Data arguments that feed an observed site (``obs=...``) of the model.
+
+        Found by tracing the model on its data (:meth:`_observed_sites`), not
+        by parsing its source: this also works for models whose source is not
+        available (defined in R or Julia, with ``exec``, ``functools.partial``,
+        a lambda...). Before any data is attached, returns the last known
+        list (empty at first).
 
         Args:
-            node: AST node to parse.
-            obs_args: List to store observed argument names.
-        """
-        # Check if the function called is `lk`
-        if isinstance(node.func, ast.Name) and node.func.id == "lk":
-            # Check for keyword arguments in the `lk` function
-            for kw in node.keywords:
-                if kw.arg == "obs":  # Look for `obs=`
-                    # Add the variable name (if available) to obs_args
-                    if isinstance(kw.value, ast.Name):
-                        obs_args.append(kw.value.id)
-
-    def find_obs_in_model(self, model_func):
-        """
-        Extract observed argument names from `obs` in `lk` calls in `model_func`.
-
-        Args:
-            model_func: Model function to analyze.
+            model_func: Unused; kept for backward compatibility.
 
         Returns:
-            List of observed argument values.
+            list[str]: Names of the data entries used as ``obs``.
         """
-        obs_values = []
-        try:
-            # Get the source code of the function
-            source_code = inspect.getsource(self.model)
-            # Parse the source code into an Abstract Syntax Tree
-            tree = ast.parse(source_code)
-
-            # Traverse the AST to find all function calls with 'obs' keyword argument
-            for node in ast.walk(tree):
-                if isinstance(node, ast.Call):
-                    for keyword in node.keywords:
-                        if keyword.arg == "obs":
-                            # Extract the value passed to 'obs'
-                            value = ast.unparse(keyword.value)
-                            obs_values.append(value)
-        except (IndentationError, SyntaxError, OSError, TypeError) as e:
-            # Fallback for dynamic/reticulate functions where source cannot be inspected
-            pass
-
-        self.obs_args = obs_values
-        return obs_values
+        if getattr(self, "data_on_model", None):
+            self._observed_sites(self.data_on_model)   # sets self.obs_args
+        if self.obs_args is None:
+            self.obs_args = []
+        return list(self.obs_args)
 
     # Create a new model function with the modified signature
     def build_model_with_Y_None(self, model):
@@ -1017,51 +1124,97 @@ class bf(manip):
         self.model2 = model_with_None
         return model_with_None
 
-    def sample(self, data=None, remove_obs=True, posterior=True, samples=1, seed=0, infer_discrete=False):
+    def sample(self, data=None, remove_obs=True, posterior=True, samples=None, seed=None, infer_discrete=False):
         """
-        Sample from the model.
+        Sample from the model: posterior predictive, prior predictive, or
+        predictive draws at fixed parameter values.
 
         Args:
-            data: Data to use for sampling. Defaults to None.
-            remove_obs: Whether to remove observed data. Defaults to True.
+            data: Data to use for sampling. Defaults to None (the data the
+                model was fitted on). Pass new inputs (e.g. a new design
+                matrix) to get predictions for unseen points.
+            remove_obs: Whether to remove observed data. Defaults to True,
+                which un-conditions the observed sites so that simulated
+                values are returned. With remove_obs=False the observed sites
+                are not returned: the result contains the latent (unobserved)
+                sample sites and the deterministic sites.
                 Forced to False when infer_discrete=True, since exact
                 posterior sampling of discrete sites requires conditioning
                 on the observed data.
-            posterior: Whether to use posterior. Defaults to True.
-            samples: Number of samples. Defaults to 1. Ignored when
+            posterior: Source of the parameter values. Defaults to True.
+
+                - True: use the fitted posterior samples
+                  (``self.sampler.get_samples()``). Raises ``RuntimeError``
+                  if the model was not fitted.
+                - False: draw from the prior (prior predictive).
+                - dict: fixed parameter values; each value is treated as a
+                  single draw (a leading batch axis of size 1 is added).
+            samples: Number of draws. Defaults to None: with posterior=True
+                all posterior draws are used, with posterior=False 1000 prior
+                draws are made, and with a posterior dict a single draw is
+                returned. An integer n with posterior=True takes a random
+                subsample of n posterior draws (without replacement); with a
+                posterior dict it repeats the fixed draw n times; with
+                posterior=False it makes n prior draws. Ignored when
                 infer_discrete=True (sample count follows the posterior).
-            seed: Random seed. Defaults to 0.
+            seed: Random seed. Defaults to None: each call draws a fresh key
+                from the model's random stream (reproducible as a sequence when
+                the model was built with ``rand_seed=False`` or an integer).
+                An explicit seed gives identical draws on every call.
             infer_discrete: If True, draw exact posterior samples of
                 discrete latent sites (e.g. auto-enumerated Bernoulli /
                 Categorical sites) conditioned on the observed data,
                 instead of forward-sampling them from their prior. Use
                 this to recover discrete latents (e.g. mixture indicators)
                 rather than the plain prior-predictive draw.
+                Requires posterior=True (a fitted model).
 
         Returns:
-            Samples from the model.
+            dict: samples from the model.
         """
-        rng_key = jax.random.PRNGKey(int(seed))
+        import jax.numpy as jnp
+        rng_key = self._rng.stream() if seed is None else jax.random.PRNGKey(int(seed))
         self.build_model_with_Y_None(self.model)
+
+        if infer_discrete and posterior is not True:
+            raise ValueError("infer_discrete=True requires posterior=True (a fitted model).")
 
         if data is None:
             data = self.data_on_model.copy()
+
+        # Observed sites are found by tracing the model (this also works
+        # for models defined in R or Julia, whose source cannot be parsed);
+        # their data entries are set to None so that they are simulated
+        # rather than conditioned on.
+        observed_sites = self._observed_sites(data)
+        if "x" in observed_sites and "x" not in data:
+            warnings.warn(
+                "Observed site has the default name 'x'; pass name='y' "
+                "(or similar) to the likelihood to get a meaningful key.",
+                UserWarning,
+            )
 
         if infer_discrete:
             remove_obs = False
 
         if remove_obs:
-            # Observed sites are found by tracing the model (this also works
-            # for models defined in R or Julia, whose source cannot be parsed);
-            # their data entries are set to None so that they are simulated
-            # rather than conditioned on.
-            observed = [k for k in self._observed_sites(data).values() if k is not None]
+            observed = [k for k in observed_sites.values() if k is not None]
             data = {k: (None if k in observed else v) for k, v in data.items()}
 
-        if posterior == False:
-            posterior = None
+        if posterior is False:
+            posterior_samples = None
+        elif isinstance(posterior, dict):
+            posterior_samples = {k: jnp.asarray(v)[None, ...] for k, v in posterior.items()}
         else:
-            posterior = self.sampler.get_samples()
+            try:
+                posterior_samples = self.sampler.get_samples()
+            except Exception:
+                posterior_samples = None
+            if posterior_samples is None:
+                raise RuntimeError(
+                    "No posterior samples: call m.fit() first, or use "
+                    "posterior=False (prior) or a dict of parameter values."
+                )
 
         if infer_discrete:
             # numpyro.infer.Predictive(..., infer_discrete=True) unconditionally
@@ -1070,11 +1223,65 @@ class bf(manip):
             # observed-data likelihood and collapses discrete sites to a
             # uniform draw. sample_discrete_posterior conditions correctly.
             return sample_discrete_posterior(
-                self.model, posterior, rng_key, model_kwargs=data
+                self.model, posterior_samples, rng_key, model_kwargs=data
             )
 
+        if posterior is False:
+            num_samples = 1000 if samples is None else int(samples)
+        elif isinstance(posterior, dict):
+            if samples is not None:
+                n = int(samples)
+                posterior_samples = {k: jnp.repeat(v, n, axis=0)
+                                     for k, v in posterior_samples.items()}
+            num_samples = None
+        elif samples is not None:
+            # random subsample of the posterior draws, without replacement
+            n = int(samples)
+            N = int(jnp.asarray(next(iter(posterior_samples.values()))).shape[0])
+            if n > N:
+                raise ValueError(
+                    f"Cannot subsample {n} posterior draws: the posterior "
+                    f"has only N = {N} draws."
+                )
+            key, rng_key = jax.random.split(rng_key)
+            idx = jax.random.choice(key, N, (n,), replace=False)
+            posterior_samples = {k: v[idx] for k, v in posterior_samples.items()}
+            num_samples = None
+        else:
+            num_samples = None
+
+        return_sites = None
+        if not remove_obs:
+            # Predictive returns every traced site by default, including the
+            # conditioned observed ones; list the sites to keep explicitly:
+            # latent sample sites (not observed, not fixed by posterior) plus
+            # all deterministic sites.
+            observed_names = set(observed_sites)
+            fixed_names = set(posterior_samples or {})
+            try:
+                with handlers.seed(rng_seed=0):
+                    trace = handlers.trace(self.model).get_trace(**data)
+            except Exception:
+                # e.g. new data without the outcome: model2 defaults it to None
+                try:
+                    with handlers.seed(rng_seed=0):
+                        trace = handlers.trace(self.model2).get_trace(**data)
+                except Exception:
+                    trace = {}
+            return_sites = [
+                name for name, site in trace.items()
+                if (site["type"] == "sample" and not site.get("is_observed")
+                    and name not in observed_names and name not in fixed_names)
+                or site["type"] == "deterministic"
+            ]
+            if not return_sites:
+                return {}
+
         predictive = Predictive(
-            self.model2, posterior_samples=posterior, num_samples=samples
+            self.model2,
+            posterior_samples=posterior_samples,
+            num_samples=num_samples,
+            return_sites=return_sites,
         )
         return predictive(rng_key, **data)
     def _observed_sites(self, data=None):
@@ -1212,6 +1419,7 @@ class bf(manip):
         if path is None:
             path = f"{self.model_name}_bf.pkl" if self.model_name else "bf_model.pkl"
 
+        self._saved_with_version = _bf_version()
         try:
             with open(path, "wb") as f:
                 cloudpickle.dump(self, f)
@@ -1233,12 +1441,31 @@ class bf(manip):
 
         Returns:
             BF: The loaded BF instance.
+
+        Raises:
+            FileNotFoundError: the file does not exist.
+            ValueError: the file is empty, truncated or not a pickle.
+            TypeError: the file holds something other than a bf object.
+
+        A file saved with another BayesForge version loads with a warning:
+        check the results, or refit with the current version.
         """
         if path is None:
             path = "bf_model.pkl"
 
         with open(path, "rb") as f:
-            obj = cloudpickle.load(f)
+            try:
+                obj = cloudpickle.load(f)
+            except (EOFError, pickle.UnpicklingError) as e:
+                raise ValueError(f"{path} is not a saved bf object (empty, truncated "
+                                 f"or not a pickle file): {e}") from e
+        if not isinstance(obj, bf):
+            raise TypeError(f"{path} holds a {type(obj).__name__}, not a bf object.")
+        saved = getattr(obj, "_saved_with_version", None)
+        if saved != _bf_version():
+            warnings.warn(f"{path} was saved with BayesForge {saved or '< 0.0.61'} and is "
+                          f"loaded with {_bf_version()}; check the results or refit.",
+                          stacklevel=2)
         print(f"BF object successfully loaded from {path}")
         return obj
 

@@ -1,7 +1,7 @@
 # R2D2 prior — implementation-correctness test
 
 Evaluates the R2D2 (*R²-induced Dirichlet Decomposition*) prior as documented in
-`BF/Documentation/37.Feature extraction: R2D2.qmd`, using a simulate → fit →
+`BF/Documentation/37. Feature extraction - R2D2.qmd`, using a simulate → fit →
 recover Bayesian-inference workflow.
 
 ## Run

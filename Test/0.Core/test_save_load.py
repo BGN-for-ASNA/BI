@@ -40,3 +40,38 @@ def test_round_trip(fitted, tmp_path):
 def test_load_missing_file_raises(tmp_path):
     with pytest.raises(FileNotFoundError):
         bf.load(str(tmp_path / "missing.pkl"))
+
+
+def test_load_rejects_corrupted_file(tmp_path):
+    bad = tmp_path / "bad.pkl"
+    bad.write_bytes(b"not a pickle")
+    with pytest.raises(ValueError):
+        bf.load(str(bad))
+    empty = tmp_path / "empty.pkl"
+    empty.write_bytes(b"")
+    with pytest.raises(ValueError):
+        bf.load(str(empty))
+
+
+def test_load_rejects_non_bf_object(tmp_path):
+    import cloudpickle
+    path = tmp_path / "dict.pkl"
+    with open(path, "wb") as f:
+        cloudpickle.dump({"a": 1}, f)
+    with pytest.raises(TypeError):
+        bf.load(str(path))
+
+
+def test_load_warns_on_version_mismatch(fitted, tmp_path):
+    path = fitted.save(str(tmp_path / "lr.pkl"))
+    loaded = bf.load(path)
+    loaded._saved_with_version = "0.0.1"
+    old = loaded.save(str(tmp_path / "old.pkl"))
+    import BayesForge.Main.main as main
+    real = main._bf_version
+    main._bf_version = lambda: "9.9.9"
+    try:
+        with pytest.warns(UserWarning, match="saved with BayesForge"):
+            bf.load(old)
+    finally:
+        main._bf_version = real

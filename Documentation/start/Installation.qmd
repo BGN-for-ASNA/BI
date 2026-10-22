@@ -24,7 +24,7 @@ m = bf(platform="cpu")
 ```
 
 ## R
-```r
+```{.r .no-test}
 install.packages("BayesForge")   # from CRAN
 
 library(BayesForge)
@@ -44,7 +44,7 @@ m <- importBF(platform = "cpu")
 ## Julia
 Requires [Julia 1.12 or later](https://julialang.org/downloads/).
 
-```julia
+```{.julia .no-test}
 using Pkg
 Pkg.add("PyBayesForge")          # from the Julia General registry
 # or the development version:
@@ -68,7 +68,7 @@ x = m.dist.normal(0, 1, shape = (3,), sample = true)  # three draws from N(0, 1)
 
 For an NVIDIA GPU (Linux/WSL2), add the GPU build of JAX to the project once, then use `platform = "gpu"`:
 
-```julia
+```{.julia .no-test}
 using CondaPkg
 CondaPkg.add_pip("bayesforge"; extras = ["gpu"])
 ```

@@ -37,30 +37,57 @@ _OBS_COLOR = "black"
 # Utility
 # =============================================================================
 
-def get_yrep(m, seed=0):
-    """Return posterior predictive matrix yrep of shape (S, n_obs).
+def get_yrep(m, site=None, seed=None):
+    """Return posterior predictive matrix yrep of shape (S, n_obs), or a dict
+    of such matrices if the model has multiple observed sites and ``site=None``.
 
-    The observed site is simulated from every posterior draw (its data entry
-    is set to None), so yrep holds genuine replicated data -- never the
+    The observed sites are simulated from every posterior draw (their data
+    entries are set to None), so yrep holds genuine replicated data -- never the
     observed values themselves.
+
+    Args:
+        m (bf): Fitted BayesForge model.
+        site (str, optional): Name of the observed site. If None and the model
+            has a single observed site, that site is used. If None and the model
+            has multiple observed sites, a dict ``{site_name: yrep}`` is returned.
+        seed (int, optional): Seed of the predictive simulation. Defaults to None.
+
+    Returns:
+        np.ndarray or dict[str, np.ndarray]: Matrix of shape (S, n_obs) or
+        dict mapping each observed site name to its replicated data matrix.
     """
     sites = m._observed_sites(m.data_on_model)
-    if len(sites) != 1:
-        raise ValueError(
-            f"Cannot pick the outcome for the posterior predictive: the model has "
-            f"{len(sites)} observed sites ({sorted(sites)}). Pass yrep= explicitly."
-        )
-    site, key = next(iter(sites.items()))
-    if key is None:
-        raise ValueError(
-            f"The observed site {site!r} is not one of the model's data entries "
-            "(e.g. obs=y - 1), so it cannot be simulated. Pass yrep= explicitly."
-        )
+    if not sites:
+        raise ValueError("No observed sites found in the model.")
+
+    if site is not None:
+        if site not in sites:
+            raise ValueError(
+                f"Unknown observed site {site!r}. Available sites: {sorted(sites)}"
+            )
+        target_sites = {site: sites[site]}
+    else:
+        target_sites = sites
+
+    for s_name, key in target_sites.items():
+        if key is None:
+            raise ValueError(
+                f"The observed site {s_name!r} is not one of the model's data entries "
+                "(e.g. obs=y - 1), so it cannot be simulated. Pass yrep= explicitly."
+            )
+
     pred = m.sample(remove_obs=True, posterior=True, seed=seed)
-    yrep = np.asarray(pred[site])
-    if yrep.ndim > 2:
-        yrep = yrep.reshape(yrep.shape[0], -1)
-    return yrep
+
+    yreps = {}
+    for s_name in target_sites:
+        arr = np.asarray(pred[s_name])
+        if arr.ndim > 2:
+            arr = arr.reshape(arr.shape[0], -1)
+        yreps[s_name] = arr
+
+    if site is not None or len(sites) == 1:
+        return next(iter(yreps.values())) if site is None else yreps[site]
+    return yreps
 
 
 def _as_np(*arrays):
