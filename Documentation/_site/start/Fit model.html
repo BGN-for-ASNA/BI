@@ -196,7 +196,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Models</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../api_dist.html"> 
+    <a class="nav-link" href="../reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item dropdown ">
@@ -306,6 +306,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../start/Interoperability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Working with R and Julia tools</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../start/Parallel simulations.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Parallel simulations</span></a>
   </div>
@@ -359,8 +365,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
-    <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="Fit-model.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></div>
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#main-arguments" id="toc-main-arguments" class="nav-link active" data-scroll-target="#main-arguments">Main arguments</a></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="Fit-model.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -383,20 +395,143 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Once a function is defined declaring the model, you can fit the model to the data using the <code>fit</code> function.</p>
+<p>Once a function is defined declaring the model, you can fit the model to the data using the <code>fit</code> function. By default <code>fit()</code> runs the No-U-Turn Sampler (NUTS) with 4 chains of 1000 warm-up and 1000 sampling iterations, using the data stored in <code>m.data_on_model</code> (filled by <code>m.data()</code> / <code>m.data_to_model()</code> or assigned directly).</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Python</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">R</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Julia</a></li></ul>
 <div class="tab-content" data-group="language">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>m.fit(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> BayesForge <span class="im">import</span> bf</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> bf(platform<span class="op">=</span><span class="st">"cpu"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>m.data(m.load.howell1(only_path<span class="op">=</span><span class="va">True</span>), sep<span class="op">=</span><span class="st">";"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="dv">18</span>]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>m.scale([<span class="st">"weight"</span>])</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model(weight, height):</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.normal(<span class="dv">178</span>, <span class="dv">20</span>, name<span class="op">=</span><span class="st">"a"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.log_normal(<span class="dv">0</span>, <span class="dv">1</span>, name<span class="op">=</span><span class="st">"b"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.dist.uniform(<span class="dv">0</span>, <span class="dv">50</span>, name<span class="op">=</span><span class="st">"s"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    m.dist.normal(a <span class="op">+</span> b <span class="op">*</span> weight, s, obs<span class="op">=</span>height)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>m.fit(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>m.summary()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(BayesForge)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">importBF</span>(<span class="at">platform =</span> <span class="st">"cpu"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data</span>(m<span class="sc">$</span>load<span class="sc">$</span><span class="fu">howell1</span>(<span class="at">only_path =</span> <span class="cn">TRUE</span>), <span class="at">sep =</span> <span class="st">";"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span>df <span class="ot">&lt;-</span> m<span class="sc">$</span>df[m<span class="sc">$</span>df<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">18</span>, ]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">scale</span>(<span class="fu">list</span>(<span class="st">"weight"</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">data_to_model</span>(<span class="fu">list</span>(<span class="st">"weight"</span>, <span class="st">"height"</span>))</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(height, weight) {</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">&lt;-</span> <span class="fu">bf.dist.normal</span>(<span class="dv">178</span>, <span class="dv">20</span>, <span class="at">name =</span> <span class="st">"a"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">&lt;-</span> <span class="fu">bf.dist.log_normal</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">name =</span> <span class="st">"b"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">&lt;-</span> <span class="fu">bf.dist.uniform</span>(<span class="dv">0</span>, <span class="dv">50</span>, <span class="at">name =</span> <span class="st">"s"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bf.dist.normal</span>(a <span class="sc">+</span> b <span class="sc">*</span> weight, s, <span class="at">obs =</span> height)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">fit</span>(model) <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>m<span class="sc">$</span><span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">PyBayesForge</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fu">importBF</span>(platform <span class="op">=</span> <span class="st">"cpu"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">data</span>(m.load.<span class="fu">howell1</span>(only_path <span class="op">=</span> <span class="cn">true</span>), sep <span class="op">=</span> <span class="ch">';'</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>m.df <span class="op">=</span> m.df[m.df.age <span class="op">&gt;</span> <span class="fl">18</span>]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">scale</span>([<span class="st">"weight"</span>])</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="pp">@BF</span> <span class="kw">function</span> <span class="fu">model</span>(weight, height)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    a <span class="op">=</span> m.dist.<span class="fu">normal</span>(<span class="fl">178</span>, <span class="fl">20</span>, name <span class="op">=</span> <span class="ch">'a'</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> m.dist.<span class="fu">log_normal</span>(<span class="fl">0</span>, <span class="fl">1</span>, name <span class="op">=</span> <span class="ch">'b'</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> m.dist.<span class="fu">uniform</span>(<span class="fl">0</span>, <span class="fl">50</span>, name <span class="op">=</span> <span class="ch">'s'</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    m.dist.<span class="fu">normal</span>(a <span class="op">+</span> b <span class="op">*</span> weight, s, obs <span class="op">=</span> height)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">fit</span>(model)  <span class="co"># Optimize model parameters through MCMC sampling</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>m.<span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
+<section id="main-arguments" class="level2">
+<h2 class="anchored" data-anchor-id="main-arguments">Main arguments</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>model</code></td>
+<td>—</td>
+<td>The model function. Its arguments are matched by name to the entries of <code>m.data_on_model</code>.</td>
+</tr>
+<tr class="even">
+<td><code>obs</code></td>
+<td><code>None</code></td>
+<td>Optional dictionary of data; replaces <code>m.data_on_model</code> for this fit.</td>
+</tr>
+<tr class="odd">
+<td><code>num_warmup</code></td>
+<td><code>1000</code></td>
+<td>Warm-up (adaptation) iterations per chain; discarded.</td>
+</tr>
+<tr class="even">
+<td><code>num_samples</code></td>
+<td><code>1000</code></td>
+<td>Posterior draws kept per chain.</td>
+</tr>
+<tr class="odd">
+<td><code>num_chains</code></td>
+<td><code>4</code></td>
+<td>Number of chains.</td>
+</tr>
+<tr class="even">
+<td><code>chain_method</code></td>
+<td><code>"parallel"</code></td>
+<td><code>"parallel"</code> (one device per chain), <code>"vectorized"</code> or <code>"sequential"</code>.</td>
+</tr>
+<tr class="odd">
+<td><code>thinning</code></td>
+<td><code>1</code></td>
+<td>Keep every <em>n</em>-th draw.</td>
+</tr>
+<tr class="even">
+<td><code>target_accept_prob</code></td>
+<td><code>0.8</code></td>
+<td>NUTS target acceptance rate; raise (e.g.&nbsp;<code>0.95</code>) when there are divergences.</td>
+</tr>
+<tr class="odd">
+<td><code>max_tree_depth</code></td>
+<td><code>10</code></td>
+<td>Maximum NUTS tree depth.</td>
+</tr>
+<tr class="even">
+<td><code>dense_mass</code></td>
+<td><code>False</code></td>
+<td>Use a dense (full-covariance) mass matrix.</td>
+</tr>
+<tr class="odd">
+<td><code>progress_bar</code></td>
+<td><code>True</code></td>
+<td>Show a progress bar.</td>
+</tr>
+<tr class="even">
+<td><code>seed</code></td>
+<td><code>None</code></td>
+<td>Explicit sampler seed; by default derived from <code>rand_seed</code> (see <a href="../start/Random and fixed seeds.html">Random and fixed seeds</a>).</td>
+</tr>
+</tbody>
+</table>
+<p>After fitting, posterior draws are in <code>m.posteriors</code> (a dictionary of arrays), and <code>m.summary()</code> returns the posterior summary table.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script src="https://unpkg.com/@popperjs/core@2"></script>

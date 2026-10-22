@@ -63,13 +63,11 @@ def _infer_caller_name():
     return None
 
 
-# Name found for each observed call site (code object, instruction offset).
-# Posterior/prior predictive calls pass obs=None (the data entry is removed so
-# that it is simulated); the site must keep the name it had during the fit.
+# Fallback name cache for observed call sites if called outside an instance.
 _OBS_NAMES = {}
 
 
-def _infer_obs_name(obs):
+def _infer_obs_name(obs, obs_names=None):
     """Return the caller's variable name that holds ``obs``, or None.
 
     ``m.dist.normal(mu, sigma, obs=y)`` names the observed site ``"y"``. The
@@ -82,12 +80,13 @@ def _infer_obs_name(obs):
       call site; failing that, the caller's only argument that is None.
     * an expression (``obs=y - 1``) has no variable: None.
     """
+    cache = _OBS_NAMES if obs_names is None else obs_names
     try:
         frame = sys._getframe(2)
         site = (frame.f_code, frame.f_lasti)
         if obs is None:
-            if site in _OBS_NAMES:
-                return _OBS_NAMES[site]
+            if site in cache:
+                return cache[site]
             code = frame.f_code
             args = code.co_varnames[:code.co_argcount + code.co_kwonlyargcount]
             none_args = [a for a in args if frame.f_locals.get(a, 0) is None]
@@ -96,7 +95,7 @@ def _infer_obs_name(obs):
             return None
         for name, value in frame.f_locals.items():
             if value is obs and not name.startswith("_"):
-                _OBS_NAMES[site] = name
+                cache[site] = name
                 return name
     except Exception:
         pass
@@ -136,9 +135,18 @@ class DistProxy:
 
     def __init__(self, dist_obj):
         object.__setattr__(self, '_dist', dist_obj)
+        obs_names = getattr(dist_obj, '_obs_names', None)
+        if obs_names is None:
+            obs_names = {}
+            try:
+                dist_obj._obs_names = obs_names
+            except Exception:
+                pass
+        object.__setattr__(self, '_obs_names', obs_names)
 
     def __getattr__(self, attr):
         dist_obj = object.__getattribute__(self, '_dist')
+        obs_names = object.__getattribute__(self, '_obs_names')
         target = getattr(dist_obj, attr)
         if not callable(target):
             return target
@@ -154,7 +162,7 @@ class DistProxy:
                 # 2. an observed site: the variable passed as obs (obs=y -> "y")
                 if inferred is None and 'obs' in kwargs:
                     obs = kwargs['obs']
-                    inferred = _infer_obs_name(obs) or (None if obs is None else 'obs')
+                    inferred = _infer_obs_name(obs, obs_names=obs_names) or (None if obs is None else 'obs')
                 if inferred is not None:
                     kwargs['name'] = inferred
             return target(*args, **kwargs)
@@ -170,6 +178,7 @@ class UnifiedDist:
     def __init__(self, rand_seed = True, rng = None):
         self.seed = rand_seed
         self._rng = rng
+        self._obs_names = {}
 
     def track(self,name, x):
         """Record a derived quantity so it is saved with the posterior draws.

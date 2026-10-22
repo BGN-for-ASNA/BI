@@ -67,8 +67,22 @@ class RNG:
         )
 
     def stream(self):
-        """Return a fresh, independent PRNGKey and advance the stream."""
-        self._key, sub = jax.random.split(self._key)
+        """Return a fresh, independent PRNGKey and advance the stream.
+
+        Raises:
+            RuntimeError: called while JAX is tracing (e.g. ``sample=True``
+                inside a model passed to ``m.fit``/``m.svi``). Storing a traced
+                key would leak a tracer and fail later with a cryptic JAX error.
+        """
+        new_key, sub = jax.random.split(self._key)
+        if isinstance(sub, jax.core.Tracer):
+            raise RuntimeError(
+                "A direct draw (sample=True) was requested while JAX is tracing, "
+                "typically inside a model passed to m.fit()/m.svi(). sample=True "
+                "draws fixed data for simulation; inside a model declare a latent "
+                "parameter instead, e.g. m.dist.normal(0, 1, name='alpha')."
+            )
+        self._key = new_key
         return sub
 
     def get_seed(self):
