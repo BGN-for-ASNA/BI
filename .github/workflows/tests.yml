@@ -29,11 +29,11 @@ jobs:
 
       # Tests of the core functions (Test/0.Core), the three-language check of
       # the "Get started" pages and their Python examples
-      # (Test/0.Documentation/Python). Test/0.Core/conftest.py prints a table of
+      # (Test/3.Documentation/Python). Test/0.Core/conftest.py prints a table of
       # the statistical checks, adds it to the job summary and writes
       # Test/0.Core/_report/ (table + plots).
       - name: Run tests
-        run: python -m pytest Test/0.Core Test/0.Documentation/test_language_coverage.py Test/0.Documentation/Python -q -m "not pages"
+        run: python -m pytest Test/0.Core Test/3.Documentation/test_language_coverage.py Test/3.Documentation/Python -q -m "not pages"
 
       - name: Upload verification report
         if: always()
@@ -43,7 +43,7 @@ jobs:
           path: Test/0.Core/_report/
           if-no-files-found: ignore
 
-  # R examples of the "Get started" pages (Test/0.Documentation/R), run with the
+  # R examples of the "Get started" pages (Test/3.Documentation/R), run with the
   # dev branch of the R package against this checkout of BayesForge.
   docs-r:
     runs-on: ubuntu-latest
@@ -69,9 +69,9 @@ jobs:
             any::posterior
             any::bayesplot
       - name: Run the R examples
-        run: python -m pytest Test/0.Documentation/R -q -rA
+        run: python -m pytest Test/3.Documentation/R -q -rA
 
-  # Julia examples of the "Get started" pages (Test/0.Documentation/Julia), run
+  # Julia examples of the "Get started" pages (Test/3.Documentation/Julia), run
   # with the dev branch of PyBayesForge.jl against this checkout of
   # BayesForge (PythonCall uses this Python; CondaPkg is switched off).
   docs-julia:
@@ -101,7 +101,7 @@ jobs:
             Pkg.add(url = "https://github.com/BGN-for-ASNA/PyBayesForge.jl", rev = "dev")
             Pkg.add(["PythonCall", "DataFrames", "CSV", "MCMCChains"])'
       - name: Run the Julia examples
-        run: python -m pytest Test/0.Documentation/Julia -q -rA
+        run: python -m pytest Test/3.Documentation/Julia -q -rA
 
   # One compatibility matrix (compat.toml) for the Python, R and Julia packages:
   # this repository's pyproject.toml and the dev branches of BFR and

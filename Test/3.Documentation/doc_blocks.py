@@ -1,6 +1,6 @@
 """Code blocks of the documentation pages, per language.
 
-Shared by the Python, R and Julia documentation tests (Test/0.Documentation/*/)
+Shared by the Python, R and Julia documentation tests (Test/3.Documentation/*/)
 and by test_language_coverage.py.
 
 A block is left out of the execution tests when its fence carries the

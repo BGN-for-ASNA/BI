@@ -1,4 +1,4 @@
-# Test/1.Diagnostic_plots: bayesplot cross-check of the PPC plots
+# Test/2.Diagnostic_plots: bayesplot cross-check of the PPC plots
 
 Numerical cross-checks of the posterior predictive check plots in
 `BayesForge/Diagnostic/ppc.py` (exposed as `m.diag.ppc_*`) against
@@ -14,15 +14,15 @@ bayesplot uses everywhere except where noted below.
 ## How to run
 
 ```bash
-cd /home/sosa/work/BF && PYTHONPATH=$PWD /home/sosa/work/3.12venv/bin/python -m pytest -q Test/1.Diagnostic_plots -p no:cacheprovider
+cd /home/sosa/work/BF && PYTHONPATH=$PWD /home/sosa/work/3.12venv/bin/python -m pytest -q Test/2.Diagnostic_plots -p no:cacheprovider
 ```
 
 ## How to regenerate the references
 
 ```bash
 cd /home/sosa/work/BF
-PYTHONPATH=$PWD /home/sosa/work/3.12venv/bin/python Test/1.Diagnostic_plots/make_input.py   # regenerates fixtures/input.json
-Rscript Test/1.Diagnostic_plots/make_reference.R                                            # regenerates fixtures/reference.json
+PYTHONPATH=$PWD /home/sosa/work/3.12venv/bin/python Test/2.Diagnostic_plots/make_input.py   # regenerates fixtures/input.json
+Rscript Test/2.Diagnostic_plots/make_reference.R                                            # regenerates fixtures/reference.json
 ```
 
 ## Mapping: BayesForge function -> bayesplot function -> numbers compared
@@ -47,9 +47,16 @@ Rscript Test/1.Diagnostic_plots/make_reference.R                                
 
 ## Known differences / xfail
 
-(Placeholder - fill in as the tests are written. Candidates spotted while
-reading the sources: KDE bandwidth rule (Scott vs nrd0) in `ppc_density` and
-`ppc_loo_pit`; `ppc_bars` mean vs median point; `ppc_error_hist` mean errors
-vs per-draw errors; LOO-PIT tie handling (`<=` in BF vs `<` plus uniform
-randomization inside ties in `rstantools::loo_pit`) and ArviZ-style vs
-R `loo` PSIS smoothing; bayesplot's boundary-corrected PIT density.)
+One xfail remains: `test_ppc_error_hist_per_draw_residuals`
+(`xfail(strict=True)`) -- BF's `ppc_error_hist` plots a single histogram of
+the 30 mean residuals `y - E[yrep]`, while bayesplot uses per-draw errors
+`y - yrep[s,i]` faceted per draw, so the figure cannot expose the reference's
+200x30 matrix.
+
+The two LOO-PIT comparisons are **not** xfailed: the reference `pit_loo` uses
+normalised PSIS weights (`stats::weights(psis)`, so the weighted CDF lies in
+[0, 1]), and BF's ArviZ-style PSIS vs R's `loo::psis` (behind
+`rstantools::loo_pit`) differ by only ~1.2e-8 in the PIT values -- covered by
+the suite tolerance (rtol=1e-7, atol=1e-9). No ties occur in this continuous
+fixture, so BF's `<=` vs `rstantools`' `<` plus uniform tie randomization is
+moot here.

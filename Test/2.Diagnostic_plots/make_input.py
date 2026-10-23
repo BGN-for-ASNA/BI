@@ -5,7 +5,7 @@ the pytest module (BayesForge side). Stdlib json + numpy only.
 
 Run from the repo root:
     cd /home/sosa/work/BF && PYTHONPATH=$PWD \
-        /home/sosa/work/3.12venv/bin/python Test/1.Diagnostic_plots/make_input.py
+        /home/sosa/work/3.12venv/bin/python Test/2.Diagnostic_plots/make_input.py
 """
 
 import json

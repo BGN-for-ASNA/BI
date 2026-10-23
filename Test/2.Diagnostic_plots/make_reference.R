@@ -1,11 +1,11 @@
 #!/usr/bin/env Rscript
 # make_reference.R -- generate fixtures/reference.json for the bayesplot
-# cross-check of BayesForge's PPC diagnostic plots (Test/1.Diagnostic_plots).
+# cross-check of BayesForge's PPC diagnostic plots (Test/2.Diagnostic_plots).
 #
 # Usage:
-#   cd /home/sosa/work/BF && Rscript Test/1.Diagnostic_plots/make_reference.R .
+#   cd /home/sosa/work/BF && Rscript Test/2.Diagnostic_plots/make_reference.R .
 # The first (optional) argument is the repo base directory (default: getwd());
-# fixtures are read/written under <base>/Test/1.Diagnostic_plots/fixtures/.
+# fixtures are read/written under <base>/Test/2.Diagnostic_plots/fixtures/.
 
 suppressMessages({
   for (pkg in c("jsonlite", "bayesplot", "loo", "posterior", "rstantools", "ggplot2")) {
@@ -20,7 +20,7 @@ suppressMessages({
 
 args <- commandArgs(trailingOnly = TRUE)
 base <- if (length(args) >= 1 && dir.exists(args[1])) args[1] else getwd()
-fx_dir <- file.path(base, "Test", "1.Diagnostic_plots", "fixtures")
+fx_dir <- file.path(base, "Test", "2.Diagnostic_plots", "fixtures")
 in_path <- file.path(fx_dir, "input.json")
 out_path <- file.path(fx_dir, "reference.json")
 if (!file.exists(in_path)) stop("missing input fixture: ", in_path)
@@ -80,16 +80,17 @@ boxplot_q <- c(list(y = q7(y, c(0.25, 0.5, 0.75))),
 
 ## ---- continuous: LOO-PIT ------------------------------------------------------
 psis <- loo::psis(-log_lik, r_eff = 1)
-lw_raw <- psis$log_weights                 # smoothed log weights (unnormalised)
-stopifnot(identical(dim(lw_raw), dim(yrep)))
-w <- exp(lw_raw)
-w <- w / colSums(w)                        # normalise per observation (column)
+lw_norm <- stats::weights(psis)            # loo S3 method: normalised log weights (log = TRUE default)
+stopifnot(identical(dim(lw_norm), dim(yrep)))
+# a PIT is a weighted CDF and must lie in [0, 1], so it needs weights that sum
+# to 1 per observation: psis$log_weights are unnormalised (and w / colSums(w)
+# would not normalise per column either -- R recycles down the columns).
 pit_loo <- vapply(seq_len(ncol(yrep)),
-                  function(i) sum(w[, i] * (yrep[, i] <= y[i])), numeric(1))
+                  function(i) sum(exp(lw_norm[, i]) * (yrep[, i] <= y[i])), numeric(1))
+stopifnot(all(pit_loo >= 0 & pit_loo <= 1 + 1e-12))
 
 # bayesplot:::ppc_loo_pit_data() exists but returns the KDE data frame
 # (rep_id / is_rep / x / density); it has no $pit field -> use rstantools.
-lw_norm <- stats::weights(psis)            # loo S3 method: normalised log weights (log = TRUE default)
 lp <- try(bayesplot:::ppc_loo_pit_data(y, yrep, lw = lw_norm), silent = TRUE)
 pit_bayesplot <- if (!inherits(lp, "try-error") && "pit" %in% names(lp)) lp$pit else NULL
 

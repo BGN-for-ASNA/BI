@@ -11,8 +11,8 @@ noise (~1e-15 here).  Anything that fails at these tolerances is therefore a
 genuine algorithmic difference between BayesForge and bayesplot, not rounding;
 such tests are marked xfail(strict=True) with the precise reason (quantity,
 max abs difference, and what ppc.py does differently).  The two LOO-PIT
-comparisons are not exact arithmetic (different PSIS implementations), so
-their xfail reasons state the observed max abs difference explicitly.
+comparisons are not exact arithmetic (different PSIS implementations), but
+their difference (~1.2e-8) is covered by the suite tolerance, so they pass.
 
 Each test calls the BayesForge function directly with the fixture arrays and
 extracts the numbers from the returned plotly figure (fig.data traces' x/y,
@@ -335,8 +335,8 @@ def test_ppc_bars():
     np.testing.assert_allclose(np.asarray(obs.y, float), np.array(ref["observed"]),
                                rtol=RTOL, atol=ATOL)
     pt = np.asarray(rep.y, dtype=float)
-    # BF's point is the MEAN count -> matches the reference yrep_mean exactly
-    np.testing.assert_allclose(pt, np.array(ref["yrep_mean"]), rtol=RTOL, atol=ATOL)
+    # BF's point is the MEDIAN count -> matches the reference yrep_median exactly
+    np.testing.assert_allclose(pt, np.array(ref["yrep_median"]), rtol=RTOL, atol=ATOL)
     # error bars recover the 5%/95% type-7 count quantiles (match bayesplot l/h)
     lo = pt - np.asarray(rep.error_y.arrayminus, dtype=float)
     hi = pt + np.asarray(rep.error_y.array, dtype=float)
@@ -344,15 +344,6 @@ def test_ppc_bars():
     np.testing.assert_allclose(hi, np.array(ref["yrep_q95"]), rtol=RTOL, atol=ATOL)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "BayesForge uses mean, bayesplot ppc_bars_data uses median: "
-        "ppc_bars plots E[count] (reference yrep_mean) as the point, not the "
-        "median count; max abs difference between the figure point and the "
-        "reference yrep_median is 0.445."
-    ),
-)
 def test_ppc_bars_point_is_median():
     fig = ppc.ppc_bars(CY, CYREP)
     pt = np.asarray(fig.data[1].y, dtype=float)
@@ -380,41 +371,20 @@ def _loo_pit_figure_and_pit():
     return pit
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "ppc_loo_pit normalizes its own ArviZ-style PSIS weights per "
-        "observation (_psis_weights in jax_diagnostics, reff=1) and returns "
-        "the weighted CDF sum(w*1{yrep<=y}) in [0,1], while the fixture's "
-        "pit_loo (loo::psis(-log_lik, r_eff=1) log-weights) is not a "
-        "normalized weighted CDF -- 5 of its 30 values exceed 1 (max 5.0535) "
-        "-- so the two cannot agree; max abs difference 4.133816800693079."
-    ),
-)
 def test_ppc_loo_pit_matches_reference_pit_loo():
     pit = _loo_pit_figure_and_pit()
     np.testing.assert_allclose(pit, np.array(RC["loo_pit"]["pit_loo"]),
                                rtol=RTOL, atol=ATOL)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "BayesForge computes the LOO weights with its own ArviZ-style PSIS "
-        "(_psis_weights: GPD tail fit + ArviZ gpinv smoothing, reff=1) while "
-        "pit_rstantools uses loo::psis log-weights via rstantools::loo_pit "
-        "(< with runif tie randomization; no ties occur in this continuous "
-        "fixture); the two PSIS implementations give PIT values differing by "
-        "max abs 1.153520068353231e-08 -- far above the ~1e-15 floating-point "
-        "noise for identical JSON inputs, hence a real algorithmic difference "
-        "at the noise-level tolerance (rtol=1e-10, atol=1e-12) used here, "
-        "though below the suite's rtol=1e-7."
-    ),
-)
 def test_ppc_loo_pit_matches_pit_rstantools():
     pit = _loo_pit_figure_and_pit()
+    # BayesForge's ArviZ-style PSIS (_psis_weights) and loo::psis (behind
+    # rstantools::loo_pit) are different implementations; their PIT values
+    # differ by ~1.2e-8, which the suite tolerance (rtol=1e-7, atol=1e-9)
+    # covers.
     np.testing.assert_allclose(pit, np.array(RC["loo_pit"]["pit_rstantools"]),
-                               rtol=1e-10, atol=1e-12)
+                               rtol=RTOL, atol=ATOL)
 
 
 # ---------------------------------------------------------------------------

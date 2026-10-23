@@ -152,6 +152,8 @@ m$diag$forest()
 ```
 :::
 
+See [`m.diag.forest`](../reference/diag.qmd#forest) for further information regarding the list of arguments.
+
 ## Density plots of the posterior distribution
 ::: {.panel-tabset group="language"}
 ## Python
@@ -169,6 +171,8 @@ m$diag$density()
 @pyplot m.diag.density()
 ```
 :::
+
+See [`m.diag.density`](../reference/diag.qmd#density) for further information regarding the list of arguments.
 
 ## Posterior distribution plots
 ::: {.panel-tabset group="language"}
@@ -188,6 +192,8 @@ m$diag$posterior()
 ```
 :::
 
+See [`m.diag.posterior`](../reference/diag.qmd#posterior) for further information regarding the list of arguments.
+
 ## Trace plots for MCMC chains
 ::: {.panel-tabset group="language"}
 ## Python
@@ -205,6 +211,8 @@ m$diag$plot_trace()
 @pyplot m.diag.plot_trace()
 ```
 :::
+
+See [`m.diag.plot_trace`](../reference/diag.qmd#plot_trace) for further information regarding the list of arguments.
 
 ## Pairwise plots of the posterior distribution
 ::: {.panel-tabset group="language"}
@@ -224,6 +232,8 @@ m$diag$pair()
 ```
 :::
 
+See [`m.diag.pair`](../reference/diag.qmd#pair) for further information regarding the list of arguments.
+
 ## Plot autocorrelation of MCMC chains
 ::: {.panel-tabset group="language"}
 ## Python
@@ -241,6 +251,8 @@ m$diag$autocor()
 @pyplot m.diag.autocor()
 ```
 :::
+
+See [`m.diag.autocor`](../reference/diag.qmd#autocor) for further information regarding the list of arguments.
 
 
 ## Create rank plots for MCMC chains
@@ -261,6 +273,8 @@ m$diag$rank()
 ```
 :::
 
+See [`m.diag.rank`](../reference/diag.qmd#rank) for further information regarding the list of arguments.
+
 ## Evolution of effective sample size across iterations
 
 ::: {.panel-tabset group="language"}
@@ -279,6 +293,8 @@ m$diag$plot_ess()
 @pyplot m.diag.plot_ess()
 ```
 :::
+
+See [`m.diag.plot_ess`](../reference/diag.qmd#plot_ess) for further information regarding the list of arguments.
 
 ## HMC diagnostics: divergences and energy
 
@@ -304,8 +320,10 @@ m$diag$divergence_energy()
 ```
 :::
 
+See [`m.diag.divergence_energy`](../reference/diag.qmd#divergence_energy) for further information regarding the list of arguments.
+
 ## Posterior predictive checks
-All posterior predictive checks compare the observed outcome with *predictions*: datasets of the outcome simulated by the fitted model, one per posterior draw (`m.diag.get_yrep()`). Both are taken from the fitted model automatically, and the plots are labelled with the name of the observed site (here `height`, from `obs=height`). With several observed sites, each function returns one figure per site; pass `site=` to choose one. The idea is always the same: if the model is good, the data it simulates should look like the real data. For count or categorical outcomes, `m.diag.ppc_bars()` and `m.diag.ppc_rootogram()` instead compare observed counts with predicted counts per category.
+All posterior predictive checks compare the observed outcome with *predictions*: datasets of the outcome simulated by the fitted model, one per posterior draw (`m.diag.get_yrep()`). Both are taken from the fitted model automatically, and the plots are labelled with the name of the observed site (here `height`, from `obs=height`). With several observed sites, each function returns one figure per site; pass `site=` to choose one. The idea is always the same: if the model is good, the data it simulates should look like the real data. For count or categorical outcomes, [`m.diag.ppc_bars()`](../reference/diag.qmd#ppc_bars) and [`m.diag.ppc_rootogram()`](../reference/diag.qmd#ppc_rootogram) instead compare observed counts with predicted counts per category.
 
 ### Density overlay
 Overlays the density of the observed data (black) with the densities of n predicted datasets (blue). The black curve should look like one more blue curve; a different shape (two modes, skewness, mass below 0 for a positive outcome) points to a missing group or a wrong likelihood.
@@ -327,6 +345,8 @@ m$diag$ppc_density()
 ```
 :::
 
+See [`m.diag.ppc_density`](../reference/diag.qmd#ppc_density) for further information regarding the list of arguments.
+
 ### Histogram small multiples
 The histogram of the observed data (first panel, black) next to the histograms of n predicted datasets ("Prediction 1", "Prediction 2", ...). The observed histogram should not stand out among the predictions; look at the number of modes, the skewness, the range and the number of zeros.
 
@@ -347,6 +367,8 @@ m$diag$ppc_hist()
 ```
 :::
 
+See [`m.diag.ppc_hist`](../reference/diag.qmd#ppc_hist) for further information regarding the list of arguments.
+
 ### Boxplots
 The box of the observed data (left, black) next to the boxes of n predicted datasets ("pred 1", "pred 2", ...): median, quartiles, whiskers and extreme points. The observed box should look like the others; an observed box that is systematically higher, wider or narrower, or extreme values that the predictions never produce (tails too light: try a Student-t likelihood), signal misfit.
 
@@ -366,6 +388,8 @@ m$diag$ppc_boxplot()
 @pyplot m.diag.ppc_boxplot()
 ```
 :::
+
+See [`m.diag.ppc_boxplot`](../reference/diag.qmd#ppc_boxplot) for further information regarding the list of arguments.
 
 ### Test statistic
 Each predicted dataset is summarised by one number T (the curve is the distribution of T over the predictions) and T of the observed data is marked by the vertical line. The title gives the Bayesian p-value P(T(predicted) ≥ T(observed)) and its two-sided version: around 0.5 is fine, a two-sided value below 0.05 means the model does not reproduce this aspect of the data.
@@ -389,6 +413,8 @@ m$diag$ppc_stat(stat = "sd")
 ```
 :::
 
+See [`m.diag.ppc_stat`](../reference/diag.qmd#ppc_stat) for further information regarding the list of arguments.
+
 ### Predictive intervals
 One vertical bar per observation: the thin line is the 90% predictive interval (`prob_outer`), the thick line the 50% interval (`prob`), the white point the median prediction and the black point the observed value. About 50% of the black points should fall on the thick bars and 90% on the thin ones. Many points outside mean the model is over-confident; all points close to the median mean it is too cautious. Pass `x=` (a predictor) to see *where* the model misses.
 
@@ -408,6 +434,8 @@ m$diag$ppc_intervals()
 @pyplot m.diag.ppc_intervals()
 ```
 :::
+
+See [`m.diag.ppc_intervals`](../reference/diag.qmd#ppc_intervals) for further information regarding the list of arguments.
 
 ### Predictive ribbon
 The same intervals drawn as continuous ribbons (light: 90%, dark: 50%; line: median prediction) with the observed values as points. Easier to read than the bars when `x` is a continuous variable, here the predictor `weight`: the ribbon should follow the cloud of points over the whole range of x, without a curvature it misses.
@@ -429,6 +457,8 @@ m$diag$ppc_ribbon(x = m$df$weight)
 ```
 :::
 
+See [`m.diag.ppc_ribbon`](../reference/diag.qmd#ppc_ribbon) for further information regarding the list of arguments.
+
 ### Observed versus mean prediction
 Observed value (y axis) against the mean prediction of each observation (x axis); the dashed diagonal is a perfect prediction. A cloud of constant width around the diagonal is good. A funnel (spread growing with the prediction) indicates heteroscedasticity, a curve an unmodelled non-linearity, and a slope below 1 shrinkage (expected in hierarchical models, suspicious when strong).
 
@@ -448,6 +478,8 @@ m$diag$ppc_error_scatter()
 @pyplot m.diag.ppc_error_scatter()
 ```
 :::
+
+See [`m.diag.ppc_error_scatter`](../reference/diag.qmd#ppc_error_scatter) for further information regarding the list of arguments.
 
 ### Residuals
 Histogram of the residuals r_i = observed_i − mean prediction_i. It should be centred on 0 and roughly symmetric; a shift is a systematic bias, skewness a wrong likelihood family, two modes a missing group, and long tails a few badly predicted observations (see [LOO influence](#loo-influence)).
@@ -469,6 +501,8 @@ m$diag$ppc_error_hist()
 ```
 :::
 
+See [`m.diag.ppc_error_hist`](../reference/diag.qmd#ppc_error_hist) for further information regarding the list of arguments.
+
 ### Observed versus individual predictions
 Each panel plots the observed data against **one** predicted dataset (not the mean), so the observation noise is included and the cloud is wider than in the plot above. The width of the cloud around the diagonal should be similar from one panel to the next; observed values that systematically overshoot on one side mean the simulated noise is mis-calibrated.
 
@@ -488,6 +522,8 @@ m$diag$ppc_scatter()
 @pyplot m.diag.ppc_scatter()
 ```
 :::
+
+See [`m.diag.ppc_scatter`](../reference/diag.qmd#ppc_scatter) for further information regarding the list of arguments.
 
 ### LOO-PIT uniformity check
 For each observation, the PIT (probability integral transform) is the quantile of its predictive distribution at which the observed value falls: PIT_i = P(prediction_i ≤ y_i). If the model is calibrated these values are uniform between 0 and 1, so their density (blue) is flat around the dashed line at 1. The grey curves are densities of the same number of truly uniform values: they show how far from flat a perfectly calibrated model can be by chance, so a blue curve that stays inside the grey band is fine.
@@ -518,6 +554,8 @@ m$diag$ppc_loo_pit()
 ```
 :::
 
+See [`m.diag.ppc_loo_pit`](../reference/diag.qmd#ppc_loo_pit) for further information regarding the list of arguments.
+
 ### Predictive intervals sorted by observed value
 The predictive intervals with the observations ordered by their observed value, so the black points rise from left to right. The medians should follow the black points. A little "regression towards the mean" is normal (the smallest values slightly over-predicted, the largest slightly under-predicted, because the posterior shrinks them); a strong and systematic gap means the model flattens the extremes, for example because a predictor or a variance term is missing.
 
@@ -538,6 +576,8 @@ m$diag$ppc_intervals_sorted()
 ```
 :::
 
+See [`m.diag.ppc_intervals_sorted`](../reference/diag.qmd#ppc_intervals_sorted) for further information regarding the list of arguments.
+
 ## Regression plot
 Observed data plus n smooth posterior regression lines E[y | x, theta] and their posterior mean, overlaid against a predictor variable.
 
@@ -557,6 +597,8 @@ m$diag$plot_regression("weight", n = 20L)
 @pyplot m.diag.plot_regression("weight", n = 20)
 ```
 :::
+
+See [`m.diag.plot_regression`](../reference/diag.qmd#plot_regression) for further information regarding the list of arguments.
 
 ## Sensitivity
 
@@ -618,6 +660,8 @@ m.fit(model_strong, num_samples = 500, num_chains = 4)
 ```
 :::
 
+See [`m.diag.prior_sensitivity`](../reference/diag.qmd#prior_sensitivity) for further information regarding the list of arguments.
+
 ### LOO influence
 One point per observation with its Pareto k, from PSIS-LOO: how much the posterior would change if this observation were left out.
 
@@ -646,6 +690,8 @@ m$diag$influence()
 ```
 :::
 
+See [`m.diag.influence`](../reference/diag.qmd#influence) for further information regarding the list of arguments.
+
 ### Calibration
 
 For several interval levels (50%, 60%, ..., 99%), the share of observed values that actually fall inside the predictive interval of that level (y axis) against the level itself (x axis); the dashed diagonal is perfect calibration. Points below the diagonal (the "90%" interval contains only, say, 70% of the data) mean the model is over-confident, which is the most serious case; points above it mean the model is too cautious. These intervals are not leave-one-out, so a slight over-coverage is expected.
@@ -666,6 +712,8 @@ m$diag$calibration()
 @pyplot m.diag.calibration()
 ```
 :::
+
+See [`m.diag.calibration`](../reference/diag.qmd#calibration) for further information regarding the list of arguments.
 
 ## Multimodality check
 
@@ -688,6 +736,8 @@ m$diag$multimodality()
 ```
 :::
 
+See [`m.diag.multimodality`](../reference/diag.qmd#multimodality) for further information regarding the list of arguments.
+
 ## Pareto-smoothed
 
 ::: {.panel-tabset group="language"}
@@ -707,6 +757,8 @@ m.diag.loo()
 ```
 :::
 
+See [`m.diag.loo`](../reference/diag.qmd#loo) for further information regarding the list of arguments.
+
 ##  Widely applicable information criterion
 
 ::: {.panel-tabset group="language"}
@@ -725,3 +777,5 @@ m$diag$WAIC()
 m.diag.WAIC()
 ```
 :::
+
+See [`m.diag.WAIC`](../reference/diag.qmd#WAIC) for further information regarding the list of arguments.

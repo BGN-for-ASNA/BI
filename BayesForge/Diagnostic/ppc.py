@@ -618,6 +618,9 @@ def ppc_error_scatter(y, yrep, title=None, name="y", x_label=None, y_label=None)
 def ppc_error_hist(y, yrep, bins=40, title=None, name="y", x_label=None, y_label=None):
     """Distribution of mean residuals r_i = y_i - E[yrep_i].
 
+    Plots the mean residual per observation; bayesplot's ppc_error_hist
+    instead shows the per-draw errors y - yrep[s, i] faceted by draw.
+
     Args:
         y: Observed data.
         yrep: Posterior predictive matrix.
@@ -763,7 +766,8 @@ def ppc_bars(y, yrep, title=None, name="y", x_label=None, y_label=None):
     """Bar chart comparing observed y to posterior predictive yrep.
 
     For ordinal, categorical, or discrete outcomes.
-    Shows observed counts and yrep credible interval per category.
+    Shows observed counts and, per category, the median predicted count with
+    a 90% interval, as in bayesplot's ppc_bars.
 
     Args:
         y: Observed discrete values.
@@ -792,7 +796,7 @@ def ppc_bars(y, yrep, title=None, name="y", x_label=None, y_label=None):
         for s in range(len(yrep))
     ], dtype=float)
 
-    rep_mean = rep_counts.mean(axis=0)
+    rep_med  = np.median(rep_counts, axis=0)
     rep_lo   = np.percentile(rep_counts, 5, axis=0)
     rep_hi   = np.percentile(rep_counts, 95, axis=0)
 
@@ -803,12 +807,12 @@ def ppc_bars(y, yrep, title=None, name="y", x_label=None, y_label=None):
         name=_obs(name),
     ))
     fig.add_trace(go.Scatter(
-        x=cats, y=rep_mean, mode="markers",
+        x=cats, y=rep_med, mode="markers",
         marker=dict(color="cornflowerblue", size=10, symbol="diamond"),
         error_y=dict(type="data", symmetric=False,
-                     array=rep_hi - rep_mean,
-                     arrayminus=rep_mean - rep_lo),
-        name=f"{_preds(name)}: mean count ± 90% interval",
+                     array=rep_hi - rep_med,
+                     arrayminus=rep_med - rep_lo),
+        name=f"{_preds(name)}: median count ± 90% interval",
     ))
     fig.update_layout(title=_title(title, "Bar chart", name), xaxis_title=name,
                       yaxis_title="Count", plot_bgcolor="white")

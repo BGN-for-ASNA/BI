@@ -10,7 +10,7 @@ run is the reference; R and Julia use 2 real worker processes.
 Skipped when ``Rscript`` / ``julia`` or the corresponding package (with
 ``run_simulations``) is not installed -- the R and Julia CI jobs install them.
 ``BF_JULIA`` and ``BF_JULIA_PROJECT`` select the Julia binary and project, as
-for Test/0.Documentation.
+for Test/3.Documentation.
 """
 
 import csv
