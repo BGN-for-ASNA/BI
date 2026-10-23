@@ -95,7 +95,9 @@ def test_layer_mixture_normal_as_likelihood_trained_with_svi_and_sampled():
     m.data_on_model = {"c": c, "u": u, "batch_size": 100}
     m.svi(net, guide=AutoDelta(net, init_loc_fn=init_to_sample),
           optim=numpyro.optim.Adam(1e-2), loss=Trace_ELBO(), num_steps=3000, num_samples=200)
-    weights = dict(m.posteriors)
+    # AutoDelta: every stored draw is the same point estimate; a posterior dict is
+    # one fixed draw, repeated `samples` times.
+    weights = {k: v[0] for k, v in m.posteriors.items()}
     draws = m.sample(posterior=weights, data={"c": jnp.array([[1.0]]), "u": None, "batch_size": None},
                      samples=200)["u"]
     assert draws.shape == (200, 1, 1)

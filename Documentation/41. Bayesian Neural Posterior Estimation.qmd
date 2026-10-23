@@ -155,7 +155,7 @@ w_bnpe = dict(m.posteriors)                                             # 100 di
 def draw(weights, c, n_per_net):
     """Posterior draws for each row of c: n_per_net per network -> (rows, 100 * n_per_net, D)."""
     data = {"c": jnp.repeat(c, n_per_net, axis=0), "u": None, "batch_size": None}
-    u = m.sample(posterior=weights, data=data, samples=100)["u"]          # (100 nets, rows * n, D)
+    u = m.sample(posterior_draws=weights, data=data)["u"]                 # (100 nets, rows * n, D)
     u = u.reshape(100, c.shape[0], n_per_net, D)
     return jnp.moveaxis(u, 0, 1).reshape(c.shape[0], -1, D)
 
