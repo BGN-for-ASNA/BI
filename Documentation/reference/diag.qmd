@@ -31,7 +31,14 @@ Widely applicable information criterion (WAIC).
 ## `m.diag.autocor` {#autocor}
 
 ```python
-m.diag.autocor(include=None, exclude=None, filtered=True, **kw)
+m.diag.autocor(
+    include=None,
+    exclude=None,
+    filtered=True,
+    x_label=None,
+    y_label=None,
+    **kw,
+)
 ```
 
 Autocorrelation of the draws of each parameter, per chain.
@@ -41,6 +48,8 @@ Autocorrelation of the draws of each parameter, per chain.
 | `include` | str or list of str | Parameters to plot (default: all). |
 | `exclude` | str or list of str | Parameters to leave out. |
 | `filtered` | bool | Use ``m.posteriors`` (True, default) or every sampled site, ``m.posteriors_full`` (False). |
+| `x_label` | str or list of str | X-axis title; a list gives one per subplot, in order. Defaults to the plot's own labels. |
+| `y_label` | str or list of str | Y-axis title, as x_label. |
 | `**kw` |  | Passed to the plotting function (e.g. ``figsize``). |
 
 **Returns**
@@ -55,13 +64,16 @@ m.diag.calibration(
     y=None,
     yrep=None,
     levels=None,
-    title='Calibration: Empirical vs Nominal Coverage',
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
 )
 ```
 
 Empirical coverage vs nominal credible interval levels.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 For each level α, computes the fraction of observed y values that fall
 inside the α-level predictive interval. A well-calibrated model has
@@ -72,7 +84,10 @@ empirical ≈ nominal.
 | `y` |  | Observed data, shape (n_obs,). |
 | `yrep` |  | Posterior predictive matrix, shape (n_rep, n_obs). |
 | `levels` |  | List of nominal coverage levels. Defaults to [0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99]. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 **Returns**
 
@@ -136,7 +151,14 @@ leading authorities on model comparison dx.doi.org/10.1111/1467-9868.00353
 ## `m.diag.density` {#density}
 
 ```python
-m.diag.density(include=None, exclude=None, filtered=True, **kw)
+m.diag.density(
+    include=None,
+    exclude=None,
+    filtered=True,
+    x_label=None,
+    y_label=None,
+    **kw,
+)
 ```
 
 Posterior density of each parameter, one curve per chain.
@@ -146,6 +168,8 @@ Posterior density of each parameter, one curve per chain.
 | `include` | str or list of str | Parameters to plot (default: all). |
 | `exclude` | str or list of str | Parameters to leave out. |
 | `filtered` | bool | Use ``m.posteriors`` (True, default) or every sampled site, ``m.posteriors_full`` (False). |
+| `x_label` | str or list of str | X-axis title; a list gives one per subplot, in order. Defaults to the plot's own labels. |
+| `y_label` | str or list of str | Y-axis title, as x_label. |
 | `**kw` |  | Passed to the plotting function (e.g. ``figsize``). |
 
 **Returns**
@@ -181,24 +205,37 @@ Run MCMC convergence diagnostics on a fitted BF model.
 ## `m.diag.divergence_energy` {#divergence_energy}
 
 ```python
-m.diag.divergence_energy(title='HMC Diagnostics: Energy & Divergences')
+m.diag.divergence_energy(
+    title='HMC Diagnostics: Energy & Divergences',
+    x_label=None,
+    y_label=None,
+)
 ```
 
-Plot HMC energy transition histogram and divergence locations.
+Plot the HMC energy diagnostic and the divergent transitions per chain.
 
 The fitted model ``m`` is supplied automatically.
 
-Shows the E-BFMI energy statistic (marginal energy vs transition energy)
-to check for concentration problems, and flags divergent transitions.
+Top row, one panel per chain (as bayesplot's ``mcmc_nuts_energy``): the
+distribution of the energy E around its mean (marginal energy) and of its
+change between successive iterations, Delta E (energy transition). When
+the Delta E histogram is about as wide as the E histogram the sampler can
+move across the whole posterior; a much narrower Delta E histogram means
+it explores the tails badly. The panel title gives E-BFMI =
+sum(Delta E^2) / sum((E - mean E)^2); values below 0.3 are flagged.
+
+Bottom row: number of divergent transitions per chain (ideal: 0).
 
 | Argument | Type | Description |
 |---|---|---|
 | `m` |  | Fitted BF model with NumPyro MCMC sampler. |
 | `title` |  | Plot title. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 **Returns**
 
-- plotly Figure (two panels: energy histogram, divergences per chain).
+- plotly Figure.
 
 
 ## `m.diag.ess` {#ess}
@@ -224,7 +261,14 @@ Effective sample size of each parameter.
 ## `m.diag.forest` {#forest}
 
 ```python
-m.diag.forest(include=None, exclude=None, filtered=True, **kw)
+m.diag.forest(
+    include=None,
+    exclude=None,
+    filtered=True,
+    x_label=None,
+    y_label=None,
+    **kw,
+)
 ```
 
 Forest plot: posterior mean and credible interval of each parameter.
@@ -234,6 +278,8 @@ Forest plot: posterior mean and credible interval of each parameter.
 | `include` | str or list of str | Parameters to plot (default: all). |
 | `exclude` | str or list of str | Parameters to leave out. |
 | `filtered` | bool | Use ``m.posteriors`` (True, default) or every sampled site, ``m.posteriors_full`` (False). |
+| `x_label` | str or list of str | X-axis title; a list gives one per subplot, in order. Defaults to the plot's own labels. |
+| `y_label` | str or list of str | Y-axis title, as x_label. |
 | `**kw` |  | Passed to the plotting function (e.g. ``figsize``). |
 
 **Returns**
@@ -244,18 +290,19 @@ Forest plot: posterior mean and credible interval of each parameter.
 ## `m.diag.get_yrep` {#get_yrep}
 
 ```python
-m.diag.get_yrep(seed=0)
+m.diag.get_yrep(site=None, seed=None)
 ```
 
-Posterior predictive draws of the observed outcome.
+Posterior predictive draws of the observed outcome(s).
 
 | Argument | Type | Description |
 |---|---|---|
-| `seed` | int | Seed of the predictive simulation. Defaults to 0. |
+| `site` | str | Name of the observed site when multiple observed sites exist. If None and there are multiple sites, a dict mapping site names to their draws is returned. |
+| `seed` | int | Seed of the predictive simulation. Defaults to None (a fresh draw from the model's random stream). |
 
 **Returns**
 
-- Array of shape (draws, observations).
+- Array of shape (draws, observations) or dict[str, Array].
 
 
 ## `m.diag.influence` {#influence}
@@ -267,6 +314,8 @@ m.diag.influence(
     y=None,
     good_k=None,
     title='LOO Influence: Pareto-k Diagnostics',
+    x_label=None,
+    y_label=None,
 )
 ```
 
@@ -285,6 +334,8 @@ is sensitive — potential outliers or model misspecification.
 | `y` |  | Optional 1D array of observed values for hover text. |
 | `good_k` |  | Threshold for flagging bad k (default 0.7). |
 | `title` |  | Plot title. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 **Returns**
 
@@ -361,6 +412,8 @@ m.diag.multimodality(
     param_names=None,
     n_modes=2,
     title='Multimodality Check',
+    x_label=None,
+    y_label=None,
 )
 ```
 
@@ -379,6 +432,8 @@ explore different regions.
 | `param_names` |  | Subset of parameters to check. |
 | `n_modes` |  | Number of modes to highlight. |
 | `title` |  | Plot title. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 **Returns**
 
@@ -388,7 +443,7 @@ explore different regions.
 ## `m.diag.pair` {#pair}
 
 ```python
-m.diag.pair(include=None, exclude=None, filtered=True, **kw)
+m.diag.pair(include=None, exclude=None, filtered=True, x_label=None, y_label=None, **kw)
 ```
 
 Pairwise scatter plots of the draws (correlations, funnels, multimodality).
@@ -398,6 +453,8 @@ Pairwise scatter plots of the draws (correlations, funnels, multimodality).
 | `include` | str or list of str | Parameters to plot (default: all). |
 | `exclude` | str or list of str | Parameters to leave out. |
 | `filtered` | bool | Use ``m.posteriors`` (True, default) or every sampled site, ``m.posteriors_full`` (False). |
+| `x_label` | str or list of str | X-axis title; a list gives one per subplot, in order. Defaults to the plot's own labels. |
+| `y_label` | str or list of str | Y-axis title, as x_label. |
 | `**kw` |  | Passed to the plotting function (e.g. ``figsize``). |
 
 **Returns**
@@ -480,7 +537,14 @@ waic : Compute the widely applicable information criterion.
 ## `m.diag.plot_ess` {#plot_ess}
 
 ```python
-m.diag.plot_ess(include=None, exclude=None, filtered=True, **kw)
+m.diag.plot_ess(
+    include=None,
+    exclude=None,
+    filtered=True,
+    x_label=None,
+    y_label=None,
+    **kw,
+)
 ```
 
 Evolution of the effective sample size as draws accumulate.
@@ -490,6 +554,8 @@ Evolution of the effective sample size as draws accumulate.
 | `include` | str or list of str | Parameters to plot (default: all). |
 | `exclude` | str or list of str | Parameters to leave out. |
 | `filtered` | bool | Use ``m.posteriors`` (True, default) or every sampled site, ``m.posteriors_full`` (False). |
+| `x_label` | str or list of str | X-axis title; a list gives one per subplot, in order. Defaults to the plot's own labels. |
+| `y_label` | str or list of str | Y-axis title, as x_label. |
 | `**kw` |  | Passed to the plotting function (e.g. ``figsize``). |
 
 **Returns**
@@ -547,7 +613,14 @@ observation noise averages out. Works for any GLM family.
 ## `m.diag.plot_trace` {#plot_trace}
 
 ```python
-m.diag.plot_trace(include=None, exclude=None, filtered=True, **kw)
+m.diag.plot_trace(
+    include=None,
+    exclude=None,
+    filtered=True,
+    x_label=None,
+    y_label=None,
+    **kw,
+)
 ```
 
 Trace plot of each chain (mixing and stationarity).
@@ -557,6 +630,8 @@ Trace plot of each chain (mixing and stationarity).
 | `include` | str or list of str | Parameters to plot (default: all). |
 | `exclude` | str or list of str | Parameters to leave out. |
 | `filtered` | bool | Use ``m.posteriors`` (True, default) or every sampled site, ``m.posteriors_full`` (False). |
+| `x_label` | str or list of str | X-axis title; a list gives one per subplot, in order. Defaults to the plot's own labels. |
+| `y_label` | str or list of str | Y-axis title, as x_label. |
 | `**kw` |  | Passed to the plotting function (e.g. ``figsize``). |
 
 **Returns**
@@ -567,7 +642,14 @@ Trace plot of each chain (mixing and stationarity).
 ## `m.diag.posterior` {#posterior}
 
 ```python
-m.diag.posterior(include=None, exclude=None, filtered=True, **kw)
+m.diag.posterior(
+    include=None,
+    exclude=None,
+    filtered=True,
+    x_label=None,
+    y_label=None,
+    **kw,
+)
 ```
 
 Posterior density of each parameter with its credible interval.
@@ -577,6 +659,8 @@ Posterior density of each parameter with its credible interval.
 | `include` | str or list of str | Parameters to plot (default: all). |
 | `exclude` | str or list of str | Parameters to leave out. |
 | `filtered` | bool | Use ``m.posteriors`` (True, default) or every sampled site, ``m.posteriors_full`` (False). |
+| `x_label` | str or list of str | X-axis title; a list gives one per subplot, in order. Defaults to the plot's own labels. |
+| `y_label` | str or list of str | Y-axis title, as x_label. |
 | `**kw` |  | Passed to the plotting function (e.g. ``figsize``). |
 
 **Returns**
@@ -587,12 +671,12 @@ Posterior density of each parameter with its credible interval.
 ## `m.diag.ppc_bars` {#ppc_bars}
 
 ```python
-m.diag.ppc_bars(y=None, yrep=None, title='PPC: Bar chart (discrete/categorical)')
+m.diag.ppc_bars(y=None, yrep=None, title=None, name='y', x_label=None, y_label=None)
 ```
 
 Bar chart comparing observed y to posterior predictive yrep.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 For ordinal, categorical, or discrete outcomes.
 Shows observed counts and yrep credible interval per category.
@@ -601,7 +685,10 @@ Shows observed counts and yrep credible interval per category.
 |---|---|---|
 | `y` |  | Observed discrete values. |
 | `yrep` |  | Posterior predictive matrix. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -610,19 +697,30 @@ Returns:
 ## `m.diag.ppc_boxplot` {#ppc_boxplot}
 
 ```python
-m.diag.ppc_boxplot(y=None, yrep=None, n=20, title='PPC: Boxplots')
+m.diag.ppc_boxplot(
+    y=None,
+    yrep=None,
+    n=20,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 Box-and-whisker: y (black) vs n yrep draws.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 | Argument | Type | Description |
 |---|---|---|
 | `y` |  | Observed data. |
 | `yrep` |  | Posterior predictive matrix. |
 | `n` |  | Number of yrep draws. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -631,12 +729,21 @@ Returns:
 ## `m.diag.ppc_density` {#ppc_density}
 
 ```python
-m.diag.ppc_density(y=None, yrep=None, n=50, bw_adjust=1.0, title='PPC: Density overlay')
+m.diag.ppc_density(
+    y=None,
+    yrep=None,
+    n=50,
+    bw_adjust=1.0,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 KDE of y (black) vs n random draws from yrep rows (blue).
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 | Argument | Type | Description |
 |---|---|---|
@@ -644,7 +751,10 @@ KDE of y (black) vs n random draws from yrep rows (blue).
 | `yrep` |  | Posterior predictive matrix, shape (n_rep, n_obs). |
 | `n` |  | Max number of yrep lines to show. |
 | `bw_adjust` |  | Bandwidth multiplier passed to scipy KDE. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels ("Predictions of <name>"); m.diag passes the observed site name. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -653,19 +763,30 @@ Returns:
 ## `m.diag.ppc_error_hist` {#ppc_error_hist}
 
 ```python
-m.diag.ppc_error_hist(y=None, yrep=None, bins=40, title='PPC: Posterior residuals')
+m.diag.ppc_error_hist(
+    y=None,
+    yrep=None,
+    bins=40,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 Distribution of mean residuals r_i = y_i - E[yrep_i].
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 | Argument | Type | Description |
 |---|---|---|
 | `y` |  | Observed data. |
 | `yrep` |  | Posterior predictive matrix. |
 | `bins` |  | Number of histogram bins. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -674,12 +795,19 @@ Returns:
 ## `m.diag.ppc_error_scatter` {#ppc_error_scatter}
 
 ```python
-m.diag.ppc_error_scatter(y=None, yrep=None, title='PPC: y vs E[yrep]')
+m.diag.ppc_error_scatter(
+    y=None,
+    yrep=None,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 Scatter of observed y vs posterior predictive mean E[yrep].
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 Perfect model: points fall on y = x diagonal.
 
@@ -687,7 +815,10 @@ Perfect model: points fall on y = x diagonal.
 |---|---|---|
 | `y` |  | Observed data. |
 | `yrep` |  | Posterior predictive matrix. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -696,12 +827,21 @@ Returns:
 ## `m.diag.ppc_hist` {#ppc_hist}
 
 ```python
-m.diag.ppc_hist(y=None, yrep=None, n=8, bins=30, title='PPC: Histogram small multiples')
+m.diag.ppc_hist(
+    y=None,
+    yrep=None,
+    n=8,
+    bins=30,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 Histograms: observed y plus n random yrep draws.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 | Argument | Type | Description |
 |---|---|---|
@@ -709,7 +849,10 @@ Histograms: observed y plus n random yrep draws.
 | `yrep` |  | Posterior predictive matrix. |
 | `n` |  | Number of yrep draws to show. |
 | `bins` |  | Number of histogram bins. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -724,25 +867,76 @@ m.diag.ppc_intervals(
     x=None,
     prob=0.5,
     prob_outer=0.9,
-    title='PPC: Predictive Intervals',
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
 )
 ```
 
-Interval estimates of yrep with y overlaid.
+Predictive interval of each observation, with the observed value.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
-Plots inner (prob) and outer (prob_outer) credible intervals computed
-from the columns of yrep, with observed y as scatter.
+One vertical bar per observation, as bayesplot's ``ppc_intervals``: a
+thin line for the outer (prob_outer) interval, a thick line for the inner
+(prob) interval, a light point for the median prediction and a dark
+point for the observed value. About prob of the observed points should
+fall on the thick bars and prob_outer on the thin ones.
 
 | Argument | Type | Description |
 |---|---|---|
 | `y` |  | Observed data, shape (n_obs,). |
 | `yrep` |  | Posterior predictive matrix, shape (n_rep, n_obs). |
-| `x` |  | Optional x-axis variable, shape (n_obs,). Defaults to 1..n_obs. |
+| `x` |  | Optional x-axis variable, shape (n_obs,) (e.g. a predictor). Defaults to the observation index. |
 | `prob` |  | Inner interval probability (e.g., 0.5). |
 | `prob_outer` |  | Outer interval probability (e.g., 0.9). |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
+
+Returns:
+    plotly Figure.
+
+
+## `m.diag.ppc_intervals_sorted` {#ppc_intervals_sorted}
+
+```python
+m.diag.ppc_intervals_sorted(
+    y=None,
+    yrep=None,
+    x=None,
+    prob=0.5,
+    prob_outer=0.9,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
+```
+
+Predictive intervals with the observations ordered by observed value.
+
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
+
+This is `ppc_intervals` with observation i placed at the rank of
+y_i, so the observed points rise from left to right and systematic
+over/under-prediction across the range of the outcome is easy to read.
+It performs no leave-one-out computation (``ppc_loo_intervals`` is a
+deprecated alias).
+
+| Argument | Type | Description |
+|---|---|---|
+| `y` |  | Observed data. |
+| `yrep` |  | Posterior predictive matrix. |
+| `x` |  | Optional ordering variable. Defaults to the rank of y. |
+| `prob` |  | Inner interval probability (e.g., 0.5). |
+| `prob_outer` |  | Outer interval probability (e.g., 0.9). |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title. Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title. Defaults to the outcome name. |
 
 Returns:
     plotly Figure.
@@ -756,13 +950,18 @@ m.diag.ppc_loo_intervals(
     yrep=None,
     x=None,
     prob=0.9,
-    title='PPC: Predictive intervals (sorted by y)',
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
 )
 ```
 
 Deprecated alias for `ppc_intervals_sorted` (it is not LOO-based).
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
+
+``prob`` is the outer interval, as before; the inner one is 50%.
 
 
 ## `m.diag.ppc_loo_pit` {#ppc_loo_pit}
@@ -773,13 +972,17 @@ m.diag.ppc_loo_pit(
     yrep=None,
     log_likelihood=None,
     reff=None,
-    title='PPC: LOO-PIT (uniformity check)',
+    n_unif=100,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
 )
 ```
 
 LOO probability integral transform check.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 PIT value for each observation: ``F(y_i) = P(yrep[:, i] <= y_i)``.
 Under a well-calibrated model these are Uniform(0, 1).
@@ -797,10 +1000,15 @@ warning is emitted in that case.
 | `yrep` |  | Posterior predictive matrix, shape (n_rep, n_obs). |
 | `log_likelihood` |  | Pointwise log-likelihood, shape (C, S, n_obs) or (S, n_obs), with S matching yrep's rows. Enables true LOO-PIT. |
 | `reff` |  | Relative MCMC efficiency for PSIS; see ``jax_diagnostics.relative_eff``. Defaults to 1.0. |
-| `title` |  | Plot title. |
+| `n_unif` |  | Number of reference curves, each the density of n_obs Uniform(0, 1) draws, drawn in grey: how far from flat a curve from a perfectly calibrated model can be by chance. |
+| `title` |  | Plot title. Defaults to one naming the outcome and saying whether the PIT is leave-one-out. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
-    plotly Figure.
+    plotly Figure. Both densities are boundary-corrected (reflected at 0
+    and 1), as in bayesplot.
 
 
 ## `m.diag.ppc_ribbon` {#ppc_ribbon}
@@ -812,24 +1020,54 @@ m.diag.ppc_ribbon(
     x=None,
     prob=0.5,
     prob_outer=0.9,
-    title='PPC: Predictive Ribbon',
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
 )
 ```
 
-Continuous ribbon variant of ppc_intervals. See ppc_intervals.
+Predictive intervals drawn as continuous ribbons along x.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
+
+Same intervals as `ppc_intervals`, as bayesplot's ``ppc_ribbon``:
+a light outer ribbon, a darker inner ribbon, a thin line for the median
+prediction and the observed values as points. Easier to read than the
+bars when x is continuous (time, dose, a predictor).
+
+| Argument | Type | Description |
+|---|---|---|
+| `y` |  | Observed data, shape (n_obs,). |
+| `yrep` |  | Posterior predictive matrix, shape (n_rep, n_obs). |
+| `x` |  | Optional x-axis variable, shape (n_obs,). Defaults to the observation index. |
+| `prob` |  | Inner interval probability (e.g., 0.5). |
+| `prob_outer` |  | Outer interval probability (e.g., 0.9). |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
+
+Returns:
+    plotly Figure.
 
 
 ## `m.diag.ppc_rootogram` {#ppc_rootogram}
 
 ```python
-m.diag.ppc_rootogram(y=None, yrep=None, title='PPC: Rootogram (count data)')
+m.diag.ppc_rootogram(
+    y=None,
+    yrep=None,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 Hanging rootogram for count outcomes.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 Compares sqrt of observed counts (bars) to expected sqrt counts (curve).
 Bars hanging below zero indicate over-prediction; above zero: under-prediction.
@@ -838,7 +1076,10 @@ Bars hanging below zero indicate over-prediction; above zero: under-prediction.
 |---|---|---|
 | `y` |  | Observed integer counts. |
 | `yrep` |  | Posterior predictive matrix of counts. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -847,19 +1088,30 @@ Returns:
 ## `m.diag.ppc_scatter` {#ppc_scatter}
 
 ```python
-m.diag.ppc_scatter(y=None, yrep=None, n_reps=9, title='PPC: y vs individual yrep')
+m.diag.ppc_scatter(
+    y=None,
+    yrep=None,
+    n_reps=9,
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 Small-multiple scatterplots of y vs n_reps random rows of yrep.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 | Argument | Type | Description |
 |---|---|---|
 | `y` |  | Observed data. |
 | `yrep` |  | Posterior predictive matrix. |
 | `n_reps` |  | Number of replications to show. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -868,19 +1120,30 @@ Returns:
 ## `m.diag.ppc_stat` {#ppc_stat}
 
 ```python
-m.diag.ppc_stat(y=None, yrep=None, stat='mean', title=None)
+m.diag.ppc_stat(
+    y=None,
+    yrep=None,
+    stat='mean',
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 Distribution of test statistic over yrep vs observed value.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 | Argument | Type | Description |
 |---|---|---|
 | `y` |  | Observed data. |
 | `yrep` |  | Posterior predictive matrix. |
-| `stat` |  | Statistic name or callable. Options: 'mean', 'median', 'sd', 'var', 'min', 'max', 'q25', 'q75', 'skew', 'n_zero', 'n_pos'. |
-| `title` |  | Plot title. |
+| `stat` |  | Statistic name or callable. Options: 'mean', 'median', 'sd', 'var', 'min', 'max', 'q25', 'q75', 'skew', 'n_zero', 'n_pos'. A callable takes one 1D array and returns a number, e.g. ``lambda v: np.percentile(v, 90)``. |
+| `title` |  | Plot title. Defaults to one naming the statistic, the outcome and the Bayesian p-values. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure with Bayesian p-value annotation.
@@ -889,19 +1152,31 @@ Returns:
 ## `m.diag.ppc_stat_2d` {#ppc_stat_2d}
 
 ```python
-m.diag.ppc_stat_2d(y=None, yrep=None, stat1='mean', stat2='sd', title=None)
+m.diag.ppc_stat_2d(
+    y=None,
+    yrep=None,
+    stat1='mean',
+    stat2='sd',
+    title=None,
+    name='y',
+    x_label=None,
+    y_label=None,
+)
 ```
 
 Scatter of two test statistics over yrep vs observed point.
 
-``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``).
+``y`` and ``yrep`` default to the model's observed outcome and its posterior predictive draws (``m.diag.get_yrep()``); ``name`` defaults to the observed site name. For ``ppc_loo_pit``, ``log_likelihood`` is computed from the model when ``yrep`` is not given.
 
 | Argument | Type | Description |
 |---|---|---|
 | `y` |  | Observed data. |
 | `yrep` |  | Posterior predictive matrix. |
 | `stat1, stat2` |  | Statistic names or callables. |
-| `title` |  | Plot title. |
+| `title` |  | Plot title. Defaults to one naming the outcome. |
+| `name` |  | Name of the outcome used in the labels. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 Returns:
     plotly Figure.
@@ -916,6 +1191,8 @@ m.diag.prior_sensitivity(
     param_names=None,
     hdi_prob=0.89,
     title='Prior Sensitivity Analysis',
+    x_label=None,
+    y_label=None,
 )
 ```
 
@@ -931,6 +1208,8 @@ how much conclusions change when priors (or likelihood assumptions) vary.
 | `param_names` |  | Subset of parameters to compare. Defaults to all parameters present in all fits. |
 | `hdi_prob` |  | HDI probability for interval markers. |
 | `title` |  | Plot title. |
+| `x_label` |  | X-axis title (a list gives one per subplot, in order). Defaults to the plot's own label. |
+| `y_label` |  | Y-axis title, as x_label. |
 
 **Returns**
 
@@ -949,7 +1228,7 @@ fig = prior_sensitivity_plot(
 ## `m.diag.rank` {#rank}
 
 ```python
-m.diag.rank(include=None, exclude=None, filtered=True, **kw)
+m.diag.rank(include=None, exclude=None, filtered=True, x_label=None, y_label=None, **kw)
 ```
 
 Rank plots: histograms of draw ranks per chain (uniform when chains agree).
@@ -959,6 +1238,8 @@ Rank plots: histograms of draw ranks per chain (uniform when chains agree).
 | `include` | str or list of str | Parameters to plot (default: all). |
 | `exclude` | str or list of str | Parameters to leave out. |
 | `filtered` | bool | Use ``m.posteriors`` (True, default) or every sampled site, ``m.posteriors_full`` (False). |
+| `x_label` | str or list of str | X-axis title; a list gives one per subplot, in order. Defaults to the plot's own labels. |
+| `y_label` | str or list of str | Y-axis title, as x_label. |
 | `**kw` |  | Passed to the plotting function (e.g. ``figsize``). |
 
 **Returns**

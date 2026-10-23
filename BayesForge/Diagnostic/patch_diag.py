@@ -650,7 +650,10 @@ def _resolve_obs_y(m, site=None):
 
 
 _PPC_NOTE = ("``y`` and ``yrep`` default to the model's observed outcome and its "
-             "posterior predictive draws (``m.diag.get_yrep()``).")
+             "posterior predictive draws (``m.diag.get_yrep()``); ``name`` "
+             "defaults to the observed site name. For ``ppc_loo_pit``, "
+             "``log_likelihood`` is computed from the model when ``yrep`` is "
+             "not given.")
 _M_NOTE = "The fitted model ``m`` is supplied automatically."
 
 
@@ -674,8 +677,10 @@ def _documented(method, target, note, defaults_none=(), drop=()):
 
 def _bind_plot(m, plot_fn, summary):
     """m.diag version of a posterior plot taking (m, include, exclude, filtered)."""
-    def method(include=None, exclude=None, filtered=True, **kw):
-        return plot_fn(m, include, exclude, filtered=filtered, **kw)
+    def method(include=None, exclude=None, filtered=True, x_label=None,
+               y_label=None, **kw):
+        fig = plot_fn(m, include, exclude, filtered=filtered, **kw)
+        return _ppc._axis_labels(fig, x_label, y_label)
     method.__name__ = plot_fn.__name__.lstrip("_")
     method.__doc__ = f"""{summary}
 
@@ -684,6 +689,9 @@ def _bind_plot(m, plot_fn, summary):
         exclude (str or list of str, optional): Parameters to leave out.
         filtered (bool): Use ``m.posteriors`` (True, default) or every sampled
             site, ``m.posteriors_full`` (False).
+        x_label (str or list of str, optional): X-axis title; a list gives one
+            per subplot, in order. Defaults to the plot's own labels.
+        y_label (str or list of str, optional): Y-axis title, as x_label.
         **kw: Passed to the plotting function (e.g. ``figsize``).
 
     Returns:
@@ -918,12 +926,52 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
     _documented(_plot_regression_bound, _plot_regression, _M_NOTE, drop=("m",))
 
     # ---- PPC bindings (y + yrep) ----------------------------------------
+    def _single_site():
+        """Name of the observed site when the model has exactly one."""
+        try:
+            sites = m._observed_sites(m.data_on_model)
+        except Exception:
+            return None
+        return next(iter(sites)) if len(sites) == 1 else None
+
+    def _site_log_likelihood(site, shape):
+        """Pointwise log-likelihood of the observed site, (draws, n_obs) in
+        the draw order of get_yrep, and the relative efficiency for PSIS."""
+        import numpy as np
+        ll = jd.compute_log_likelihood(m.model, m.posteriors_by_chain,
+                                       obs_name=site, **m.data_on_model)
+        if isinstance(ll, dict):
+            ll = ll[site]
+        ll = np.asarray(ll, dtype=np.float64)
+        ll = ll.reshape(ll.shape[0] * ll.shape[1], -1) if ll.ndim >= 3 else ll
+        if ll.shape != tuple(shape):
+            raise ValueError(
+                f"log-likelihood of {site!r} has shape {ll.shape} but its "
+                f"predictions have {tuple(shape)}; pass log_likelihood= explicitly.")
+        return ll, float(np.asarray(jd.relative_eff(m.posteriors_by_chain)))
+
     def _bind_ppc(plot_fn):
         """m.diag version of a ppc_* plot: y and yrep default to the model's
         observed outcome and its posterior predictive draws. With several
         observed sites and no site=, returns a dict mapping each site to its
         figure."""
+        params = inspect.signature(plot_fn).parameters
+        takes_name = "name" in params
+        # LOO-PIT needs the pointwise log-likelihood of the SAME draws as yrep;
+        # it is only computed here when yrep is the model's own draws.
+        wants_ll = "log_likelihood" in params
+
+        def call(y, yrep, s, own_yrep, kw):
+            kw = dict(kw)
+            if takes_name and s is not None:
+                kw.setdefault("name", s)
+            if wants_ll and own_yrep and kw.get("log_likelihood") is None:
+                kw["log_likelihood"], reff = _site_log_likelihood(s, yrep.shape)
+                kw.setdefault("reff", reff)
+            return plot_fn(y, yrep, **kw)
+
         def method(y=None, yrep=None, site=None, **kw):
+            own_yrep = yrep is None
             if yrep is None:
                 res = _get_yrep(site=site)
                 if isinstance(res, dict):
@@ -934,15 +982,16 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
                         )
                     figs = _SiteFigures()
                     for s in sorted(res):
-                        fig = plot_fn(_resolve_obs_y(m, site=s), res[s], **kw)
-                        title = fig.layout.title.text or ""
-                        fig.update_layout(title_text=f"{title} ({s})" if title else s)
+                        fig = call(_resolve_obs_y(m, site=s), res[s], s, True, kw)
+                        if not takes_name:
+                            title = fig.layout.title.text or ""
+                            fig.update_layout(title_text=f"{title} ({s})" if title else s)
                         figs[s] = fig
                     return figs
                 yrep = res
             if y is None:
                 y = _resolve_obs_y(m, site=site)
-            return plot_fn(y, yrep, **kw)
+            return call(y, yrep, site or _single_site(), own_yrep, kw)
         return _documented(method, plot_fn, _PPC_NOTE, defaults_none=("y", "yrep"))
 
     # ---- sensitivity bindings -------------------------------------------
@@ -1000,6 +1049,7 @@ def bind_diag_to_model(diag_obj, m, backend=ARVIZ):
     # PPC — LOO
     diag_obj.ppc_loo_pit     = _bind_ppc(_ppc.ppc_loo_pit)
     diag_obj.ppc_loo_intervals = _bind_ppc(_ppc.ppc_loo_intervals)
+    diag_obj.ppc_intervals_sorted = _bind_ppc(_ppc.ppc_intervals_sorted)
     # sensitivity
     diag_obj.influence       = _influence
     diag_obj.calibration     = _bind_ppc(_sens.calibration_plot)

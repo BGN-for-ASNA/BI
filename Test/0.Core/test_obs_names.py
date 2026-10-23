@@ -151,6 +151,6 @@ def test_multiple_obs_sites_get_yrep_and_ppc():
     assert isinstance(figs, dict)
     assert set(figs.keys()) == {"y", "z"}
     assert all(f is not None for f in figs.values())
-    assert figs["z"].layout.title.text.endswith("(z)")
+    assert figs["z"].layout.title.text.endswith("predictions of z")
     assert hasattr(figs, "_ipython_display_")
 

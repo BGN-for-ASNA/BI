@@ -35,6 +35,7 @@ prints them as a table and writes `Test/0.Core/_report/` (`summary.md`,
 | 2.6 | Docstrings as single source of the R help | `test_docstring_examples.py` | BFR CI (`tools/build_r_docs.py --check`) |
 | 2.7 | Observed data found by tracing | `test_obs_args_tracing.py` | |
 | — | Observed sites named after the `obs` variable | `test_obs_names.py` | BFR `test-obs-names.R` |
+| — | `run_simulations` in R (`m$run_simulations`) and Julia (`m.run_simulations`): same grid, seeds and results as Python | `test_run_simulations_languages.py` (slow; skipped without `Rscript` / `julia`) | BFR `test-simulate.R`, PyBayesForge.jl `test/runtests.jl`, `Test/12.Parallel/` |
 
 Other regression tests: `test_diag_api.py` (every `m.diag` method is
 documented and runs), `test_diagnostics_ic.py` (LOO/WAIC/compare with

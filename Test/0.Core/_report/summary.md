@@ -2,12 +2,8 @@
 
 | Test | Quantity | Reference | Criterion | Value | Result |
 |---|---|---|---|---|---|
-| `test_enum_matches_default` | mu | implicit enumeration (NumPyro) | max |Δ| < 1e-10 | 0 | ✅ |
-| `test_enum_matches_default` | sigma | implicit enumeration (NumPyro) | max |Δ| < 1e-10 | 0 | ✅ |
-| `test_enum_matches_default` | w | implicit enumeration (NumPyro) | max |Δ| < 1e-10 | 0 | ✅ |
-| `test_enum_is_exact_enumeration` | mu | infer={"enumerate": "parallel"} | max |Δ| = 0 | 0 | ✅ |
-| `test_enum_is_exact_enumeration` | sigma | infer={"enumerate": "parallel"} | max |Δ| = 0 | 0 | ✅ |
-| `test_enum_is_exact_enumeration` | w | infer={"enumerate": "parallel"} | max |Δ| = 0 | 0 | ✅ |
+| `test_r_matches_python` | R: rows differing from Python (sim, rep, N, b, seed, result) | Python run_simulations, serial | == 0 | 0 | ✅ |
+| `test_julia_matches_python` | Julia: rows differing from Python (sim, rep, N, b, seed, result) | Python run_simulations, serial | == 0 | 0 | ✅ |
 
 ![posterior comparisons](comparisons.png)
 

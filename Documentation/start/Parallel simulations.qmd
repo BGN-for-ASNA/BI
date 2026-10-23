@@ -7,7 +7,7 @@ Simulation studies — parameter recovery, scenario sweeps, prior sensitivity �
 
 `run_simulations` spreads that loop across worker processes. Each worker is a separate Python process with its own JAX backend, so every simulation gets its own `bf()` instance, its own share of the cores and its own seed.
 
-`run_simulations` is part of the Python package. In R and Julia, the same pattern is written with the parallel tools of the language, `parallel::parLapply()` and `Distributed.pmap()`: see the R and Julia tabs. Each worker is again a separate process with its own `importBF()` session and seed.
+The same runner exists in all three languages: `run_simulations(...)` in Python, `m$run_simulations(...)` in R and `m.run_simulations(...)` in Julia, with `grid()` / `m$grid()` / `m.grid()` to build the scenarios. In R and Julia the workers are R or Julia processes, so they run your R or Julia function; the scenarios, the seeds and the split of the cores come from the same Python code, so a given grid gets the same seeds in every language.
 
 Crucially, **the scenario settings travel with the results**: every row of the returned table carries the parameters that produced it, so comparing true against estimated values needs no bookkeeping of your own.
 
@@ -36,47 +36,39 @@ res = run_simulations(one_sim, scenarios)                  # -> DataFrame
 
 ## R
 ```{.r .no-test}
-library(parallel)
+library(BayesForge)
+m <- importBF(print_devices_found = FALSE)
 
 one_sim <- function(<your scenario parameters>, seed) {
-    library(BayesForge)                    # each worker is a fresh R session
-    m <- importBF(rand_seed = seed, cores = 1, print_devices_found = FALSE)
+    m <- importBF(rand_seed = seed, print_devices_found = FALSE)  # one model per simulation
 
     data <- <simulate a dataset using the scenario parameters>
     m$fit(<model>, obs = data, progress_bar = FALSE)
 
-    data.frame(estimate = ..., truth = ...)   # -> one row of the result table
+    list(estimate = ..., truth = ...)   # -> one row of the result table
 }
 
-scenarios <- expand.grid(<param> = c(...), <param> = c(...), rep = 1:<n>)
-scenarios$seed <- seq_len(nrow(scenarios))   # one seed per simulation
-
-cl <- makeCluster(<workers>)
-rows <- parLapply(cl, seq_len(nrow(scenarios)), function(i, sc, f) {
-    cbind(sc[i, ], do.call(f, sc[i, setdiff(names(sc), "rep")]))
-}, scenarios, one_sim)
-stopCluster(cl)
-res <- do.call(rbind, rows)                  # -> data.frame
+scenarios <- m$grid(<param> = c(...), <param> = c(...), reps = <n>)  # or just a number
+res <- m$run_simulations(one_sim, scenarios)                         # -> data.frame
 ```
 
 ## Julia
 ```{.julia .no-test}
-using Distributed
-addprocs(<workers>; exeflags = "--project=$(Base.active_project())")
-@everywhere using PyBayesForge
+using PyBayesForge
+m = importBF(print_devices_found = false)
 
-@everywhere function one_sim(<your scenario parameters>, seed)
-    m = importBF(rand_seed = seed, cores = 1, print_devices_found = false)
+# @sim: the workers get this definition too (they are new Julia processes).
+@sim function one_sim(; <your scenario parameters>, seed)
+    m = importBF(rand_seed = seed, print_devices_found = false)  # one model per simulation
 
     data = <simulate a dataset using the scenario parameters>
     m.fit(<model>, obs = data, progress_bar = false)
 
-    (estimate = ..., truth = ...)          # -> one row of the result table
+    (estimate = ..., truth = ...)       # -> one row of the result table
 end
 
-scenarios = [(<param> = a, <param> = b, rep = r, seed = i) for (i, (a, b, r)) in
-             enumerate(Iterators.product([...], [...], 1:<n>))]
-rows = pmap(sc -> merge(sc, one_sim(sc.<param>, sc.<param>, sc.seed)), scenarios)
+scenarios = m.grid(<param> = [...], <param> = [...], reps = <n>)  # or just a number
+res = m.run_simulations(one_sim, scenarios)  # -> vector of named tuples; DataFrame(res)
 ```
 :::
 
@@ -90,7 +82,15 @@ Three things the runner injects into every call, on top of your own parameters:
 
 Pass `seed` into `bf(rand_seed=seed)`. Without it every worker draws the *same* data, because `bf()` seeds the global NumPy and Python RNGs from that value.
 
-Always give `one_sim` a `**_` catch-all so extra injected keys cannot break it.
+In Python, always give `one_sim` a `**_` catch-all so extra injected keys cannot break it. In R and Julia the runner drops the keys `one_sim` does not declare (unless it takes `...` / `kw...`), so declare only what you use.
+
+While it runs, R and Julia print one line per finished simulation, with what `one_sim` printed itself (`cat`, `print`, `message` in R; `println` in Julia, prefixed `From worker k:`); `progress = FALSE` silences it:
+
+```
+run_simulations: 24 simulations on 24 workers (1 cores each)
+[ 1/24] worker 3 | sim 2 | N=100, b_true=-0.8 | 23.1s | ok
+         fitting
+```
 
 ::: {.callout-important}
 ## In a `.py` script, use a main guard
@@ -106,19 +106,22 @@ if __name__ == "__main__":
 
 ## R
 ```{.r .no-test}
-# PSOCK workers are new R sessions that do not run your script:
-# load BayesForge inside one_sim (or with clusterEvalQ) and stop the cluster.
-cl <- makeCluster(4)
-clusterEvalQ(cl, library(BayesForge))
-on.exit(stopCluster(cl), add = TRUE)
+# No guard: the workers are new R sessions that only run one_sim, with
+# BayesForge already loaded. Objects one_sim takes from your session must be
+# sent explicitly:
+helper <- function(x) x + 1
+res <- m$run_simulations(one_sim, scenarios, export = c("helper"))
 ```
 
 ## Julia
 ```{.julia .no-test}
-# Workers are new Julia processes: everything they run must be defined
-# @everywhere, after addprocs().
-addprocs(4; exeflags = "--project=$(Base.active_project())")
-@everywhere using PyBayesForge
+# No guard: the workers are new Julia processes with PyBayesForge loaded.
+# Functions defined in your session do not reach them: mark one_sim, every
+# helper it calls and every extra package it uses with @sim, or load a file
+# with `setup` (run in Main on every worker):
+@sim using Statistics
+@sim helper(x) = x + 1
+res = m.run_simulations(one_sim, scenarios; setup = :(include("helpers.jl")))
 ```
 :::
 
@@ -179,11 +182,11 @@ if __name__ == "__main__":
 
 ## R
 ```r
-library(parallel)
+library(BayesForge)
+m <- importBF(print_devices_found = FALSE)
 
 one_sim <- function(N, b_true, seed) {
-    library(BayesForge)
-    m <- importBF(rand_seed = seed, cores = 1, print_devices_found = FALSE)
+    m <- importBF(rand_seed = seed, print_devices_found = FALSE)
 
     # --- simulate one dataset --------------------------------------
     x <- bf.dist.normal(0.0, 1.0, sample = TRUE, shape = N)
@@ -203,22 +206,14 @@ one_sim <- function(N, b_true, seed) {
           progress_bar = FALSE)
 
     est <- m$summary()
-    data.frame(b_hat  = est["b", "mean"],
-               b_true = b_true,
-               r_hat  = est["b", "r_hat"])
+    list(b_hat = est["b", "mean"],
+         r_hat = est["b", "r_hat"])
 }
 
-scenarios <- expand.grid(N = c(100, 500), b_true = c(-0.8, 0.0, 0.8), rep = 1:4)  # 24 sims
-scenarios$seed <- seq_len(nrow(scenarios))
+scenarios <- m$grid(N = c(100, 500), b_true = c(-0.8, 0.0, 0.8), reps = 4)  # 24 sims
+res <- m$run_simulations(one_sim, scenarios)
 
-cl <- makeCluster(4)                         # e.g. detectCores() workers
-rows <- parLapply(cl, seq_len(nrow(scenarios)), function(i, sc, f) {
-    cbind(sim = i, sc[i, ], f(sc$N[i], sc$b_true[i], sc$seed[i]))
-}, scenarios, one_sim)
-stopCluster(cl)
-res <- do.call(rbind, rows)
-
-print(head(res[, c("sim", "N", "b_true", "b_hat")]))
+print(head(res[, c("sim", "N", "b_true", "b_hat", "elapsed_s")]))
 
 # Mean absolute error of the slope per scenario
 print(aggregate(abs(b_hat - b_true) ~ N + b_true, data = res, FUN = mean))
@@ -226,12 +221,11 @@ print(aggregate(abs(b_hat - b_true) ~ N + b_true, data = res, FUN = mean))
 
 ## Julia
 ```julia
-using Distributed
-addprocs(4; exeflags = "--project=$(Base.active_project())")  # e.g. Sys.CPU_THREADS workers
-@everywhere using PyBayesForge, PythonCall
+using PyBayesForge, PythonCall
+m = importBF(print_devices_found = false)
 
-@everywhere function one_sim(N, b_true, seed)
-    m = importBF(rand_seed = seed, cores = 1, print_devices_found = false)
+@sim function one_sim(; N, b_true, seed)
+    m = importBF(rand_seed = seed, print_devices_found = false)
 
     # --- simulate one dataset --------------------------------------
     x = m.dist.normal(0.0, 1.0, sample = true, shape = (N,))
@@ -251,18 +245,16 @@ addprocs(4; exeflags = "--project=$(Base.active_project())")  # e.g. Sys.CPU_THR
           progress_bar = false)
 
     est = m.summary()
-    (b_hat  = pyconvert(Float64, est.loc["b", "mean"]),
-     b_true = b_true,
-     r_hat  = pyconvert(Float64, est.loc["b", "r_hat"]))
+    (b_hat = pyconvert(Float64, est.loc["b", "mean"]),
+     r_hat = pyconvert(Float64, est.loc["b", "r_hat"]))
 end
 
-scenarios = [(sim = i, N = N, b_true = b, rep = r, seed = i) for (i, (N, b, r)) in
-             enumerate(Iterators.product([100, 500], [-0.8, 0.0, 0.8], 1:4))]  # 24 sims
-res = pmap(sc -> merge(sc, one_sim(sc.N, sc.b_true, sc.seed)), scenarios)
+scenarios = m.grid(N = [100, 500], b_true = [-0.8, 0.0, 0.8], reps = 4)  # 24 sims
+res = m.run_simulations(one_sim, scenarios)
 
 using DataFrames
 res = DataFrame(res)
-println(first(res[:, [:sim, :N, :b_true, :b_hat]], 5))
+println(first(res[:, [:sim, :N, :b_true, :b_hat, :elapsed_s]], 5))
 
 # Mean absolute error of the slope per scenario
 println(combine(groupby(res, [:N, :b_true]), [:b_hat, :b_true] => ((h, t) -> sum(abs.(h .- t)) / length(h)) => :mae))
@@ -340,29 +332,26 @@ res = run_simulations(one_sim, scenarios, num_chains=4)
 
 ## R
 ```{.r .no-test}
-one_sim <- function(N, seed, num_chains = 4) {
-    library(BayesForge)
-    # one JAX device per chain: give the worker as many cores as chains
-    m <- importBF(rand_seed = seed, cores = num_chains, print_devices_found = FALSE)
+one_sim <- function(N, seed, num_chains) {
+    m <- importBF(rand_seed = seed, print_devices_found = FALSE)
     ...
     m$fit(model, obs = data, num_chains = as.integer(num_chains),
           chain_method = "parallel", progress_bar = FALSE)
 }
 
-cl <- makeCluster(parallel::detectCores() %/% 4)   # workers x 4 cores
+res <- m$run_simulations(one_sim, scenarios, num_chains = 4)
 ```
 
 ## Julia
 ```{.julia .no-test}
-@everywhere function one_sim(N, seed; num_chains = 4)
-    # one JAX device per chain: give the worker as many cores as chains
-    m = importBF(rand_seed = seed, cores = num_chains, print_devices_found = false)
+@sim function one_sim(; N, seed, num_chains)
+    m = importBF(rand_seed = seed, print_devices_found = false)
     ...
     m.fit(model, obs = data, num_chains = num_chains,
           chain_method = "parallel", progress_bar = false)
 end
 
-addprocs(Sys.CPU_THREADS ÷ 4; exeflags = "--project=$(Base.active_project())")  # workers x 4 cores
+res = m.run_simulations(one_sim, scenarios; num_chains = 4)
 ```
 :::
 
@@ -391,10 +380,13 @@ Asking a fit for `num_chains=4` with `chain_method='parallel'` *without* telling
 | argument | what it does |
 |---|---|
 | `workers` | How many simulations run at once. Defaults to one per core, divided by `cores_per_worker`. |
-| `fn_kwargs` | Constants passed to every call. Serialised **once per worker** rather than once per scenario — put large shared arrays here. |
-| `seed` | Base seed. Per-simulation seeds derive from it deterministically, so a rerun reproduces regardless of worker count or completion order. |
-| `on_error` | `'record'` (default) puts the traceback in the row's `error` column and keeps going; `'raise'` aborts the run. |
-| `backend` | `'serial'` runs in-process for debugging, so `pdb` and full tracebacks work. |
+| `fn_kwargs` | Constants passed to every call. In Python they are serialised **once per worker** rather than once per scenario — put large shared arrays here. |
+| `seed` | Base seed. Per-simulation seeds derive from it deterministically, so a rerun reproduces regardless of worker count or completion order — and the same grid gets the same seeds in Python, R and Julia. |
+| `on_error` | `'record'` (default) puts the error in the row's `error` column and keeps going; `'raise'` aborts the run. |
+| `backend` | `'serial'` runs in-process for debugging, so `pdb` / `browser()` and full tracebacks work. |
+| `progress` | `FALSE` / `false` silences the per-simulation lines. |
+| `export` (R) | Names of objects from your session that `one_sim` needs on the workers. |
+| `setup` (Julia) | An expression run in `Main` on every worker before the simulations, e.g. `:(include("sim.jl"))`; `@sim` covers single definitions. |
 
 Inspecting failures without losing the rest of the batch:
 
@@ -407,19 +399,14 @@ res[res.error.notna()][["sim", "N", "error"]]
 
 ## R
 ```{.r .no-test}
-# Record the error of a failed simulation instead of losing the whole batch
-safe_sim <- function(...) tryCatch(cbind(one_sim(...), error = NA_character_),
-                                   error = function(e) data.frame(error = conditionMessage(e)))
+res <- m$run_simulations(one_sim, scenarios, on_error = "record")
+res[!is.na(res$error), c("sim", "N", "error")]
 ```
 
 ## Julia
 ```{.julia .no-test}
-# Record the error of a failed simulation instead of losing the whole batch
-@everywhere safe_sim(args...) = try
-    merge(one_sim(args...), (error = missing,))
-catch e
-    (error = sprint(showerror, e),)
-end
+res = m.run_simulations(one_sim, scenarios; on_error = :record)
+filter(r -> !ismissing(r.error), res)
 ```
 :::
 
@@ -472,7 +459,7 @@ linreg <- function(x, y) {
 # Julia: m.fit() converts the @BF model into a new Python function at every
 # call, so the compiled model is not reused across fits; define the model
 # once for readability only.
-@everywhere linreg_for(m) = begin
+@sim linreg_for(m) = begin
     @BF function linreg(x, y)
         a = m.dist.normal(0.0, 5.0, name = "a")
         b = m.dist.normal(0.0, 5.0, name = "b")
