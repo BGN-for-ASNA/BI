@@ -15,12 +15,14 @@ Categories implemented
 -----------------------
 Distributions  : ppc_density, ppc_hist, ppc_boxplot
 Statistics     : ppc_stat, ppc_stat_2d
-Intervals      : ppc_intervals, ppc_ribbon
+Intervals      : ppc_intervals, ppc_ribbon, ppc_intervals_sorted
 Errors         : ppc_error_scatter, ppc_error_hist
 Scatterplots   : ppc_scatter
 Discrete       : ppc_rootogram, ppc_bars
-LOO            : ppc_loo_pit, ppc_loo_intervals
+LOO            : ppc_loo_pit (ppc_loo_intervals: deprecated alias of ppc_intervals_sorted)
 """
+import re
+
 import numpy as np
 import jax.numpy as jnp
 import plotly.graph_objects as go
@@ -128,11 +130,68 @@ def _stat_fn(name):
     return fns[name]
 
 
+# Every plot labels the outcome by ``name`` -- m.diag passes the observed site
+# name (e.g. "height") -- so axes and legends read "Predictions of height"
+# rather than the bayesplot jargon "yrep".
+def _obs(name):
+    return f"{name} (observed)"
+
+
+def _preds(name):
+    return f"Predictions of {name}"
+
+
+def _axis_labels(fig, x_label=None, y_label=None):
+    """Override the axis titles of every plot: a string sets all the x (y)
+    axes, a list sets them one per subplot in layout order (None keeps one)."""
+    for label, axes in ((x_label, "xaxis"), (y_label, "yaxis")):
+        if label is None:
+            continue
+        names = sorted((k for k in fig.layout.to_plotly_json() if re.fullmatch(axes + r"\d*", k)),
+                       key=lambda k: int(k[len(axes):] or 1)) or [axes]
+        labels = [label] * len(names) if isinstance(label, str) else list(label)
+        for k, text in zip(names, labels):
+            if text is not None:
+                fig.layout[k].title.text = text
+    return fig
+
+
+def _title(title, kind, name):
+    return f"PPC: {kind} — predictions of {name}" if title is None else title
+
+
+def _interval_bounds(y, yrep, x, prob, prob_outer):
+    """Rows sorted by x and the type-7 quantiles bayesplot's
+    ``ppc_intervals_data`` draws: (x, y, ll, l, m, h, hh)."""
+    y, = _as_np(y)
+    yrep = np.asarray(yrep, dtype=float)
+    if prob > prob_outer:          # bayesplot swaps them too
+        prob, prob_outer = prob_outer, prob
+    x = np.arange(len(y)) if x is None else np.asarray(x).flatten()
+    order = np.argsort(x, kind="stable")
+    x, y, yrep = x[order], y[order], yrep[:, order]
+
+    def q(p):
+        return np.percentile(yrep, 100 * p, axis=0)
+    return (x, y, q((1 - prob_outer) / 2), q((1 - prob) / 2), q(0.5),
+            q((1 + prob) / 2), q((1 + prob_outer) / 2))
+
+
+def _segments(x, lo, hi):
+    """Vertical segments x_i: lo_i -> hi_i as one line trace (None-separated)."""
+    n = len(x)
+    xs = np.empty(3 * n, dtype=object)
+    ys = np.empty(3 * n, dtype=object)
+    xs[0::3], xs[1::3], xs[2::3] = x, x, None
+    ys[0::3], ys[1::3], ys[2::3] = lo, hi, None
+    return list(xs), list(ys)
+
+
 # =============================================================================
 # Distributions
 # =============================================================================
 
-def ppc_density(y, yrep, n=50, bw_adjust=1.0, title="PPC: Density overlay"):
+def ppc_density(y, yrep, n=50, bw_adjust=1.0, title=None, name="y", x_label=None, y_label=None):
     """KDE of y (black) vs n random draws from yrep rows (blue).
 
     Args:
@@ -140,7 +199,12 @@ def ppc_density(y, yrep, n=50, bw_adjust=1.0, title="PPC: Density overlay"):
         yrep: Posterior predictive matrix, shape (n_rep, n_obs).
         n: Max number of yrep lines to show.
         bw_adjust: Bandwidth multiplier passed to scipy KDE.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels ("Predictions of
+            <name>"); m.diag passes the observed site name.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -187,7 +251,7 @@ def ppc_density(y, yrep, n=50, bw_adjust=1.0, title="PPC: Density overlay"):
         fig.add_trace(go.Scatter(
             x=xs, y=vals, mode="lines",
             line=dict(color=_REP_COLOR, width=1),
-            showlegend=(i == 0), name="yrep",
+            showlegend=(i == 0), name=_preds(name),
         ))
 
     y_clean = np.asarray(y, dtype=np.float64).flatten()
@@ -197,18 +261,19 @@ def ppc_density(y, yrep, n=50, bw_adjust=1.0, title="PPC: Density overlay"):
         fig.add_trace(go.Scatter(
             x=xs, y=kde_y(xs), mode="lines",
             line=dict(color=_OBS_COLOR, width=2.5),
-            name="y (observed)",
+            name=_obs(name),
         ))
 
     fig.update_layout(
-        title=title, xaxis_title="Value", yaxis_title="Density",
+        title=_title(title, "Density overlay", name), xaxis_title=name,
+        yaxis_title="Density",
         plot_bgcolor="white",
         legend=dict(orientation="h", yanchor="bottom", y=1.02),
     )
-    return fig
+    return _axis_labels(fig, x_label, y_label)
 
 
-def ppc_hist(y, yrep, n=8, bins=30, title="PPC: Histogram small multiples"):
+def ppc_hist(y, yrep, n=8, bins=30, title=None, name="y", x_label=None, y_label=None):
     """Histograms: observed y plus n random yrep draws.
 
     Args:
@@ -216,7 +281,11 @@ def ppc_hist(y, yrep, n=8, bins=30, title="PPC: Histogram small multiples"):
         yrep: Posterior predictive matrix.
         n: Number of yrep draws to show.
         bins: Number of histogram bins.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -228,7 +297,7 @@ def ppc_hist(y, yrep, n=8, bins=30, title="PPC: Histogram small multiples"):
     total = 1 + len(idx)
     ncols = min(4, total)
     nrows = int(np.ceil(total / ncols))
-    subtitles = ["y (observed)"] + [f"yrep[{s}]" for s in idx]
+    subtitles = [_obs(name)] + [f"Prediction {i + 1}" for i in range(len(idx))]
     fig = make_subplots(rows=nrows, cols=ncols, subplot_titles=subtitles)
 
     def _add_hist(data, row, col, color):
@@ -243,19 +312,23 @@ def ppc_hist(y, yrep, n=8, bins=30, title="PPC: Histogram small multiples"):
         c = (i + 1) % ncols + 1
         _add_hist(yrep[s], r, c, "cornflowerblue")
 
-    fig.update_layout(title=title, height=280 * nrows, showlegend=False,
-                      plot_bgcolor="white")
-    return fig
+    fig.update_layout(title=_title(title, "Histograms", name),
+                      height=280 * nrows, showlegend=False, plot_bgcolor="white")
+    return _axis_labels(fig, x_label, y_label)
 
 
-def ppc_boxplot(y, yrep, n=20, title="PPC: Boxplots"):
+def ppc_boxplot(y, yrep, n=20, title=None, name="y", x_label=None, y_label=None):
     """Box-and-whisker: y (black) vs n yrep draws.
 
     Args:
         y: Observed data.
         yrep: Posterior predictive matrix.
         n: Number of yrep draws.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -265,21 +338,22 @@ def ppc_boxplot(y, yrep, n=20, title="PPC: Boxplots"):
     idx = rng.choice(len(yrep), size=min(n, len(yrep)), replace=False)
 
     fig = go.Figure()
-    for s in idx:
-        fig.add_trace(go.Box(y=yrep[s], marker_color=_REP_COLOR_SOLID,
-                             showlegend=False, name=f"rep {s}"))
     fig.add_trace(go.Box(y=y, marker_color=_OBS_COLOR,
-                         name="y (observed)", showlegend=True))
-    fig.update_layout(title=title, yaxis_title="Value",
+                         name="observed", showlegend=False))
+    for i, s in enumerate(idx):
+        fig.add_trace(go.Box(y=yrep[s], marker_color=_REP_COLOR_SOLID,
+                             showlegend=False, name=f"pred {i + 1}"))
+    fig.update_layout(title=_title(title, "Boxplots", name), yaxis_title=name,
+                      xaxis_title=f"Observed {name} and {_preds(name).lower()}",
                       plot_bgcolor="white", boxmode="overlay")
-    return fig
+    return _axis_labels(fig, x_label, y_label)
 
 
 # =============================================================================
 # Test statistics
 # =============================================================================
 
-def ppc_stat(y, yrep, stat="mean", title=None):
+def ppc_stat(y, yrep, stat="mean", title=None, name="y", x_label=None, y_label=None):
     """Distribution of test statistic over yrep vs observed value.
 
     Args:
@@ -287,7 +361,14 @@ def ppc_stat(y, yrep, stat="mean", title=None):
         yrep: Posterior predictive matrix.
         stat: Statistic name or callable. Options: 'mean', 'median', 'sd',
               'var', 'min', 'max', 'q25', 'q75', 'skew', 'n_zero', 'n_pos'.
-        title: Plot title.
+              A callable takes one 1D array and returns a number, e.g.
+              ``lambda v: np.percentile(v, 90)``.
+        title: Plot title. Defaults to one naming the statistic, the outcome
+            and the Bayesian p-values.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure with Bayesian p-value annotation.
     """
@@ -295,7 +376,9 @@ def ppc_stat(y, yrep, stat="mean", title=None):
     y, = _as_np(y)
     yrep = np.asarray(yrep, dtype=float)
     fn = _stat_fn(stat)
-    stat_name = stat if isinstance(stat, str) else "T"
+    stat_name = stat if isinstance(stat, str) else getattr(stat, "__name__", "T")
+    if stat_name == "<lambda>":
+        stat_name = "T"
 
     t_y = float(fn(y))
     t_rep = np.array([fn(yrep[s]) for s in range(len(yrep))])
@@ -314,28 +397,34 @@ def ppc_stat(y, yrep, stat="mean", title=None):
         x=xs, y=kde(xs), mode="lines", fill="tozeroy",
         fillcolor="rgba(100,149,237,0.3)",
         line=dict(color="cornflowerblue", width=1.5),
-        name=f"T(yrep) = {stat_name}",
+        name=f"{stat_name} of each prediction of {name}",
     ))
     fig.add_vline(x=t_y, line_color=_OBS_COLOR, line_width=2.5,
-                  annotation_text=f"T(y) = {t_y:.3g}", annotation_position="top right")
+                  annotation_text=f"observed {stat_name} = {t_y:.3g}",
+                  annotation_position="top right")
     fig.update_layout(
-        title=title or (f"PPC: {stat_name}  |  P(T(yrep) ≥ T(y)) = {pval:.3f}"
+        title=title or (f"PPC: {stat_name} of {name}  |  "
+                        f"P(predicted ≥ observed) = {pval:.3f}"
                         f"  (two-sided p = {pval_2s:.3f})"),
-        xaxis_title=f"T = {stat_name}(·)",
+        xaxis_title=f"{stat_name}({name})",
         yaxis_title="Density",
         plot_bgcolor="white",
     )
-    return fig
+    return _axis_labels(fig, x_label, y_label)
 
 
-def ppc_stat_2d(y, yrep, stat1="mean", stat2="sd", title=None):
+def ppc_stat_2d(y, yrep, stat1="mean", stat2="sd", title=None, name="y", x_label=None, y_label=None):
     """Scatter of two test statistics over yrep vs observed point.
 
     Args:
         y: Observed data.
         yrep: Posterior predictive matrix.
         stat1, stat2: Statistic names or callables.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -353,105 +442,142 @@ def ppc_stat_2d(y, yrep, stat1="mean", stat2="sd", title=None):
     fig.add_trace(go.Scatter(
         x=t1_rep, y=t2_rep, mode="markers",
         marker=dict(color="cornflowerblue", opacity=0.4, size=5),
-        name="yrep",
+        name=_preds(name),
     ))
     fig.add_trace(go.Scatter(
         x=[t1_y], y=[t2_y], mode="markers",
         marker=dict(color=_OBS_COLOR, size=12, symbol="x"),
-        name="y (observed)",
+        name=_obs(name),
     ))
     fig.update_layout(
-        title=title or f"PPC: {s1_name} vs {s2_name}",
-        xaxis_title=s1_name, yaxis_title=s2_name,
+        title=title or f"PPC: {s1_name} vs {s2_name} — predictions of {name}",
+        xaxis_title=f"{s1_name}({name})", yaxis_title=f"{s2_name}({name})",
         plot_bgcolor="white",
     )
-    return fig
+    return _axis_labels(fig, x_label, y_label)
 
 
 # =============================================================================
 # Intervals
 # =============================================================================
 
-def ppc_intervals(y, yrep, x=None, prob=0.5, prob_outer=0.9,
-                  title="PPC: Predictive Intervals"):
-    """Interval estimates of yrep with y overlaid.
+def ppc_intervals(y, yrep, x=None, prob=0.5, prob_outer=0.9, title=None,
+                  name="y", x_label=None, y_label=None):
+    """Predictive interval of each observation, with the observed value.
 
-    Plots inner (prob) and outer (prob_outer) credible intervals computed
-    from the columns of yrep, with observed y as scatter.
+    One vertical bar per observation, as bayesplot's ``ppc_intervals``: a
+    thin line for the outer (prob_outer) interval, a thick line for the inner
+    (prob) interval, a light point for the median prediction and a dark
+    point for the observed value. About prob of the observed points should
+    fall on the thick bars and prob_outer on the thin ones.
 
     Args:
         y: Observed data, shape (n_obs,).
         yrep: Posterior predictive matrix, shape (n_rep, n_obs).
-        x: Optional x-axis variable, shape (n_obs,). Defaults to 1..n_obs.
+        x: Optional x-axis variable, shape (n_obs,) (e.g. a predictor).
+            Defaults to the observation index.
         prob: Inner interval probability (e.g., 0.5).
         prob_outer: Outer interval probability (e.g., 0.9).
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
-    y, = _as_np(y)
-    yrep = np.asarray(yrep, dtype=float)
     x_was_none = x is None
-    if x is None:
-        x = np.arange(len(y))
-    x = np.asarray(x).flatten()
-
-    # sort by x for cleaner ribbon
-    order = np.argsort(x)
-    x = x[order]; y = y[order]; yrep = yrep[:, order]
-
-    lo_out = np.percentile(yrep, 100 * (1 - prob_outer) / 2, axis=0)
-    hi_out = np.percentile(yrep, 100 * (1 - (1 - prob_outer) / 2), axis=0)
-    lo_in  = np.percentile(yrep, 100 * (1 - prob) / 2, axis=0)
-    hi_in  = np.percentile(yrep, 100 * (1 - (1 - prob) / 2), axis=0)
-    med    = np.median(yrep, axis=0)
+    x, y, ll, l, m, h, hh = _interval_bounds(y, yrep, x, prob, prob_outer)
+    prob, prob_outer = sorted((prob, prob_outer))
 
     fig = go.Figure()
-    # outer ribbon
+    xs, ys = _segments(x, ll, hh)
     fig.add_trace(go.Scatter(
-        x=np.concatenate([x, x[::-1]]),
-        y=np.concatenate([hi_out, lo_out[::-1]]),
-        fill="toself", fillcolor="rgba(100,149,237,0.15)",
-        line=dict(color="rgba(0,0,0,0)"),
-        name=f"{int(prob_outer*100)}% interval",
+        x=xs, y=ys, mode="lines", line=dict(color=_REP_COLOR_SOLID, width=1.5),
+        name=f"{int(round(prob_outer * 100))}% interval", hoverinfo="skip",
     ))
-    # inner ribbon
+    xs, ys = _segments(x, l, h)
     fig.add_trace(go.Scatter(
-        x=np.concatenate([x, x[::-1]]),
-        y=np.concatenate([hi_in, lo_in[::-1]]),
-        fill="toself", fillcolor="rgba(100,149,237,0.35)",
-        line=dict(color="rgba(0,0,0,0)"),
-        name=f"{int(prob*100)}% interval",
+        x=xs, y=ys, mode="lines", line=dict(color="cornflowerblue", width=5),
+        name=f"{int(round(prob * 100))}% interval", hoverinfo="skip",
     ))
-    # median
     fig.add_trace(go.Scatter(
-        x=x, y=med, mode="lines",
-        line=dict(color="cornflowerblue", width=1.5),
-        name="Median yrep",
+        x=x, y=m, mode="markers",
+        marker=dict(color="white", size=7,
+                    line=dict(color="cornflowerblue", width=1.5)),
+        name=f"Median prediction of {name}",
     ))
-    # observed
     fig.add_trace(go.Scatter(
         x=x, y=y, mode="markers",
-        marker=dict(color=_OBS_COLOR, size=5, opacity=0.8),
-        name="y (observed)",
+        marker=dict(color=_OBS_COLOR, size=5),
+        name=_obs(name),
     ))
-    fig.update_layout(title=title, xaxis_title="Index" if x_was_none else "x",
-                      yaxis_title="Value", plot_bgcolor="white")
-    return fig
+    fig.update_layout(title=_title(title, "Predictive intervals", name),
+                      xaxis_title="Observation" if x_was_none else "x",
+                      yaxis_title=name, plot_bgcolor="white")
+    return _axis_labels(fig, x_label, y_label)
 
 
-def ppc_ribbon(y, yrep, x=None, prob=0.5, prob_outer=0.9,
-               title="PPC: Predictive Ribbon"):
-    """Continuous ribbon variant of ppc_intervals. See ppc_intervals."""
-    return ppc_intervals(y, yrep, x=x, prob=prob, prob_outer=prob_outer,
-                         title=title)
+def ppc_ribbon(y, yrep, x=None, prob=0.5, prob_outer=0.9, title=None,
+               name="y", x_label=None, y_label=None):
+    """Predictive intervals drawn as continuous ribbons along x.
+
+    Same intervals as :func:`ppc_intervals`, as bayesplot's ``ppc_ribbon``:
+    a light outer ribbon, a darker inner ribbon, a thin line for the median
+    prediction and the observed values as points. Easier to read than the
+    bars when x is continuous (time, dose, a predictor).
+
+    Args:
+        y: Observed data, shape (n_obs,).
+        yrep: Posterior predictive matrix, shape (n_rep, n_obs).
+        x: Optional x-axis variable, shape (n_obs,). Defaults to the
+            observation index.
+        prob: Inner interval probability (e.g., 0.5).
+        prob_outer: Outer interval probability (e.g., 0.9).
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
+    Returns:
+        plotly Figure.
+    """
+    x_was_none = x is None
+    x, y, ll, l, m, h, hh = _interval_bounds(y, yrep, x, prob, prob_outer)
+    prob, prob_outer = sorted((prob, prob_outer))
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([x, x[::-1]]), y=np.concatenate([hh, ll[::-1]]),
+        fill="toself", fillcolor="rgba(100,149,237,0.2)",
+        line=dict(color="rgba(0,0,0,0)"), hoverinfo="skip",
+        name=f"{int(round(prob_outer * 100))}% interval",
+    ))
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([x, x[::-1]]), y=np.concatenate([h, l[::-1]]),
+        fill="toself", fillcolor="rgba(100,149,237,0.45)",
+        line=dict(color="rgba(0,0,0,0)"), hoverinfo="skip",
+        name=f"{int(round(prob * 100))}% interval",
+    ))
+    fig.add_trace(go.Scatter(
+        x=x, y=m, mode="lines", line=dict(color="cornflowerblue", width=1),
+        name=f"Median prediction of {name}",
+    ))
+    fig.add_trace(go.Scatter(
+        x=x, y=y, mode="markers", marker=dict(color=_OBS_COLOR, size=5),
+        name=_obs(name),
+    ))
+    fig.update_layout(title=_title(title, "Predictive ribbon", name),
+                      xaxis_title="Observation" if x_was_none else "x",
+                      yaxis_title=name, plot_bgcolor="white")
+    return _axis_labels(fig, x_label, y_label)
 
 
 # =============================================================================
 # Errors
 # =============================================================================
 
-def ppc_error_scatter(y, yrep, title="PPC: y vs E[yrep]"):
+def ppc_error_scatter(y, yrep, title=None, name="y", x_label=None, y_label=None):
     """Scatter of observed y vs posterior predictive mean E[yrep].
 
     Perfect model: points fall on y = x diagonal.
@@ -459,7 +585,11 @@ def ppc_error_scatter(y, yrep, title="PPC: y vs E[yrep]"):
     Args:
         y: Observed data.
         yrep: Posterior predictive matrix.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -479,19 +609,27 @@ def ppc_error_scatter(y, yrep, title="PPC: y vs E[yrep]"):
         line=dict(color="black", width=1.5, dash="dash"),
         name="y = x",
     ))
-    fig.update_layout(title=title, xaxis_title="E[yrep]", yaxis_title="y",
-                      plot_bgcolor="white")
-    return fig
+    fig.update_layout(title=_title(title, "Observed vs mean prediction", name),
+                      xaxis_title=f"Mean prediction of {name}",
+                      yaxis_title=_obs(name), plot_bgcolor="white")
+    return _axis_labels(fig, x_label, y_label)
 
 
-def ppc_error_hist(y, yrep, bins=40, title="PPC: Posterior residuals"):
+def ppc_error_hist(y, yrep, bins=40, title=None, name="y", x_label=None, y_label=None):
     """Distribution of mean residuals r_i = y_i - E[yrep_i].
+
+    Plots the mean residual per observation; bayesplot's ppc_error_hist
+    instead shows the per-draw errors y - yrep[s, i] faceted by draw.
 
     Args:
         y: Observed data.
         yrep: Posterior predictive matrix.
         bins: Number of histogram bins.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -504,23 +642,28 @@ def ppc_error_hist(y, yrep, bins=40, title="PPC: Posterior residuals"):
                                marker_color="cornflowerblue", opacity=0.8,
                                showlegend=False))
     fig.add_vline(x=0, line_color="black", line_dash="dash")
-    fig.update_layout(title=title, xaxis_title="y - E[yrep]",
+    fig.update_layout(title=_title(title, "Residuals", name),
+                      xaxis_title=f"Observed {name} − mean prediction",
                       yaxis_title="Count", plot_bgcolor="white")
-    return fig
+    return _axis_labels(fig, x_label, y_label)
 
 
 # =============================================================================
 # Scatterplots
 # =============================================================================
 
-def ppc_scatter(y, yrep, n_reps=9, title="PPC: y vs individual yrep"):
+def ppc_scatter(y, yrep, n_reps=9, title=None, name="y", x_label=None, y_label=None):
     """Small-multiple scatterplots of y vs n_reps random rows of yrep.
 
     Args:
         y: Observed data.
         yrep: Posterior predictive matrix.
         n_reps: Number of replications to show.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -531,7 +674,7 @@ def ppc_scatter(y, yrep, n_reps=9, title="PPC: y vs individual yrep"):
 
     ncols = 3
     nrows = int(np.ceil(len(idx) / ncols))
-    subtitles = [f"yrep[{s}]" for s in idx]
+    subtitles = [f"Prediction {i + 1}" for i in range(len(idx))]
     fig = make_subplots(rows=nrows, cols=ncols, subplot_titles=subtitles)
 
     lim = [y.min(), y.max()]
@@ -548,18 +691,19 @@ def ppc_scatter(y, yrep, n_reps=9, title="PPC: y vs individual yrep"):
             line=dict(color="black", dash="dash", width=1),
             showlegend=False,
         ), row=r, col=c)
-        fig.update_xaxes(title_text="yrep", row=r, col=c)
-        fig.update_yaxes(title_text="y", row=r, col=c)
+        fig.update_xaxes(title_text=f"predicted {name}", row=r, col=c)
+        fig.update_yaxes(title_text=f"observed {name}", row=r, col=c)
 
-    fig.update_layout(title=title, height=300 * nrows, plot_bgcolor="white")
-    return fig
+    fig.update_layout(title=_title(title, "Observed vs individual predictions", name),
+                      height=300 * nrows, plot_bgcolor="white")
+    return _axis_labels(fig, x_label, y_label)
 
 
 # =============================================================================
 # Discrete
 # =============================================================================
 
-def ppc_rootogram(y, yrep, title="PPC: Rootogram (count data)"):
+def ppc_rootogram(y, yrep, title=None, name="y", x_label=None, y_label=None):
     """Hanging rootogram for count outcomes.
 
     Compares sqrt of observed counts (bars) to expected sqrt counts (curve).
@@ -568,7 +712,11 @@ def ppc_rootogram(y, yrep, title="PPC: Rootogram (count data)"):
     Args:
         y: Observed integer counts.
         yrep: Posterior predictive matrix of counts.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -603,27 +751,32 @@ def ppc_rootogram(y, yrep, title="PPC: Rootogram (count data)"):
     fig.add_trace(go.Scatter(
         x=xs, y=sqrt_exp, mode="lines+markers",
         line=dict(color="black", width=2),
-        name="E[√yrep]",
+        name=f"√Expected count ({_preds(name).lower()})",
     ))
     fig.add_hline(y=0, line_dash="dash", line_color="grey")
     fig.update_layout(
-        title=title, xaxis_title="Count value",
+        title=_title(title, "Rootogram", name), xaxis_title=name,
         yaxis_title="√Frequency",
         plot_bgcolor="white",
     )
-    return fig
+    return _axis_labels(fig, x_label, y_label)
 
 
-def ppc_bars(y, yrep, title="PPC: Bar chart (discrete/categorical)"):
+def ppc_bars(y, yrep, title=None, name="y", x_label=None, y_label=None):
     """Bar chart comparing observed y to posterior predictive yrep.
 
     For ordinal, categorical, or discrete outcomes.
-    Shows observed counts and yrep credible interval per category.
+    Shows observed counts and, per category, the median predicted count with
+    a 90% interval, as in bayesplot's ppc_bars.
 
     Args:
         y: Observed discrete values.
         yrep: Posterior predictive matrix.
-        title: Plot title.
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
         plotly Figure.
     """
@@ -643,7 +796,7 @@ def ppc_bars(y, yrep, title="PPC: Bar chart (discrete/categorical)"):
         for s in range(len(yrep))
     ], dtype=float)
 
-    rep_mean = rep_counts.mean(axis=0)
+    rep_med  = np.median(rep_counts, axis=0)
     rep_lo   = np.percentile(rep_counts, 5, axis=0)
     rep_hi   = np.percentile(rep_counts, 95, axis=0)
 
@@ -651,27 +804,43 @@ def ppc_bars(y, yrep, title="PPC: Bar chart (discrete/categorical)"):
     fig.add_trace(go.Bar(
         x=cats, y=obs_counts,
         marker_color=_OBS_COLOR, opacity=0.8,
-        name="y (observed)",
+        name=_obs(name),
     ))
     fig.add_trace(go.Scatter(
-        x=cats, y=rep_mean, mode="markers",
+        x=cats, y=rep_med, mode="markers",
         marker=dict(color="cornflowerblue", size=10, symbol="diamond"),
         error_y=dict(type="data", symmetric=False,
-                     array=rep_hi - rep_mean,
-                     arrayminus=rep_mean - rep_lo),
-        name="E[yrep] ± 90% CI",
+                     array=rep_hi - rep_med,
+                     arrayminus=rep_med - rep_lo),
+        name=f"{_preds(name)}: median count ± 90% interval",
     ))
-    fig.update_layout(title=title, xaxis_title="Category",
+    fig.update_layout(title=_title(title, "Bar chart", name), xaxis_title=name,
                       yaxis_title="Count", plot_bgcolor="white")
-    return fig
+    return _axis_labels(fig, x_label, y_label)
 
 
 # =============================================================================
 # LOO-based PPC
 # =============================================================================
 
-def ppc_loo_pit(y, yrep, log_likelihood=None, reff=None,
-                title="PPC: LOO-PIT (uniformity check)"):
+def _pit_density(pit, xs):
+    """KDE of values in [0, 1] (Scott bandwidth) with reflection at 0 and 1.
+
+    A plain KDE leaks mass outside [0, 1], so even perfectly uniform PIT
+    values would draw a curve that drops to ~0.5 at both ends -- the shape
+    of an over-dispersed model. Reflecting the sample (bayesplot's
+    boundary correction) removes that artefact.
+    """
+    pit = np.asarray(pit, dtype=np.float64)
+    n = len(pit)
+    bw = np.std(pit, ddof=1) * n ** (-0.2)
+    pts = np.concatenate([pit, -pit, 2.0 - pit])
+    z = (np.asarray(xs, dtype=np.float64)[:, None] - pts[None, :]) / bw
+    return np.exp(-0.5 * z * z).sum(axis=1) / (n * bw * np.sqrt(2.0 * np.pi))
+
+
+def ppc_loo_pit(y, yrep, log_likelihood=None, reff=None, n_unif=100,
+                title=None, name="y", x_label=None, y_label=None):
     """LOO probability integral transform check.
 
     PIT value for each observation: ``F(y_i) = P(yrep[:, i] <= y_i)``.
@@ -691,12 +860,20 @@ def ppc_loo_pit(y, yrep, log_likelihood=None, reff=None,
             (S, n_obs), with S matching yrep's rows. Enables true LOO-PIT.
         reff: Relative MCMC efficiency for PSIS; see
             ``jax_diagnostics.relative_eff``. Defaults to 1.0.
-        title: Plot title.
+        n_unif: Number of reference curves, each the density of n_obs
+            Uniform(0, 1) draws, drawn in grey: how far from flat a curve
+            from a perfectly calibrated model can be by chance.
+        title: Plot title. Defaults to one naming the outcome and saying
+            whether the PIT is leave-one-out.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title (a list gives one per subplot, in order).
+            Defaults to the plot's own label.
+        y_label: Y-axis title, as x_label.
     Returns:
-        plotly Figure.
+        plotly Figure. Both densities are boundary-corrected (reflected at 0
+        and 1), as in bayesplot.
     """
     import warnings
-    import scipy.stats as stats
     y, = _as_np(y)
     yrep = np.asarray(yrep, dtype=float)
     n_obs = len(y)
@@ -729,67 +906,89 @@ def ppc_loo_pit(y, yrep, log_likelihood=None, reff=None,
             w /= w.sum()
             pit[i] = float(np.sum(w * (yrep[:, i] <= y[i])))
 
+    kind = "LOO-PIT" if log_likelihood is not None else "PIT (not leave-one-out)"
+    title = _title(title, kind, name)
     pit = pit[np.isfinite(pit)]
     if len(pit) < 2:
-        import plotly.graph_objects as go2
-        return go2.Figure().update_layout(title=title + " (insufficient data)")
+        return go.Figure().update_layout(title=title + " (insufficient data)")
 
     xs = np.linspace(0, 1, 300)
-    kde = _kde(stats, pit)
-
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=xs, y=kde(xs), mode="lines", fill="tozeroy",
-        fillcolor="rgba(100,149,237,0.3)",
-        line=dict(color="cornflowerblue", width=2),
-        name="PIT KDE",
-    ))
+    rng = np.random.default_rng(0)
+    for j in range(int(n_unif)):
+        fig.add_trace(go.Scatter(
+            x=xs, y=_pit_density(rng.uniform(size=len(pit)), xs), mode="lines",
+            line=dict(color="rgba(150,150,150,0.25)", width=1),
+            hoverinfo="skip", legendgroup="unif", showlegend=(j == 0),
+            name=f"Uniform samples of size {len(pit)}",
+        ))
     fig.add_trace(go.Scatter(
         x=[0, 1], y=[1, 1], mode="lines",
         line=dict(color="black", dash="dash", width=1.5),
         name="Uniform(0,1)",
     ))
+    fig.add_trace(go.Scatter(
+        x=xs, y=_pit_density(pit, xs), mode="lines",
+        line=dict(color="cornflowerblue", width=2.5),
+        name=f"{kind} of {name}",
+    ))
     fig.update_layout(
-        title=title, xaxis_title="PIT", yaxis_title="Density",
+        title=title, xaxis_title=kind, yaxis_title="Density",
         xaxis=dict(range=[0, 1]),
         plot_bgcolor="white",
     )
-    return fig
+    return _axis_labels(fig, x_label, y_label)
 
 
-def ppc_intervals_sorted(y, yrep, x=None, prob=0.9,
-                         title="PPC: Predictive intervals (sorted by y)"):
-    """Predictive intervals ordered by the observed value.
+def ppc_intervals_sorted(y, yrep, x=None, prob=0.5, prob_outer=0.9,
+                         title=None, name="y", x_label=None, y_label=None):
+    """Predictive intervals with the observations ordered by observed value.
 
-    This is ``ppc_intervals`` with the observations sorted by y, which makes
-    systematic over/under-prediction across the outcome range easy to read.
-
-    NOTE: it performs no leave-one-out computation. It was previously named
-    ``ppc_loo_intervals``, which promised LOO predictive intervals it never
-    computed; ``ppc_loo_intervals`` remains as a deprecated alias.
+    This is :func:`ppc_intervals` with observation i placed at the rank of
+    y_i, so the observed points rise from left to right and systematic
+    over/under-prediction across the range of the outcome is easy to read.
+    It performs no leave-one-out computation (``ppc_loo_intervals`` is a
+    deprecated alias).
 
     Args:
         y: Observed data.
         yrep: Posterior predictive matrix.
-        x: Optional x-axis ordering variable.
-        prob: Interval probability.
-        title: Plot title.
+        x: Optional ordering variable. Defaults to the rank of y.
+        prob: Inner interval probability (e.g., 0.5).
+        prob_outer: Outer interval probability (e.g., 0.9).
+        title: Plot title. Defaults to one naming the outcome.
+        name: Name of the outcome used in the labels.
+        x_label: X-axis title. Defaults to the plot's own label.
+        y_label: Y-axis title. Defaults to the outcome name.
     Returns:
         plotly Figure.
     """
-    if x is None:
-        x = np.argsort(np.asarray(y, dtype=float).flatten())
-    return ppc_intervals(y, yrep, x=x, prob=prob * 0.5, prob_outer=prob,
-                         title=title)
+    sort_by_y = x is None
+    if sort_by_y:
+        # The rank of each observation; argsort(y) alone is the inverse
+        # permutation and left the observations unsorted.
+        x = np.argsort(np.argsort(np.asarray(y, dtype=float).flatten(),
+                                  kind="stable"), kind="stable")
+    fig = ppc_intervals(y, yrep, x=x, prob=prob, prob_outer=prob_outer,
+                        title=_title(title, "Predictive intervals sorted by observed value", name),
+                        name=name)
+    if sort_by_y:
+        fig.update_layout(xaxis_title=f"Observations ranked by observed {name}")
+    return _axis_labels(fig, x_label, y_label)
 
 
-def ppc_loo_intervals(y, yrep, x=None, prob=0.9,
-                      title="PPC: Predictive intervals (sorted by y)"):
-    """Deprecated alias for :func:`ppc_intervals_sorted` (it is not LOO-based)."""
+def ppc_loo_intervals(y, yrep, x=None, prob=0.9, title=None, name="y",
+                      x_label=None, y_label=None):
+    """Deprecated alias for :func:`ppc_intervals_sorted` (it is not LOO-based).
+
+    ``prob`` is the outer interval, as before; the inner one is 50%.
+    """
     import warnings
     warnings.warn(
         "ppc_loo_intervals performs no leave-one-out computation; it is "
         "ppc_intervals sorted by y. Use ppc_intervals_sorted instead.",
         DeprecationWarning, stacklevel=2,
     )
-    return ppc_intervals_sorted(y, yrep, x=x, prob=prob, title=title)
+    return ppc_intervals_sorted(y, yrep, x=x, prob=min(0.5, prob),
+                                prob_outer=prob, title=title, name=name,
+                                x_label=x_label, y_label=y_label)

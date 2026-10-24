@@ -354,6 +354,82 @@ def _run_one(fn, scenario, fn_kwargs, worker):
 # Driver
 # --------------------------------------------------------------------------
 
+def _plan(scenarios, workers=None, num_chains=None, cores_per_worker=None,
+          seed=0, quiet=True):
+    """Everything run_simulations decides before running anything.
+
+    Normalises the scenarios, derives each one's seed, sets the core budget and
+    the worker environment. Shared with the R package (BayesForge for R calls it
+    through reticulate), so both languages split cores and seed simulations
+    identically. Warnings are returned, not raised, so each caller reports them
+    its own way.
+
+    Returns:
+        dict with keys ``scenarios`` (list of dicts, each with sim, rep, seed and,
+        when num_chains is given, num_chains), ``workers`` (int),
+        ``cores_per_worker`` (int), ``block_size`` (int, CPUs each worker is
+        pinned to), ``env`` (dict from _worker_env) and ``warnings`` (list of str).
+    """
+    notes = []
+    scenarios = _normalise_scenarios(scenarios)
+    n = len(scenarios)
+
+    for s in scenarios:
+        s.setdefault("seed", _derive_seed(seed, s["sim"]))
+
+    # num_chains is the single knob for multi-chain fits: it reserves one core
+    # per chain in every worker and is handed to fn so the fit uses the same
+    # number. Asking for 4 chains on a 24-core host therefore gives each worker
+    # 4 cores and runs 6 simulations at a time.
+    if num_chains is not None:
+        num_chains = int(num_chains)
+        if num_chains < 1:
+            raise ValueError(f"num_chains must be >= 1, got {num_chains}")
+        if cores_per_worker is None:
+            cores_per_worker = num_chains
+        elif cores_per_worker < num_chains:
+            notes.append(
+                f"cores_per_worker={cores_per_worker} is below num_chains="
+                f"{num_chains}: chain_method='parallel' needs one device per "
+                "chain, so numpyro will draw the chains sequentially. Drop "
+                "cores_per_worker to let num_chains set it, or use "
+                "chain_method='vectorized' in the fit."
+            )
+        for s in scenarios:
+            s.setdefault("num_chains", num_chains)
+
+    cores_per_worker = max(1, int(cores_per_worker or 1))
+    n_cpu = os.cpu_count() or 1
+    if workers is None:
+        workers = min(n, max(1, n_cpu // cores_per_worker))
+    workers = max(1, min(int(workers), n))
+
+    if workers * cores_per_worker > n_cpu:
+        capped = max(1, n_cpu // cores_per_worker)
+        notes.append(
+            f"workers*cores_per_worker = {workers}*{cores_per_worker} = "
+            f"{workers * cores_per_worker} exceeds the {n_cpu} available cores; "
+            f"capping workers to {capped}. Oversubscribing makes every "
+            f"simulation slower, not faster.",
+        )
+        workers = capped
+
+    n_cpu = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") \
+        else (os.cpu_count() or 1)
+    block_size = max(cores_per_worker, n_cpu // workers)
+
+    env = _worker_env(cores_per_worker, quiet)
+
+    return {
+        "scenarios": scenarios,
+        "workers": workers,
+        "cores_per_worker": cores_per_worker,
+        "block_size": block_size,
+        "env": env,
+        "warnings": notes,
+    }
+
+
 def run_simulations(
     fn,
     scenarios,
@@ -539,51 +615,14 @@ def run_simulations(
     if not callable(fn):
         raise TypeError(f"fn must be callable, got {type(fn).__name__}")
 
-    scenarios = _normalise_scenarios(scenarios)
+    plan = _plan(scenarios, workers=workers, num_chains=num_chains,
+                 cores_per_worker=cores_per_worker, seed=seed, quiet=quiet)
+    for msg in plan["warnings"]:
+        warnings.warn(msg, stacklevel=2)
+    scenarios = plan["scenarios"]
+    workers = plan["workers"]
+    cores_per_worker = plan["cores_per_worker"]
     fn_kwargs = dict(fn_kwargs or {})
-    n = len(scenarios)
-
-    for s in scenarios:
-        s.setdefault("seed", _derive_seed(seed, s["sim"]))
-
-    # num_chains is the single knob for multi-chain fits: it reserves one core
-    # per chain in every worker and is handed to fn so the fit uses the same
-    # number. Asking for 4 chains on a 24-core host therefore gives each worker
-    # 4 cores and runs 6 simulations at a time.
-    if num_chains is not None:
-        num_chains = int(num_chains)
-        if num_chains < 1:
-            raise ValueError(f"num_chains must be >= 1, got {num_chains}")
-        if cores_per_worker is None:
-            cores_per_worker = num_chains
-        elif cores_per_worker < num_chains:
-            warnings.warn(
-                f"cores_per_worker={cores_per_worker} is below num_chains="
-                f"{num_chains}: chain_method='parallel' needs one device per "
-                "chain, so numpyro will draw the chains sequentially. Drop "
-                "cores_per_worker to let num_chains set it, or use "
-                "chain_method='vectorized' in the fit.",
-                stacklevel=2,
-            )
-        for s in scenarios:
-            s.setdefault("num_chains", num_chains)
-
-    cores_per_worker = max(1, int(cores_per_worker or 1))
-    n_cpu = os.cpu_count() or 1
-    if workers is None:
-        workers = min(n, max(1, n_cpu // cores_per_worker))
-    workers = max(1, min(int(workers), n))
-
-    if workers * cores_per_worker > n_cpu:
-        capped = max(1, n_cpu // cores_per_worker)
-        warnings.warn(
-            f"workers*cores_per_worker = {workers}*{cores_per_worker} = "
-            f"{workers * cores_per_worker} exceeds the {n_cpu} available cores; "
-            f"capping workers to {capped}. Oversubscribing makes every "
-            f"simulation slower, not faster.",
-            stacklevel=2,
-        )
-        workers = capped
 
     if backend == "serial" or workers == 1:
         rows = _serial(fn, scenarios, fn_kwargs, on_error, progress)

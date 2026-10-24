@@ -5,7 +5,7 @@ and run in a fresh interpreter, so a page fails the test as soon as a copy-
 pasted example would fail for a reader. Blocks fenced as ```{.python .no-test}
 or containing ``# doc-test: skip`` are left out (e.g. GPU-only code).
 
-Run a single page with:  pytest Test/0.Documentation/Python -k "seeds"
+Run a single page with:  pytest Test/3.Documentation/Python -k "seeds"
 """
 import os
 import subprocess
