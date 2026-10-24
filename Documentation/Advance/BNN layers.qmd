@@ -30,6 +30,36 @@ h = m.bnn.layer_linear(X, W, activation='tanh')
 - `activation`: one of the names returned by `m.bnn.available_activations()` (e.g. `'relu'`, `'tanh'`,
   `'sigmoid'`, `'softmax'`), or `None` for a purely linear layer.
 - `bias`: an optional bias array, or `False`.
+- `verbose`: set to `False` to silence the in-development warning (e.g. inside training loops).
+
+## Mixture density output: `layer_mixture_normal` and `layer_cholesky`
+
+`m.bnn.layer_mixture_normal` is the output layer of a *mixture density network*: it turns the last
+layer of a network into a BF mixture of `K` multivariate Normal distributions in `D` dimensions, one
+mixture per input row. It is used by [Neural Posterior Estimation](../40.%20Neural%20Posterior%20Estimation.qmd)
+and [Bayesian NPE](../41.%20Bayesian%20Neural%20Posterior%20Estimation.qmd).
+
+```python
+K, D = 5, 3
+W_out = m.dist.normal(0, 1, shape=(n_hidden, m.bnn.mixture_normal_size(K, D)))  # K * (1 + D + D(D+1)/2)
+h = m.bnn.layer_linear(h, W_out)                        # (n, K * (1 + D + D(D+1)/2))
+
+q = m.bnn.layer_mixture_normal(h, K, D)                 # BF distribution, batch (n,), event (D,)
+q.log_prob(u)                                           # (n,) log densities of u (n, D)
+draws = m.bnn.layer_mixture_normal(h, K, D, sample=True, shape=(1000,))   # (1000, n, D)
+```
+
+The last axis of `h` is split into `K` mixture logits, `K` means and `K` vectors of `D(D+1)/2`
+values. Each vector becomes a lower-triangular Cholesky factor with `m.bnn.layer_cholesky`, which
+can also be used on its own:
+
+```python
+L = m.bnn.layer_cholesky(x, dim=D)    # x (..., D(D+1)/2) -> L (..., D, D)
+```
+
+The values fill the lower triangle row by row and the diagonal is `softplus(x + diag_offset) + min_diag`
+(defaults `0` and `1e-3`), so `L @ L.T` is always a valid covariance matrix, for any batch shape.
+`sample=True` draws use the model's seeded random stream, like `m.dist`.
 
 Everything below is **experimental** and is *not* part of these tutorials.
 
